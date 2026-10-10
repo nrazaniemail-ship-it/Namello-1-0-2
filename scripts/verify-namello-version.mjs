@@ -119,11 +119,14 @@ const tpl = existsSync("native/android/MainActivity.java.tpl") ? await text("nat
 if (tpl && !tpl.includes("__PACKAGE__")) fail("MainActivity.java.tpl lost its __PACKAGE__ placeholder");
 if (tpl && !tpl.includes("WindowInsetsCompat.CONSUMED")) fail("MainActivity.java.tpl lost its navigation-bar inset handling");
 
-for (const wf of [".github/workflows/android-apk.yml", ".github/workflows/build.yml"]) {
+for (const wf of [".github/workflows/android-debug-apk.yml", ".github/workflows/android-release-apk.yml"]) {
   const y = await text(wf);
   for (const m of y.matchAll(/scripts\/[\w.-]+\.mjs/g)) {
     if (!existsSync(m[0])) fail(`${wf} references ${m[0]} which does not exist`);
   }
+  if (/build-tools;(?!34\.0\.0|35\.0\.0)/.test(y)) fail(`${wf}: unsupported build-tools package (use 34.0.0 / 35.0.0)`);
+  if (/set-android-version/.test(y)) fail(`${wf} still references the removed scripts/set-android-version.mjs`);
+  if (!/scripts\/configure-android\.mjs/.test(y)) fail(`${wf} must run scripts/configure-android.mjs`);
   if (/Namello-\d+\.\d+\.\d+/.test(y)) fail(`${wf} has a hard-coded version in an artifact name – read it from version.json`);
 }
 
