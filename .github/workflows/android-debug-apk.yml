@@ -110,8 +110,9 @@ jobs:
           "$SDKMANAGER_PATH" \
             --sdk_root="$ANDROID_HOME" \
             "platform-tools" \
-            "platforms;android-40" \
-            "build-tools;40.0.0"
+            "platforms;android-35" \
+            "build-tools;34.0.0" \
+            "build-tools;35.0.0"
 
       # 6. بررسی ساختار مخزن
       - name: Verify repository layout
@@ -125,12 +126,17 @@ jobs:
             vite.config.ts \
             capacitor.config.ts \
             version.json \
+            native-bridge.js \
             assets/icon-only.png \
-            scripts/set-android-version.mjs \
+            native/android/MainActivity.java.tpl \
+            native/android/ic_stat_namello.xml \
+            scripts/build-web.mjs \
+            scripts/configure-android.mjs \
             scripts/verify-namello-version.mjs
           do
             if [ ! -f "$f" ]; then
               echo "ERROR: Required file not found: $f"
+              echo "Upload the CONTENTS of the zip to the repository root (including the native/ folder)."
               exit 1
             fi
           done
@@ -152,7 +158,7 @@ jobs:
             );
           }
 
-          for (const script of ['build', 'test', 'typecheck']) {
+          for (const script of ['build', 'test', 'typecheck', 'verify']) {
             if (!pkg.scripts?.[script]) {
               throw new Error(`Missing npm script: ${script}`);
             }
@@ -185,6 +191,8 @@ jobs:
             manifest-sunset.json \
             manifest-ruby.json \
             sw.js \
+            widget.html \
+            native-bridge.js \
             icon-dashboard-logo.png \
             icon-sessions.png \
             icon-journal.png \
@@ -201,7 +209,13 @@ jobs:
 
       # 8. نصب وابستگی‌ها
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        shell: bash
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --no-fund
+          else
+            npm install --no-audit --no-fund
+          fi
 
       # 9. بررسی نسخه Namello
       - name: Verify Namello version
@@ -236,6 +250,8 @@ jobs:
             icon-192.png \
             icon-512.png \
             manifest.json \
+            widget.html \
+            native-bridge.js \
             sw.js
           do
             if [ ! -s "dist/$asset" ]; then
@@ -251,45 +267,16 @@ jobs:
       - name: Generate Android project
         run: npx cap add android
 
-      # 15. تنظیم شماره نسخه Android
-      - name: Set Android version
-        run: node scripts/set-android-version.mjs
+      # 15. تنظیم پروژه Android (نسخه، مجوزها، MainActivity، آیکون‌ها، اعلان‌ها)
+      #     جایگزین دو مرحله‌ی قدیمی «Set Android version» و «Install launcher icon»
+      - name: Configure Android project
+        run: node scripts/configure-android.mjs
 
-      # 16. نصب آیکون برنامه Namello
-      - name: Install Namello launcher icon
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          MANIFEST="android/app/src/main/AndroidManifest.xml"
-          ICON="assets/icon-only.png"
-
-          test -s "$MANIFEST"
-          test -s "$ICON"
-
-          mkdir -p android/app/src/main/res/drawable-nodpi
-
-          cp \
-            "$ICON" \
-            android/app/src/main/res/drawable-nodpi/namello_launcher.png
-
-          sed -i \
-            's#android:icon="@mipmap/ic_launcher"#android:icon="@drawable/namello_launcher"#' \
-            "$MANIFEST"
-
-          sed -i \
-            's#android:roundIcon="@mipmap/ic_launcher_round"#android:roundIcon="@drawable/namello_launcher"#' \
-            "$MANIFEST"
-
-          grep -q \
-            'android:icon="@drawable/namello_launcher"' \
-            "$MANIFEST"
-
-      # 17. همگام‌سازی فایل‌های وب با Android
+      # 16. همگام‌سازی فایل‌های وب و پلاگین‌ها با Android
       - name: Sync web assets to Android
         run: npx cap sync android
 
-      # 18. بررسی Gradle Wrapper
+      # 17. بررسی Gradle Wrapper
       - name: Verify Gradle wrapper
         shell: bash
         run: |
@@ -300,7 +287,7 @@ jobs:
 
           chmod +x android/gradlew
 
-      # 19. ساخت APK
+      # 18. ساخت APK
       - name: Build debug APK
         working-directory: android
         run: |
@@ -309,7 +296,7 @@ jobs:
             --stacktrace \
             assembleDebug
 
-      # 20. بررسی فایل APK
+      # 19. بررسی فایل APK
       - name: Verify APK
         shell: bash
         run: |
@@ -326,7 +313,7 @@ jobs:
           ls -lh "$APK"
           sha256sum "$APK"
 
-      # 21. خواندن شماره نسخه
+      # 20. خواندن شماره نسخه
       - name: Read version
         id: ver
         shell: bash
@@ -334,7 +321,7 @@ jobs:
           VERSION="$(node -p "JSON.parse(require('fs').readFileSync('version.json','utf8')).version")"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      # 22. بارگذاری APK با نسخه جدید اکشن
+      # 21. بارگذاری APK
       - name: Upload installable APK
         uses: actions/upload-artifact@v6
         with:
@@ -342,3 +329,16 @@ jobs:
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
+
+      # 22. در صورت خطا: گزارش‌ها برای بررسی
+      - name: Upload build reports (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: Namello-build-reports
+          path: |
+            android/app/build/reports
+            android/app/src/main/AndroidManifest.xml
+            android/app/src/main/java
+          if-no-files-found: ignore
+          retention-days: 7
