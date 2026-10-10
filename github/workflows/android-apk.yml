@@ -170,7 +170,7 @@ jobs:
           console.log(`Version code: ${version.versionCode}`);
           NODE
 
-      # 7. بررسی فایل‌های PWA
+      # 7. بررسی فایل‌های عمومی PWA
       - name: Verify public files
         shell: bash
         run: |
@@ -251,11 +251,11 @@ jobs:
       - name: Generate Android project
         run: npx cap add android
 
-      # 15. تنظیم نسخه Android
+      # 15. تنظیم شماره نسخه Android
       - name: Set Android version
         run: node scripts/set-android-version.mjs
 
-      # 16. نصب آیکون Namello
+      # 16. نصب آیکون برنامه Namello
       - name: Install Namello launcher icon
         shell: bash
         run: |
@@ -285,7 +285,7 @@ jobs:
             'android:icon="@drawable/namello_launcher"' \
             "$MANIFEST"
 
-      # 17. همگام‌سازی Capacitor
+      # 17. همگام‌سازی فایل‌های وب با Android
       - name: Sync web assets to Android
         run: npx cap sync android
 
@@ -309,7 +309,7 @@ jobs:
             --stacktrace \
             assembleDebug
 
-      # 20. بررسی APK
+      # 20. بررسی فایل APK
       - name: Verify APK
         shell: bash
         run: |
@@ -326,7 +326,7 @@ jobs:
           ls -lh "$APK"
           sha256sum "$APK"
 
-      # 21. خواندن نسخه
+      # 21. خواندن شماره نسخه
       - name: Read version
         id: ver
         shell: bash
@@ -334,9 +334,9 @@ jobs:
           VERSION="$(node -p "JSON.parse(require('fs').readFileSync('version.json','utf8')).version")"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      # 22. بارگذاری APK
+      # 22. بارگذاری APK با نسخه جدید اکشن
       - name: Upload installable APK
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: Namello-${{ steps.ver.outputs.version }}-Android-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
