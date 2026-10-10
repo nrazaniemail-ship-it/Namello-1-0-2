@@ -150,7 +150,7 @@
     var now = Date.now();
     if (permission !== 'granted') return Promise.resolve();
     // "return to Namello" is posted natively by MainActivity.onStop (reliable when the app is backgrounded)
-    if (options.tag === 'namello-return' && window.NamelloAndroid && typeof window.NamelloAndroid.setReturnNotification === 'function') return Promise.resolve();
+    if (options.tag === 'namello-return' && window.NamelloAndroid && typeof window.NamelloAndroid.enableFloatingReturn === 'function') return Promise.resolve();
     if (isDuplicate(title, body, now)) return Promise.resolve();
     if (isCoveredByPlan(title, now)) return Promise.resolve(); // the pre-scheduled native alarm shows it
     var n = {
@@ -438,13 +438,32 @@
     chromeTimer = setTimeout(pushChromeColor, 250);
   }
 
+  /* ------------------------------------------------------------------ floating "return to Namello" button */
+  // index.html already calls window.NamelloNative.enableFloatingReturn()/disableFloatingReturn();
+  // they are mapped to the Android overlay service here (no showNotification on purpose).
+  var floatingAdapter = {
+    enableFloatingReturn: function () { return !!window.NamelloAndroid.enableFloatingReturn(); },
+    disableFloatingReturn: function () { try { window.NamelloAndroid.disableFloatingReturn(); } catch (e) { } }
+  };
+  try {
+    Object.defineProperty(window, 'NamelloNative', {
+      configurable: true,
+      get: function () {
+        return (window.NamelloAndroid && typeof window.NamelloAndroid.enableFloatingReturn === 'function') ? floatingAdapter : undefined;
+      }
+    });
+  } catch (e) { }
+
   /* ------------------------------------------------------------------ native settings sync */
   var ICON_KEYS = ['default', 'midnight', 'emerald', 'royal', 'graphite', 'sunset', 'ruby'];
   function syncNativeSettings() {
     var A = window.NamelloAndroid;
     if (!A || !window.storage) return;
     readStorageJson('namello_return_fab_settings_v1').then(function (r) {
-      try { if (typeof A.setReturnNotification === 'function') A.setReturnNotification(!!(r && r.enabled)); } catch (e) { }
+      try {
+        if (r && r.enabled && typeof A.restoreFloatingReturn === 'function') A.restoreFloatingReturn();
+        else if (typeof A.disableFloatingReturn === 'function') A.disableFloatingReturn();
+      } catch (e) { }
     });
     try {
       Promise.resolve(window.storage.get('namello_navbar_mode_v1')).then(function (r) {
