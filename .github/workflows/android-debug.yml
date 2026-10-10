@@ -1,4 +1,4 @@
-name: Namello Android APK Build
+name: Namello Android Debug APK
 
 on:
   workflow_dispatch:
@@ -11,12 +11,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: namello-android-apk-${{ github.ref }}
+  group: namello-android-debug-apk-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   build-apk:
-    name: Build installable Android APK
+    name: Build installable Android Debug APK
     runs-on: ubuntu-24.04
     timeout-minutes: 45
 
