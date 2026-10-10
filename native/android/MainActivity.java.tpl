@@ -1,7 +1,10 @@
 package __PACKAGE__;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -29,6 +32,8 @@ import com.getcapacitor.BridgeActivity;
  *
  * The chosen mode is stored natively (SharedPreferences) so it is applied at start-up before the page
  * has loaded. The page changes it with window.NamelloAndroid.setNavBarMode("separate" | "overlap").
+ * It also exposes launchApp(pkg, scheme) for the floating MT5 / TradingView quick-launch buttons
+ * (intent:// links do not work inside a WebView, PackageManager does).
  * Insets are consumed so nothing is ever padded twice; the status-bar height is given to the page as
  * --nm-safe-top and the navigation-bar height as --nm-nav-height.
  */
@@ -119,6 +124,45 @@ public class MainActivity extends BridgeActivity {
         @JavascriptInterface
         public String getNavBarMode() {
             return separate ? MODE_SEPARATE : MODE_OVERLAP;
+        }
+
+        /**
+         * Opens an installed app. Returns "ok" (package launched), "scheme" (custom link tried),
+         * "notfound" (nothing to launch) or "error".
+         */
+        @JavascriptInterface
+        public String launchApp(final String pkg, final String scheme) {
+            try {
+                PackageManager pm = getPackageManager();
+                String name = (pkg == null) ? "" : pkg.trim();
+                Intent launch = name.isEmpty() ? null : pm.getLaunchIntentForPackage(name);
+                if (launch != null) {
+                    launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    final Intent toStart = launch;
+                    runOnUiThread(() -> {
+                        try {
+                            startActivity(toStart);
+                        } catch (Throwable ignored) {
+                        }
+                    });
+                    return "ok";
+                }
+                String link = (scheme == null) ? "" : scheme.trim();
+                if (!link.isEmpty()) {
+                    final Intent view = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+                    view.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    runOnUiThread(() -> {
+                        try {
+                            startActivity(view);
+                        } catch (Throwable ignored) {
+                        }
+                    });
+                    return "scheme";
+                }
+                return "notfound";
+            } catch (Throwable t) {
+                return "error";
+            }
         }
 
         /** Status-bar height in CSS pixels, for --nm-safe-top. */
