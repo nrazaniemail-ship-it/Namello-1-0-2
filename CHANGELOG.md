@@ -1,3 +1,7 @@
+## 1.0.42 (versionCode 41)
+- APK: setLauncherIcon به MainActivity برگشت (تعویض activity-alias آیکون لانچر).
+- APK: FloatingReturnService — دکمه‌ی شناور روی سایر برنامه‌ها (SYSTEM_ALERT_WINDOW + foreground service).
+
 ## 1.0.41 (versionCode 40)
 - APK: اجرای سریع MT5/TradingView با PackageManager (launchApp) + بلوک <queries> در مانیفست.
 - دکمه‌ی تیره/روشن: بالا-وسط صفحه.
