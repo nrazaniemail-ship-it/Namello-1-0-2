@@ -4,7 +4,7 @@
 
 ## ساخت APK
 1. همه‌ی فایل‌ها را در repository بگذارید (فایل‌های قدیمی را بازنویسی کنید).
-2. Actions ← **Namello Android APK Build** ← **Run workflow**.
+2. Actions ← **Namello Android Debug APK** (آزمایشی) یا **Namello Signed Release APK** (امضاشده؛ نیازمند Secrets: `ANDROID_KEYSTORE_BASE64`، `ANDROID_KEYSTORE_PASSWORD`، `ANDROID_KEY_ALIAS`) ← **Run workflow**.
 3. بعد از اجرای سبز، از **Artifacts** فایل `Namello-<نسخه>-Android-APK` را بگیرید.
 
 ## ترتیب مراحل (هر مرحله اگر شکست بخورد، پیام مشخص می‌دهد)
