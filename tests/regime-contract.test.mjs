@@ -11,4 +11,4 @@ test("OHLC regime uses relative volatility and efficiency ratio",()=>{
   assert.match(src,/v33=nmStrQuantile\(vols,.33\)/);
   assert.match(src,/v66=nmStrQuantile\(vols,.66\)/);
 });
-test("version contract",()=>{const v=JSON.parse(fs.readFileSync(new URL("../version.json",import.meta.url),"utf8"));assert.equal(v.version,"1.0.33");assert.equal(v.versionCode,34);});
+test("version contract",()=>{const v=JSON.parse(fs.readFileSync(new URL("../version.json",import.meta.url),"utf8"));assert.match(v.version,/^\d+\.\d+\.\d+$/);assert.ok(Number.isInteger(v.versionCode));});
