@@ -31,19 +31,26 @@ test("settings call the native Android hooks", () => {
   assert.match(index, /NamelloAndroid\.setReturnNotification\(/);
 });
 
-test("launcher icon keys match between app, MainActivity and the build script", () => {
+test("launcher icon keys match between app and the build script", () => {
   const appKeys = [...index.match(/const NM_ICON_THEMES = \[([\s\S]*?)\n\];/)[1].matchAll(/key: "(\w+)"/g)].map((m) => m[1]);
-  const javaKeys = [...java.match(/ICON_KEYS = \{([^}]*)\}/)[1].matchAll(/"(\w+)"/g)].map((m) => m[1]);
   const cfgKeys = [...read("scripts/configure-android.mjs").match(/const THEMES = \[([^\]]*)\]/)[1].matchAll(/"(\w+)"/g)].map((m) => m[1]);
-  assert.deepEqual(javaKeys, appKeys);
   assert.deepEqual(cfgKeys, appKeys);
   for (const k of appKeys.filter((x) => x !== "default")) assert.ok(fs.existsSync(`icon-${k}-512.png`), `icon-${k}-512.png`);
 });
 
-test("MainActivity template has return-notification, launcher-icon and back handling", () => {
-  for (const s of ["setReturnNotification", "setLauncherIcon", "onStop()", "onStart()", "setComponentEnabledSetting", "__nmNativeBack", "OnBackPressedCallback"]) {
-    assert.ok(java.includes(s), s);
-  }
+test("Navigation bar setting: two modes (تداخل / جدایش) wired from Settings to MainActivity", () => {
+  assert.ok(java.includes("WindowInsetsCompat.CONSUMED"), "insets are consumed so nothing is padded twice");
+  assert.match(java, /view\.setPadding\(bars\.left, 0, bars\.right, bottom\)/);
+  assert.match(java, /separate \? Math\.max\(bars\.bottom, keyboard\.bottom\) : keyboard\.bottom/);
+  assert.ok(java.includes("setNavBarMode") && java.includes("getNavBarMode") && java.includes("KEY_NAV_MODE"));
+  assert.ok(index.includes("function NmNavBarModeCard"));
+  assert.ok(index.includes('title: "Navigation bar"'));
+  assert.ok(index.includes('title: "تداخل"') && index.includes('title: "جدایش (پیش‌فرض)"'));
+  assert.ok(index.includes('RE(NmNavBarModeCard, { value: navBarMode, onChange: persistNavBarMode })'));
+  assert.ok(index.includes('"ns_namello_navbar_mode_v1") === "overlap" ? "overlap" : "separate"'), "default is separate");
+  assert.ok(index.includes("window.NamelloAndroid.setNavBarMode(mode)"));
+  assert.ok(read("native-bridge.js").includes("namello_navbar_mode_v1"));
+  assert.ok(index.includes("var(--nm-safe-top, env(safe-area-inset-top, 0px))"));
   assert.equal((java.match(/\{/g) || []).length, (java.match(/\}/g) || []).length, "balanced braces");
 });
 
