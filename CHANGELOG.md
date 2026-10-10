@@ -1,3 +1,6 @@
+## 1.0.43 (versionCode 42)
+- دکمه‌ی شناور: حذف حلقه و padding؛ آیکون = آیکون لانچر تم انتخابی (refreshIcon).
+
 ## 1.0.42 (versionCode 41)
 - APK: setLauncherIcon به MainActivity برگشت (تعویض activity-alias آیکون لانچر).
 - APK: FloatingReturnService — دکمه‌ی شناور روی سایر برنامه‌ها (SYSTEM_ALERT_WINDOW + foreground service).
