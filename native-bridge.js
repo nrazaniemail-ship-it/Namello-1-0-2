@@ -399,6 +399,16 @@
     syncTimer = setTimeout(function () { syncTimer = null; sync(!!force); }, 1200);
   }
 
+  /* ------------------------------------------------------------------ status-bar height -> --nm-safe-top */
+  function applyTopInset() {
+    try {
+      if (window.NamelloAndroid && typeof window.NamelloAndroid.getTopInset === 'function') {
+        var v = parseFloat(window.NamelloAndroid.getTopInset());
+        if (isFinite(v)) document.documentElement.style.setProperty('--nm-safe-top', v + 'px');
+      }
+    } catch (e) { }
+  }
+
   /* ------------------------------------------------------------------ system bar colour */
   var chromeTimer = null;
   function cssColorToHex(value) {
@@ -436,6 +446,12 @@
     readStorageJson('namello_return_fab_settings_v1').then(function (r) {
       try { if (typeof A.setReturnNotification === 'function') A.setReturnNotification(!!(r && r.enabled)); } catch (e) { }
     });
+    try {
+      Promise.resolve(window.storage.get('namello_navbar_mode_v1')).then(function (r) {
+        var m = r && r.value;
+        if ((m === 'overlap' || m === 'separate') && typeof A.setNavBarMode === 'function') A.setNavBarMode(m);
+      }).catch(function () { });
+    } catch (e) { }
     try {
       Promise.resolve(window.storage.get('namello_icon_theme_v1')).then(function (r) {
         var k = r && r.value;
@@ -480,7 +496,10 @@
   };
 
   refreshPermission().then(function () { scheduleSync(true); });
+  applyTopInset();
+  window.addEventListener('resize', applyTopInset);
   window.addEventListener('load', function () {
+    applyTopInset();
     scheduleChrome();
     try {
       new MutationObserver(scheduleChrome).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] });

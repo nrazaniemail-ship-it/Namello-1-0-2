@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Namello 1.0.35</title>
+<title>Namello 1.0.40</title>
 <meta name="theme-color" content="#0B0E11" id="themeColorMeta" />
 <link rel="manifest" href="manifest.json" />
 <link rel="icon" href="icon-192.png" />
@@ -146,7 +146,7 @@
 </style>
 </head>
 <body>
-<div id="boot-status">Loading Namello 1.0.35…</div>
+<div id="boot-status">Loading Namello 1.0.40…</div>
 <div id="boot-error"></div>
 <div id="root"></div>
 <div id="runtime-error-banner" style="display:none; position:fixed; left:0; right:0; bottom:0; z-index:99999; background:#1A0B0B; color:#F87171; padding:10px 14px; font-family:monospace; font-size:11px; direction:ltr; text-align:left; border-top:1px solid #F8717155;"></div>
@@ -3403,16 +3403,13 @@ const JournalEditToggle = ({ editMode, onToggle }) => RE("button", { type: "butt
    Version Code = عدد صحیحِ افزایشی؛ با «هر» آپدیت یکی زیاد می‌شود (حتی PATCH).
    هنگام انتشار نسخه‌ی جدید فقط همین سه ثابت + فایل version.json را به‌روز کن. */
 const NM_APP_NAME = "Namello";
-const NM_VERSION_NAME = "1.0.35";
-const NM_VERSION_CODE = 36;
+const NM_VERSION_NAME = "1.0.40";
+const NM_VERSION_CODE = 39;
 const NM_VERSION_LABEL = NM_APP_NAME + " " + NM_VERSION_NAME;
 const NM_VERSION_029_NOTE = "نسخه 1.0.29: یکدست‌سازی شماره نسخه، کد نسخه و کش آفلاین در بسته PWA؛ قابلیت‌های هوش مصنوعی نسخه قبل حفظ شده‌اند.";
 const NM_VERSION_DATE = "یکدست‌سازی نسخه و کش آفلاین";
 const NM_CHANGELOG = [
-    "نسخه 1.0.35: نوتیفیکیشن «بازگشت به Namello» در برنامه‌ی نصبی با اعلان بومی اندروید کار می‌کند (هنگام رفتن برنامه به پس‌زمینه نمایش و با بازگشت حذف می‌شود).",
-    "نسخه 1.0.35: فلش‌های بالا/پایین بخش «ترتیب لایه‌ها» نارنجی شدند.",
-    "نسخه 1.0.35: تغییر «تم آیکون برنامه» حالا آیکون لانچر گوشی را هم عوض می‌کند (APK).",
-    "نسخه 1.0.35: صفحه‌ی ویجت ساعت‌شمار نشست‌ها دکمه‌ی برگشت (فلش خمیده، پایین سمت راست) دارد و دکمه‌ی Back اندروید هم به برنامه برمی‌گرداند.",
+    "نسخه 1.0.40: بخش جدید «Navigation bar» در تنظیمات با دو حالت «تداخل» و «جدایش» (پیش‌فرض: جدایش) برای مدیریت چیدمان صفحه‌ی برنامه نسبت به نوار ناوبری گوشی.",
 ];
 function nmMigrateTradeSchemaV2(list) {
     if (!Array.isArray(list)) return [];
@@ -5053,6 +5050,24 @@ function NmNavLayoutCard({ value, onChange }) {
         }));
 }
 
+function NmNavBarModeCard({ value, onChange }) {
+    const isNative = typeof window !== "undefined" && !!(window.NamelloAndroid && window.NamelloAndroid.setNavBarMode);
+    const mini = (overlap) => RE("span", { className: "shrink-0 rounded-xl relative overflow-hidden", style: { width: 54, height: 54, background: "var(--bg-card2)", border: "1px solid var(--border-2)", display: "block" } },
+        RE("span", { style: { position: "absolute", left: 0, right: 0, bottom: 0, height: 8, background: "#6B7280", opacity: 0.55 } }),
+        RE("span", { style: { position: "absolute", left: 4, right: 4, bottom: overlap ? 0 : 10, height: 10, borderRadius: 3, background: "var(--accent-gold)", opacity: overlap ? 0.9 : 1 } }));
+    return RE(NmCollapsible, { title: "Navigation bar", subtitle: "تداخل یا جدایش نوار لایه‌ها با نوار ناوبری گوشی", icon: "📱" },
+        RE("p", { className: "text-[11px] leading-5 mb-3", style: { color: "var(--text-muted)" } }, "تعیین می‌کند نوار لایه‌های پایین صفحه روی نوار ناوبری اندروید (دکمه‌های برگشت/خانه/اخیر یا خط ژست) قرار بگیرد یا بالاتر از آن بنشیند. تغییر بلافاصله اعمال می‌شود."),
+        !isNative && RE("p", { className: "text-[10px] leading-5 mb-3", style: { color: "var(--accent-gold)" } }, "این گزینه فقط در برنامه‌ی نصبی اندروید (APK) اثر دارد؛ در مرورگر/PWA فقط ذخیره می‌شود."),
+        RE(NmRadioRow, {
+            selected: value === "overlap", onClick: () => onChange("overlap"), title: "تداخل", desc: "صفحه تمام‌صفحه رسم می‌شود و نوار لایه‌ها می‌تواند روی نوار ناوبری گوشی قرار بگیرد.",
+            preview: mini(true),
+        }),
+        RE(NmRadioRow, {
+            selected: value === "separate", onClick: () => onChange("separate"), title: "جدایش (پیش‌فرض)", desc: "نوار لایه‌ها بالاتر از نوار ناوبری گوشی می‌نشیند و تداخلی پیش نمی‌آید.",
+            preview: mini(false),
+        }));
+}
+
 /* ---------------- کتابخانه: کتاب‌های متنی و پادکست/کتاب‌های صوتی ----------------
    فایل واقعی (PDF/EPUB/متن یا MP3/صوت) در یک پایگاه‌داده‌ی IndexedDB جداگانه («namello_library_db»)
    به‌صورت Blob نگه‌داری می‌شود (نه در window.storage که فقط رشته می‌پذیرد). فقط عنوان/نام‌فایل/حجم/تاریخ
@@ -5412,7 +5427,7 @@ function NmBookViewer({ book, onClose, showToast }) {
         } catch (e) { showToast("باز کردن فایل ناموفق بود."); }
     };
     return RE("div", { className: "fixed inset-0 z-[70] flex flex-col", style: { background: "var(--bg-page)" } },
-        RE("div", { className: "flex items-center gap-2 px-3 py-2.5", style: { background: "var(--bg-card)", borderBottom: "1px solid var(--border-1)", paddingTop: "calc(env(safe-area-inset-top, 0px) + 10px)" } },
+        RE("div", { className: "flex items-center gap-2 px-3 py-2.5", style: { background: "var(--bg-card)", borderBottom: "1px solid var(--border-1)", paddingTop: "calc(var(--nm-safe-top, env(safe-area-inset-top, 0px)) + 10px)" } },
             RE("button", { type: "button", onClick: onClose, className: "p-1.5 shrink-0", "aria-label": "بستن" }, RE(X, { size: 18, color: "var(--text-primary)" })),
             RE("div", { className: "flex-1 min-w-0 text-[13px] font-semibold truncate", style: { color: "var(--text-primary)" } }, book.title),
             state.blob && RE("button", { type: "button", onClick: externalOpen, className: "px-2.5 py-1 rounded-lg text-[11px] shrink-0", style: { background: "var(--bg-card2)", color: "var(--accent-gold)" } }, "اشتراک/دانلود")),
@@ -7796,6 +7811,7 @@ function App() {
     const [themeMode, setThemeMode] = useState("dark");
     const [appTheme, setAppTheme] = useState(() => { try { return localStorage.getItem("ns_namello_app_theme_v1") || "classic"; } catch (e) { return "classic"; } });
     const [iconTheme, setIconTheme] = useState(() => { try { return localStorage.getItem("ns_namello_icon_theme_v1") || "default"; } catch (e) { return "default"; } });
+    const [navBarMode, setNavBarMode] = useState(() => { try { return localStorage.getItem("ns_namello_navbar_mode_v1") === "overlap" ? "overlap" : "separate"; } catch (e) { return "separate"; } });
     const [navLayout, setNavLayout] = useState(() => { try { return localStorage.getItem("ns_namello_nav_layout_v1") || "horizontal"; } catch (e) { return "horizontal"; } });
     const [navOrder, setNavOrder] = useState(() => { try { const v=JSON.parse(localStorage.getItem("ns_namello_nav_order_v1")||"null"); return nmNormalizeNavOrder(v); } catch (e) { return [...NM_DEFAULT_NAV_ORDER]; } });
     const [navMenuOpen, setNavMenuOpen] = useState(false);
@@ -8675,6 +8691,7 @@ function App() {
         try { localStorage.setItem("ns_namello_nav_layout_v1", next); } catch (e2) { }
     }
     catch (e) { } }, []);
+    const persistNavBarMode = useCallback(async (next) => { const mode = next === "overlap" ? "overlap" : "separate"; setNavBarMode(mode); try { if (window.NamelloAndroid && window.NamelloAndroid.setNavBarMode) window.NamelloAndroid.setNavBarMode(mode); } catch (e) { } try { await window.storage.set("namello_navbar_mode_v1", mode); } catch (e) { } }, []);
     const persistNavOrder = useCallback(async (next) => { const safe=nmNormalizeNavOrder(next); setNavOrder(safe); try { await window.storage.set("namello_nav_order_v1", JSON.stringify(safe)); } catch (e) {} try { localStorage.setItem("ns_namello_nav_order_v1", JSON.stringify(safe)); } catch (e2) {} }, []);
     const persistIconTheme = useCallback(async (next) => { setIconTheme(next); try { if (window.NamelloAndroid && window.NamelloAndroid.setLauncherIcon) window.NamelloAndroid.setLauncherIcon(next); } catch (e) { } try {
         await window.storage.set("namello_icon_theme_v1", next);
@@ -8791,6 +8808,7 @@ function App() {
         nmApplyAppTheme(appTheme, themeMode);
     }, [themeMode, appTheme]);
     useEffect(() => { nmApplyIconTheme(iconTheme); }, [iconTheme]);
+    useEffect(() => { try { if (window.NamelloAndroid && window.NamelloAndroid.setNavBarMode) window.NamelloAndroid.setNavBarMode(navBarMode); } catch (e) { } }, [navBarMode]);
     // قبلاً فونتِ انتخابی فقط با document.body.style.fontFamily اعمال می‌شد که چون قانون
     // `* { font-family: 'Vazirmatn' }` در <style> روی تمام فرزندهای body هم مستقیم مچ می‌شد (نه
     // فقط ارثی)، همیشه همون‌ها رو می‌برد و در عمل فونت انتخابی روی بیشتر جاهای اپ اثر نمی‌کرد؛
@@ -11267,7 +11285,7 @@ function App() {
         @media (prefers-reduced-motion: reduce) { .nm-news-run-logo, .nm-news-run-arms, .nm-news-run-legs, .nm-news-run-dash, .nm-news-run-eye { animation-duration: 1.6s !important; } }
         @keyframes namelloPulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(1.3); } }
       `),
-        sessionAlarmPopup && (React.createElement("div", { className: "fixed left-0 right-0 z-[60] px-3", style: { top: "env(safe-area-inset-top, 0px)", paddingTop: 10, animation: "namelloAlarmSlideDown 0.35s ease-out" }, onClick: () => setSessionAlarmPopup(null) },
+        sessionAlarmPopup && (React.createElement("div", { className: "fixed left-0 right-0 z-[60] px-3", style: { top: "var(--nm-safe-top, env(safe-area-inset-top, 0px))", paddingTop: 10, animation: "namelloAlarmSlideDown 0.35s ease-out" }, onClick: () => setSessionAlarmPopup(null) },
             React.createElement("div", { className: "rounded-xl p-3 flex items-start gap-2 shadow-lg", style: { background: "var(--bg-card)", border: "1px solid color-mix(in srgb, var(--accent-gold) 33%, transparent)" } },
                 React.createElement(Bell, { size: 18, color: "var(--accent-gold)", className: "shrink-0 mt-0.5" }),
                 React.createElement("div", { className: "flex-1" },
@@ -12219,6 +12237,7 @@ function App() {
             RE(NmAppThemeCard, { value: appTheme, onChange: persistAppTheme }),
             RE(NmIconThemeCard, { value: iconTheme, onChange: persistIconTheme, showToast }),
             RE(NmNavLayoutCard, { value: navLayout, onChange: persistNavLayout }),
+            RE(NmSettingsErrorBoundary, null, RE(NmNavBarModeCard, { value: navBarMode, onChange: persistNavBarMode })),
             RE(NmSettingsErrorBoundary, null, RE(NmNavOrderCard, { value: navOrder, onChange: persistNavOrder })),
             RE(NmLibrarySettingsCard, { open: !!openSettingsSection.library, onToggle: () => toggleSettingsSection("library") }),
             React.createElement("div", { className: "rounded-xl p-3 mb-3", style: { background: "var(--bg-card)", border: "1px solid var(--border-1)" } },

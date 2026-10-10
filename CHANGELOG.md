@@ -1,3 +1,12 @@
+## 1.0.40 (versionCode 39)
+- تنظیمات ← Navigation bar: حالت «تداخل» (تمام‌صفحه) و «جدایش» (پیش‌فرض)؛ ذخیره در برنامه و اعمال بومی در MainActivity.
+
+## 1.0.37 (versionCode 38)
+- MainActivity حداقلی: فقط padding insets (چپ/راست/پایین) + CONSUMED برای رفع تداخل با Navigation bar.
+
+## 1.0.36 (versionCode 37)
+- MainActivity بازطراحی کامل: padding چپ/راست/پایین با insets سیستم + کیبورد و CONSUMED (بدون دوباره‌کاری)، edge-to-edge یکسان برای همه‌ی نسخه‌های اندروید، ارتفاع نوار وضعیت به‌صورت --nm-safe-top به صفحه.
+
 ## 1.0.35 (versionCode 36)
 - APK: اعلان «بازگشت به Namello» بومی (MainActivity.onStop/onStart).
 - تنظیمات: فلش‌های «ترتیب لایه‌ها» نارنجی (#F59E0B).
