@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Namello 1.0.40</title>
+<title>Namello 1.0.41</title>
 <meta name="theme-color" content="#0B0E11" id="themeColorMeta" />
 <link rel="manifest" href="manifest.json" />
 <link rel="icon" href="icon-192.png" />
@@ -131,7 +131,7 @@
   .nm-header-dots:active { transform: scale(.95); }
   .nm-header-dots:focus-visible { outline: 2px solid var(--accent-gold); outline-offset: 2px; }
   .nm-header-dot { width: 3px; height: 3px; border-radius: 999px; background: #fff; display: block; box-shadow: 0 0 2px rgba(255,255,255,.45); }
-  .nm-layer-heading { width: 100%; min-height: 42px; margin-bottom: 10px; padding: 5px 6px 5px 5px; display: flex; align-items: center; justify-content: space-between; gap: 10px; direction: ltr; border-radius: 13px; background: color-mix(in srgb, var(--bg-card) 92%, var(--accent-gold) 8%); border: 1px solid var(--border-1); }
+  .nm-layer-heading { width: 100%; min-height: 42px; margin-bottom: 10px; padding: 5px 6px 5px 5px; display: flex; align-items: center; justify-content: space-between; gap: 10px; direction: ltr; border-radius: 13px; background: transparent; border: 1px solid transparent; }
   .nm-layer-heading-main { min-width: 0; flex: 1; display: flex; align-items: center; gap: 9px; direction: rtl; }
   .nm-layer-heading-icon { width: 30px; height: 30px; min-width: 30px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--bg-card2) 82%, var(--accent-gold) 18%); border: 1px solid color-mix(in srgb, var(--border-2) 75%, var(--accent-gold) 25%); }
   .nm-layer-heading-title { min-width: 0; font-size: 13px; line-height: 1.35; font-weight: 700; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -146,7 +146,7 @@
 </style>
 </head>
 <body>
-<div id="boot-status">Loading Namello 1.0.40…</div>
+<div id="boot-status">Loading Namello 1.0.41…</div>
 <div id="boot-error"></div>
 <div id="root"></div>
 <div id="runtime-error-banner" style="display:none; position:fixed; left:0; right:0; bottom:0; z-index:99999; background:#1A0B0B; color:#F87171; padding:10px 14px; font-family:monospace; font-size:11px; direction:ltr; text-align:left; border-top:1px solid #F8717155;"></div>
@@ -3403,13 +3403,16 @@ const JournalEditToggle = ({ editMode, onToggle }) => RE("button", { type: "butt
    Version Code = عدد صحیحِ افزایشی؛ با «هر» آپدیت یکی زیاد می‌شود (حتی PATCH).
    هنگام انتشار نسخه‌ی جدید فقط همین سه ثابت + فایل version.json را به‌روز کن. */
 const NM_APP_NAME = "Namello";
-const NM_VERSION_NAME = "1.0.40";
-const NM_VERSION_CODE = 39;
+const NM_VERSION_NAME = "1.0.41";
+const NM_VERSION_CODE = 40;
 const NM_VERSION_LABEL = NM_APP_NAME + " " + NM_VERSION_NAME;
 const NM_VERSION_029_NOTE = "نسخه 1.0.29: یکدست‌سازی شماره نسخه، کد نسخه و کش آفلاین در بسته PWA؛ قابلیت‌های هوش مصنوعی نسخه قبل حفظ شده‌اند.";
 const NM_VERSION_DATE = "یکدست‌سازی نسخه و کش آفلاین";
 const NM_CHANGELOG = [
-    "نسخه 1.0.40: بخش جدید «Navigation bar» در تنظیمات با دو حالت «تداخل» و «جدایش» (پیش‌فرض: جدایش) برای مدیریت چیدمان صفحه‌ی برنامه نسبت به نوار ناوبری گوشی.",
+    "نسخه 1.0.41: دکمه‌های شناور MT5/تریدینگ‌ویو در برنامه‌ی نصبی اندروید اپ نصب‌شده را مستقیم باز می‌کنند.",
+    "نسخه 1.0.41: دکمه‌ی تیره/روشن دقیقاً بالا-وسط صفحه قرار گرفت.",
+    "نسخه 1.0.41: فاصله‌ی بالای صفحه از نوار وضعیت گوشی بیشتر شد.",
+    "نسخه 1.0.41: باکس زمینه‌ی عنوان لایه‌ها حذف شد (محتوا و چیدمان بدون تغییر).",
 ];
 function nmMigrateTradeSchemaV2(list) {
     if (!Array.isArray(list)) return [];
@@ -8835,6 +8838,16 @@ function App() {
             showToast(`روی آیفون به‌خاطر محدودیت‌های اپل، اجرای مستقیم «${label || "اپ"}» از طریق مرورگر ممکن نیست.`);
             return;
         }
+        // برنامه‌ی نصبی اندروید: اجرای مستقیم با PackageManager (intent:// داخل WebView کار نمی‌کند)
+        if (window.NamelloAndroid && typeof window.NamelloAndroid.launchApp === "function") {
+            let res = "error";
+            try { res = String(window.NamelloAndroid.launchApp(pkg || "", scheme || "")); } catch (e) { }
+            if (res === "ok" || res === "scheme") return;
+            showToast(res === "notfound"
+                ? `«${label || "اپ"}» روی گوشی پیدا نشد. نصب بودن اپ و package name را در تنظیمات (اجرای سریع) بررسی کن.`
+                : `«${label || "اپ"}» باز نشد.`);
+            return;
+        }
         const attempts = [];
         if (scheme && scheme.trim())
             attempts.push(scheme.trim());
@@ -11293,14 +11306,15 @@ function App() {
                     React.createElement("div", { className: "text-[12px] mt-0.5", style: { color: "var(--text-secondary)" } }, sessionAlarmPopup.body)),
                 React.createElement("button", { onClick: e => { e.stopPropagation(); setSessionAlarmPopup(null); }, className: "shrink-0" },
                     React.createElement(X, { size: 16, color: "var(--text-muted)" }))))),
-        React.createElement("div", { className: "px-4 pt-6 pb-4", style: { background: "linear-gradient(180deg, var(--bg-card) 0%, var(--bg-page) 100%)", borderBottom: "1px solid #1C2128" } },
+        React.createElement("div", { className: "px-4 pb-4", style: { position: "relative", paddingTop: "max(24px, calc(var(--nm-safe-top, env(safe-area-inset-top, 0px)) + 14px))", background: "linear-gradient(180deg, var(--bg-card) 0%, var(--bg-page) 100%)", borderBottom: "1px solid #1C2128" } },
             React.createElement("div", { className: "flex items-center justify-between mb-1" },
                 React.createElement("h1", { className: "font-bold flex items-center gap-2", style: { color: "var(--text-primary)", fontSize: 12, lineHeight: 1.2 } },
                     React.createElement("button", { type: "button", onClick: () => { if (navLayout === "vertical") setNavMenuOpen(o => !o); }, style: { cursor: navLayout === "vertical" ? "pointer" : "default", lineHeight: 0, background: "none", border: "none", padding: 0 }, "aria-label": "منوی لایه‌ها" },
                         React.createElement("img", { src: iconTheme === "default" ? APP_LOGO : nmIconThemeInfo(iconTheme).icon192, alt: NM_VERSION_LABEL, className: "w-7 h-7 rounded-full object-cover", style: { border: "1px solid var(--border-2)" } })),
                     React.createElement("span", { dir: "ltr", style: { unicodeBidi: "isolate", whiteSpace: "nowrap" } }, NM_APP_NAME, React.createElement("sup", { "aria-label": "\u0646\u0633\u062E\u0647 " + NM_VERSION_NAME, style: { fontSize: 6, fontWeight: 600, lineHeight: 0, marginLeft: 1, verticalAlign: "super", color: "var(--text-muted)" } }, NM_VERSION_NAME))),
                 React.createElement("div", { className: "flex items-center gap-2" },
-                    React.createElement("button", { onClick: () => persistThemeMode(themeMode === "dark" ? "light" : "dark"), className: "w-8 h-8 rounded-full flex items-center justify-center", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" }, "aria-label": themeMode === "dark" ? "تغییر به زمینه‌ی روشن" : "تغییر به زمینه‌ی تیره" },
+                    React.createElement("span", { "aria-hidden": true, className: "w-8 h-8 inline-block" }),
+                    React.createElement("button", { id: "nm-theme-toggle", onClick: () => persistThemeMode(themeMode === "dark" ? "light" : "dark"), className: "w-8 h-8 rounded-full flex items-center justify-center", style: { position: "absolute", left: "50%", transform: "translateX(-50%)", top: "max(24px, calc(var(--nm-safe-top, env(safe-area-inset-top, 0px)) + 14px))", zIndex: 5, background: "var(--bg-card2)", border: "1px solid var(--border-2)" }, "aria-label": themeMode === "dark" ? "تغییر به زمینه‌ی روشن" : "تغییر به زمینه‌ی تیره" },
                         themeMode === "dark" ? React.createElement(Sun, { size: 14, color: "var(--accent-gold)" }) : React.createElement(Moon, { size: 14, color: "var(--accent-gold)" })),
                     React.createElement("span", { id: "nm-player-mini-slot", className: "inline-flex" }),
                     null)),

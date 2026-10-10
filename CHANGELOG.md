@@ -1,3 +1,9 @@
+## 1.0.41 (versionCode 40)
+- APK: اجرای سریع MT5/TradingView با PackageManager (launchApp) + بلوک <queries> در مانیفست.
+- دکمه‌ی تیره/روشن: بالا-وسط صفحه.
+- هدر: فاصله‌ی بیشتر از نوار وضعیت (--nm-safe-top).
+- عنوان لایه‌ها: حذف باکس زمینه (background/border شفاف؛ اندازه و محتوا بدون تغییر).
+
 ## 1.0.40 (versionCode 39)
 - تنظیمات ← Navigation bar: حالت «تداخل» (تمام‌صفحه) و «جدایش» (پیش‌فرض)؛ ذخیره در برنامه و اعمال بومی در MainActivity.
 
