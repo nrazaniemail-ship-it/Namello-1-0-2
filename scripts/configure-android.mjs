@@ -78,6 +78,21 @@ if (!manifest.includes('android:name=".LauncherDefault"')) {
   }
 }
 
+/* 2c. package visibility (Android 11+): needed so PackageManager can find / launch MT5 and TradingView */
+if (!manifest.includes("<queries>")) {
+  const queries = `    <queries>
+        <package android:name="net.metaquotes.metatrader5" />
+        <package android:name="com.tradingview.tradingviewapp" />
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+`;
+  need(/<application[\s>]/.test(manifest), "AndroidManifest.xml: <application> not found");
+  manifest = manifest.replace(/<application[\s>]/, (m) => `${queries}\n    ${m}`);
+}
+
 /* 3. permissions + soft input mode */
 const permissions = [
   "android.permission.POST_NOTIFICATIONS",
@@ -96,6 +111,7 @@ if (!/android:windowSoftInputMode=/.test(manifest)) {
   manifest = manifest.replace(/android:name="\.MainActivity"/, 'android:name=".MainActivity"\n            android:windowSoftInputMode="adjustResize"');
 }
 await writeFile(manifestFile, manifest);
+need(manifest.includes("<queries>") && manifest.includes("net.metaquotes.metatrader5"), "<queries> block missing after patch");
 need(manifest.includes('android:name=".LauncherDefault"') && manifest.includes('android:name=".LauncherRuby"'), "launcher icon aliases missing after patch");
 for (const p of permissions) need(manifest.includes(`android:name="${p}"`), `permission ${p} missing after patch`);
 
