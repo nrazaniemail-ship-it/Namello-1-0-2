@@ -138,3 +138,12 @@ test("1.0.42: floating return button over other apps (overlay service)", () => {
   const bridge = read("native-bridge.js");
   assert.ok(bridge.includes("defineProperty(window, 'NamelloNative'") && !/showNotification\s*:/.test(bridge.slice(bridge.indexOf("floatingAdapter"), bridge.indexOf("floatingAdapter") + 400)));
 });
+
+test("1.0.43: floating button shows the launcher icon of the chosen theme, without ring or padding", () => {
+  const svc = read("native/android/FloatingReturnService.java.tpl");
+  assert.ok(!svc.includes("setStroke") && !svc.includes("0xFFD4A64A"), "no gold ring");
+  assert.ok(!svc.includes("view.setPadding"), "no padding around the logo");
+  assert.ok(svc.includes('"namello_launcher_" + theme') && svc.includes("refreshIcon"));
+  assert.ok(java.includes("KEY_ICON_THEME") && java.includes("FloatingReturnService.refreshIcon()"));
+  assert.equal((svc.match(/\{/g) || []).length, (svc.match(/\}/g) || []).length, "balanced braces");
+});
