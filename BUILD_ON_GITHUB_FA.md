@@ -1,38 +1,23 @@
-# ساخت واقعی Namello 1.0.32 و APK در GitHub Actions
+# ساخت APK نامللو در GitHub Actions
 
-این بسته برای ساخت واقعی APK با GitHub Actions آماده شده است.
-
-## پیش‌نیاز
-
-محتویات پوشه `Namello-1.0.32-PWA` باید در **ریشه repository** قرار بگیرد؛ یعنی `.github`، `package.json`، `index.html`، `src` و `tests` مستقیماً در ریشه باشند.
+محتویات این zip باید **مستقیماً در ریشه‌ی repository** قرار بگیرند (`.github`، `package.json`، `index.html`، `native`، `scripts` …).
 
 ## ساخت APK
+1. همه‌ی فایل‌ها را در repository بگذارید (فایل‌های قدیمی را بازنویسی کنید).
+2. Actions ← **Namello Android APK Build** ← **Run workflow**.
+3. بعد از اجرای سبز، از **Artifacts** فایل `Namello-<نسخه>-Android-APK` را بگیرید.
 
-1. کل محتویات این پوشه را در repository گیت‌هاب قرار دهید.
-2. وارد **Actions** شوید.
-3. workflow با نام **Namello Android APK Build** را انتخاب کنید.
-4. روی **Run workflow** بزنید.
-5. workflow به‌ترتیب Node.js، Java 21 و Android SDK را آماده می‌کند، dependencyها را نصب می‌کند، تست و TypeScript را اجرا می‌کند، Vite را build می‌کند، پروژه Android را با Capacitor ایجاد و sync می‌کند و در نهایت APK را می‌سازد.
-6. در اجرای سبز، از بخش **Artifacts** فایل `Namello-1.0.33-Android-APK` را دریافت کنید.
+## ترتیب مراحل (هر مرحله اگر شکست بخورد، پیام مشخص می‌دهد)
+`verify` (هماهنگی نسخه) ← `npm test` ← `typecheck` ← `build` (dist/) ← `cap add android` ← `configure-android` (نسخه، مجوزها، MainActivity، آیکن) ← `cap sync` ← `gradle assembleDebug`.
 
-## مشخصات APK
+## بالا بردن نسخه (دیگر هیچ‌جا دستی عوض نکنید)
+```
+node scripts/bump-version.mjs 1.0.35        # versionCode خودکار +1
+```
+سپس متن تغییرات را در `NM_CHANGELOG` داخل `index.html` بنویسید و commit کنید. `version.json` تنها منبع نسخه است؛ تست‌ها و `verify` از همان می‌خوانند.
 
-- App name: `Namello`
-- Version name: `1.0.33`
-- Version code: `34`
-- Application ID: `com.namello.app`
-- خروجی: `android/app/build/outputs/apk/debug/app-debug.apk`
-
-## نکته
-
-نسخه Backend مستقل است و `backend/package.json` عمداً روی `1.0.26` باقی می‌ماند؛ این موضوع مانع ساخت APK نیست.
-
-همچنین manifestهای PWA نیز با نسخه نمایشی `Namello 1.0.32` یکدست شده‌اند.
-
-
-## نوع خروجی
-این workflow در حال حاضر APK نوع **debug** می‌سازد که برای نصب و آزمایش مناسب است. برای انتشار عمومی در فروشگاه‌ها، باید کلید امضای release را به‌صورت امن در GitHub Secrets تنظیم و workflow انتشار جداگانه‌ای تعریف کنید.
-
-
-## نکته نسخه‌گذاری
-نسخه و کد نسخه APK مستقیماً از `version.json` خوانده می‌شود.
+## نکته‌ها
+- build وب با `scripts/build-web.mjs` انجام می‌شود (کپی مستقیم بدون bundler). مسیر Vite با `npm run build:vite` در دسترس است.
+- بعد از اولین اجرای موفق، فایل `package-lock.json` را commit کنید؛ از آن به بعد workflow با `npm ci` دقیقاً همان نسخه‌ها را نصب می‌کند.
+- خروجی فعلی debug است؛ برای فروشگاه باید کلید release در GitHub Secrets تنظیم شود.
+- Backend مستقل است و نسخه‌ی `backend/package.json` عمداً جدا می‌ماند.

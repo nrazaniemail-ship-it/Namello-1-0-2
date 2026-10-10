@@ -35,6 +35,16 @@
   .logo-row { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: calc(8px * var(--scale)); opacity: 0.85; }
   .logo-dot { width: 6px; height: 6px; border-radius: 50%; background: #D4A64A; }
   .logo-text { font-size: calc(11px * var(--scale)); color: #6B7280; }
+  /* دکمه‌ی برگشت به برنامه (پایین سمت راست) */
+  .back-btn {
+    position: fixed; right: calc(14px + env(safe-area-inset-right, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    width: 48px; height: 48px; border-radius: 50%; padding: 0; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    background: #12161C; border: 1px solid #2D3540; color: #D4A64A;
+    box-shadow: 0 4px 14px rgba(0,0,0,.45); z-index: 50; -webkit-tap-highlight-color: transparent;
+  }
+  .back-btn:active { transform: scale(.94); background: #1A1F27; }
+  .back-btn svg { width: 24px; height: 24px; display: block; }
 </style>
 </head>
 <body>
@@ -57,6 +67,28 @@
     <div class="chips" id="chips"></div>
   </div>
 
+  <button class="back-btn" id="backBtn" type="button" aria-label="برگشت به برنامه" title="برگشت به برنامه">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="9 14 4 9 9 4"></polyline>
+      <path d="M20 20v-7a4 4 0 0 0-4-4H4"></path>
+    </svg>
+  </button>
+
+<script>
+  /* برگشت به برنامه: اگر ویجت در پنجره‌ی جدا باز شده بسته می‌شود؛ وگرنه یک صفحه به عقب؛ و اگر
+     تاریخچه‌ای نبود مستقیم به index.html می‌رود. دکمه‌ی Back اندروید (برنامه‌ی نصبی) هم همین را صدا می‌زند. */
+  function namelloGoBack() {
+    try { if (window.opener && !window.opener.closed) { window.close(); return; } } catch (e) {}
+    if (history.length > 1) {
+      history.back();
+      setTimeout(function () { location.href = './index.html'; }, 500);
+      return;
+    }
+    location.href = './index.html';
+  }
+  window.__nmNativeBack = function () { namelloGoBack(); return 'handled'; };
+  document.getElementById('backBtn').addEventListener('click', namelloGoBack);
+</script>
 <script>
 /* این صفحه، نسخه‌ی مستقل و سبکِ Namello است که نشست‌های معاملاتی (سیدنی/توکیو/لندن/نیویورک) را
    به‌صورت قطاع‌های رنگی روی یک دایره‌ی چندلایه (هر نشست یک حلقه‌ی مخصوص خودش) نشان می‌دهد؛ یک خط

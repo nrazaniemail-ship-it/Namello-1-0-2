@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Namello 1.0.33</title>
+<title>Namello 1.0.35</title>
 <meta name="theme-color" content="#0B0E11" id="themeColorMeta" />
 <link rel="manifest" href="manifest.json" />
 <link rel="icon" href="icon-192.png" />
@@ -146,7 +146,7 @@
 </style>
 </head>
 <body>
-<div id="boot-status">Loading Namello 1.0.33…</div>
+<div id="boot-status">Loading Namello 1.0.35…</div>
 <div id="boot-error"></div>
 <div id="root"></div>
 <div id="runtime-error-banner" style="display:none; position:fixed; left:0; right:0; bottom:0; z-index:99999; background:#1A0B0B; color:#F87171; padding:10px 14px; font-family:monospace; font-size:11px; direction:ltr; text-align:left; border-top:1px solid #F8717155;"></div>
@@ -383,6 +383,9 @@
   })();
 </script>
 
+<!-- فقط داخل برنامه‌ی نصبی اندروید (Capacitor) فعال می‌شود؛ در مرورگر/PWA هیچ کاری نمی‌کند.
+     اعلان‌ها، آلارم پس‌زمینه، «باز کردن با…» و رنگ نوار سیستم را به‌جای WebView تأمین می‌کند. -->
+<script src="./native-bridge.js"></script>
 <script>
   // بدون این بلوک، فایل sw.js هیچ‌وقت واقعاً فعال نمی‌شد و برنامه‌ی نصب‌شده هیچ‌چیزی
   // رو کش نمی‌کرد — همین، دلیل اصلی اجرا نشدنش بدون اینترنت بود.
@@ -3400,14 +3403,16 @@ const JournalEditToggle = ({ editMode, onToggle }) => RE("button", { type: "butt
    Version Code = عدد صحیحِ افزایشی؛ با «هر» آپدیت یکی زیاد می‌شود (حتی PATCH).
    هنگام انتشار نسخه‌ی جدید فقط همین سه ثابت + فایل version.json را به‌روز کن. */
 const NM_APP_NAME = "Namello";
-const NM_VERSION_NAME = "1.0.33";
-const NM_VERSION_CODE = 34;
+const NM_VERSION_NAME = "1.0.35";
+const NM_VERSION_CODE = 36;
 const NM_VERSION_LABEL = NM_APP_NAME + " " + NM_VERSION_NAME;
 const NM_VERSION_029_NOTE = "نسخه 1.0.29: یکدست‌سازی شماره نسخه، کد نسخه و کش آفلاین در بسته PWA؛ قابلیت‌های هوش مصنوعی نسخه قبل حفظ شده‌اند.";
 const NM_VERSION_DATE = "یکدست‌سازی نسخه و کش آفلاین";
 const NM_CHANGELOG = [
-    "نسخه 1.0.33: رفع خطای TypeScript در ماژول رمزنگاری (نیاز به ساخت APK در GitHub Actions) و بازنویسی workflow ساخت APK با نسخه‌گذاری خودکار از version.json.",
-    "نسخه 1.0.33: بدون تغییر در رفتار و رابط کاربری برنامه؛ فقط پایدارسازی فرایند ساخت.",
+    "نسخه 1.0.35: نوتیفیکیشن «بازگشت به Namello» در برنامه‌ی نصبی با اعلان بومی اندروید کار می‌کند (هنگام رفتن برنامه به پس‌زمینه نمایش و با بازگشت حذف می‌شود).",
+    "نسخه 1.0.35: فلش‌های بالا/پایین بخش «ترتیب لایه‌ها» نارنجی شدند.",
+    "نسخه 1.0.35: تغییر «تم آیکون برنامه» حالا آیکون لانچر گوشی را هم عوض می‌کند (APK).",
+    "نسخه 1.0.35: صفحه‌ی ویجت ساعت‌شمار نشست‌ها دکمه‌ی برگشت (فلش خمیده، پایین سمت راست) دارد و دکمه‌ی Back اندروید هم به برنامه برمی‌گرداند.",
 ];
 function nmMigrateTradeSchemaV2(list) {
     if (!Array.isArray(list)) return [];
@@ -3768,6 +3773,7 @@ function NmAppThemeCard({ value, onChange }) {
 function NmIconThemeCard({ value, onChange, showToast }) {
     const pick = (key) => {
         onChange(key);
+        if (window.NamelloAndroid && window.NamelloAndroid.setLauncherIcon) { showToast("آیکون لانچر برنامه عوض شد (بسته به لانچر گوشی ممکن است چند ثانیه طول بکشد)."); return; }
         showToast("لوگوی داخل برنامه عوض شد. اگر برنامه را با «Add to Home screen» نصب کرده‌اید، آیکونِ صفحه‌ی اصلی گوشی را کروم خودش (معمولاً طی چند ساعت) به‌روز می‌کند؛ برای تغییر فوری، میان‌بر را حذف و دوباره اضافه کنید. اگر این برنامه را به‌صورت APK نصب کرده‌اید، آیکون لانچر در خودِ APK ثابت است و فقط با ساخت و نصب دوباره‌ی APK (طبق راهنمای ویجت) عوض می‌شود.");
     };
     return RE(NmCollapsible, { title: "تم آیکون برنامه", subtitle: "برای بستن/باز کردن لیست کلیک کنید", badge: "مستقل", icon: "🖼️" },
@@ -5016,8 +5022,8 @@ function NmNavOrderCard({value,onChange}){
     safe.map((k,i)=>RE("div",{key:k,className:"flex items-center gap-2 rounded-lg px-2.5 py-2",style:{background:"var(--bg-card2)",border:"1px solid var(--border-2)"}},
       RE("span",{className:"w-6 text-center text-[10px] font-bold",style:{color:"var(--accent-gold)"}},i+1),
       RE("span",{className:"flex-1 text-[11px]",style:{color:"var(--text-primary)"}},NM_NAV_LABELS[k]||k),
-      RE("button",{type:"button",onClick:()=>move(i,-1),disabled:i===0,className:"p-1",style:{opacity:i===0?.3:1}},RE(ChevronUp,{size:13})),
-      RE("button",{type:"button",onClick:()=>move(i,1),disabled:i===safe.length-1,className:"p-1",style:{opacity:i===safe.length-1?.3:1}},RE(ChevronDown,{size:13}))
+      RE("button",{type:"button",onClick:()=>move(i,-1),disabled:i===0,className:"p-1",style:{opacity:i===0?.3:1}},RE(ChevronUp,{size:15,color:"#F59E0B",strokeWidth:2.6})),
+      RE("button",{type:"button",onClick:()=>move(i,1),disabled:i===safe.length-1,className:"p-1",style:{opacity:i===safe.length-1?.3:1}},RE(ChevronDown,{size:15,color:"#F59E0B",strokeWidth:2.6}))
     )),
     RE("button",{type:"button",onClick:()=>onChange?.([...NM_DEFAULT_NAV_ORDER]),className:"w-full mt-2 py-2 rounded-lg text-[10px]",style:{background:"var(--bg-card2)",color:"var(--accent-gold)"}},"بازگشت به ترتیب پیش‌فرض")
    )
@@ -5385,6 +5391,14 @@ function NmBookViewer({ book, onClose, showToast }) {
     }, [book.id]);
     const externalOpen = async () => {
         const blob = state.blob; if (!blob) return;
+        if (window.NamelloNativeFiles) {
+            const ext0 = nmLibExt(book.fileName);
+            const mime0 = (ext0 === "txt" || ext0 === "md" || ext0 === "text") ? "text/plain" : (ext0 === "pdf" ? "application/pdf" : (blob.type || book.mimeType || "application/octet-stream"));
+            const done = await window.NamelloNativeFiles.shareBlob(blob, book.fileName || (book.title + ".bin"), mime0, book.title);
+            if (done) return;
+            showToast("منوی «باز کردن با…» باز نشد.");
+            return;
+        }
         try {
             const file = new File([blob], book.fileName || (book.title + ".bin"), { type: blob.type || book.mimeType || "application/octet-stream" });
             if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: book.title }); return; }
@@ -5462,6 +5476,17 @@ function NmLibraryBooksSection({ showToast, askDeleteConfirm }) {
             const ext = nmLibExt(b.fileName);
             const type = (ext === "txt" || ext === "md" || ext === "text") ? "text/plain" : (ext === "pdf" ? "application/pdf" : (blob.type || b.mimeType || "application/octet-stream"));
             const name = b.fileName || (b.title + (ext ? "" : ".txt"));
+            // برنامه‌ی نصبی اندروید: WebView از navigator.share برای فایل پشتیبانی نمی‌کند.
+            // فایل متنی همیشه داخل خود برنامه باز می‌شود (قابل اتکا)؛ بقیه‌ی فایل‌ها با منوی «باز کردن با…» اندروید.
+            if (window.NamelloNativeFiles) {
+                const isTextFile = ext === "txt" || ext === "md" || ext === "text" || String(blob.type || b.mimeType || "").indexOf("text/") === 0;
+                if (isTextFile) { setViewing(b); return; }
+                const done = await window.NamelloNativeFiles.shareBlob(blob, name, type, b.title);
+                if (done) return;
+                showToast("منوی انتخاب برنامه باز نشد؛ فایل داخل خود برنامه باز شد.");
+                setViewing(b);
+                return;
+            }
             const file = new File([blob], name, { type });
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({ files: [file], title: b.title });
@@ -7981,7 +8006,18 @@ function App() {
             timer = setTimeout(() => { timer = null; pushGuard(); }, 2000);
         };
         window.addEventListener("popstate", onPop);
-        return () => { window.removeEventListener("popstate", onPop); if (timer) clearTimeout(timer); };
+        // برنامه‌ی نصبی اندروید: MainActivity دکمه‌ی Back را به همین تابع می‌سپارد (نه به تاریخچه‌ی WebView).
+        // "handled" = پنجره/لایه بسته شد یا هشدار خروج نشان داده شد؛ "exit" = بار دوم ظرف ۲ ثانیه → خروج.
+        window.__nmNativeBack = () => {
+            if (nmBackStack.length) { try { nmBackStack[nmBackStack.length - 1](); } catch (e) { } return "handled"; }
+            if (backHandlerRef.current && backHandlerRef.current()) return "handled";
+            const t = Date.now();
+            if (window.__nmLastBackAt && t - window.__nmLastBackAt < 2000) return "exit";
+            window.__nmLastBackAt = t;
+            showToast("برای خروج از برنامه، یک بار دیگر دکمه‌ی برگشت را بزنید");
+            return "handled";
+        };
+        return () => { window.removeEventListener("popstate", onPop); if (timer) clearTimeout(timer); try { delete window.__nmNativeBack; } catch (e) { } };
     }, []);
     useEffect(() => {
         const f = (e) => showToast(e.detail);
@@ -8618,7 +8654,7 @@ function App() {
         await window.storage.set("namello_quick_launch_settings_v1", JSON.stringify(next));
     }
     catch (e) { } }, []);
-    const persistNamelloReturnSettings = useCallback(async (next) => { setNamelloReturnSettings(next); try {
+    const persistNamelloReturnSettings = useCallback(async (next) => { setNamelloReturnSettings(next); try { if (window.NamelloAndroid && window.NamelloAndroid.setReturnNotification) window.NamelloAndroid.setReturnNotification(!!(next && next.enabled)); } catch (e) { } try {
         await window.storage.set("namello_return_fab_settings_v1", JSON.stringify(next));
     }
     catch (e) { } }, []);
@@ -8640,7 +8676,7 @@ function App() {
     }
     catch (e) { } }, []);
     const persistNavOrder = useCallback(async (next) => { const safe=nmNormalizeNavOrder(next); setNavOrder(safe); try { await window.storage.set("namello_nav_order_v1", JSON.stringify(safe)); } catch (e) {} try { localStorage.setItem("ns_namello_nav_order_v1", JSON.stringify(safe)); } catch (e2) {} }, []);
-    const persistIconTheme = useCallback(async (next) => { setIconTheme(next); try {
+    const persistIconTheme = useCallback(async (next) => { setIconTheme(next); try { if (window.NamelloAndroid && window.NamelloAndroid.setLauncherIcon) window.NamelloAndroid.setLauncherIcon(next); } catch (e) { } try {
         await window.storage.set("namello_icon_theme_v1", next);
     }
     catch (e) { } }, []);

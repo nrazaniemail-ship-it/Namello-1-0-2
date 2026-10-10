@@ -7,15 +7,15 @@
 // دفعات آفلاینِ بعدی کش می‌شه). فقط وقتی واقعاً آفلاینیم، از کش قدیمی استفاده می‌شه.
 // برای فایل‌های CDN (React, XLSX, Plotly, Tailwind, فونت‌ها) که نسخه‌شون پین‌شده و عوض نمی‌شه،
 // همچنان استراتژی "اول کش" (سریع‌تر و برای آفلاین قابل‌اعتمادتر) باقی مونده.
-// نام کش به نسخه‌ی برنامه گره خورده (Namello 1.0.33 / Version Code 34)؛ با هر آپدیت این را عوض کن.
-const CACHE_NAME = "namello-1.0.33-c34";
+// نام کش به نسخه‌ی برنامه گره خورده (Namello 1.0.35 / Version Code 36)؛ با هر آپدیت این را عوض کن.
+const CACHE_NAME = "namello-1.0.35-c36";
 
 const HTML_URLS = ["./", "./index.html"];
 const WIDGET_URL = "./widget.html";
 const APP_SHELL = ["./manifest.json", "./manifest-midnight.json", "./manifest-emerald.json", "./manifest-royal.json", "./manifest-graphite.json", "./manifest-sunset.json", "./manifest-ruby.json", "./icon-192.png", "./icon-512.png", "./icon-mt5.jpg", "./icon-tradingview.png", "./icon-dashboard-logo.png", "./icon-sessions.png", "./icon-journal.png", "./icon-journal-192.png", "./icon-journal-512.png", WIDGET_URL];
 
 // آیکون‌های تم‌های آیکون (اختیاری؛ اگر یکی نبود نصب شکست نمی‌خورد)
-const OPTIONAL_LOCAL = ["./version.json", "./icon-midnight-192.png", "./icon-emerald-192.png", "./icon-royal-192.png", "./icon-graphite-192.png", "./icon-sunset-192.png", "./icon-ruby-192.png"];
+const OPTIONAL_LOCAL = ["./version.json", "./native-bridge.js", "./icon-midnight-192.png", "./icon-emerald-192.png", "./icon-royal-192.png", "./icon-graphite-192.png", "./icon-sunset-192.png", "./icon-ruby-192.png"];
 
 const RUNTIME_DEPS = [
   "https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js",
