@@ -82,7 +82,33 @@ test("configure-android produces launcher aliases, permissions and MainActivity 
   const act = m.slice(m.indexOf('android:name=".MainActivity"'), m.indexOf("</activity>"));
   assert.ok(!act.includes("LAUNCHER"), "MainActivity itself must not be a launcher entry");
   for (const p of ["POST_NOTIFICATIONS", "SCHEDULE_EXACT_ALARM"]) assert.ok(m.includes(p));
+  assert.equal((m.match(/<queries>/g) || []).length, 1, "package-visibility block (once)");
+  assert.ok(m.includes("net.metaquotes.metatrader5") && m.includes("com.tradingview.tradingviewapp"));
   assert.ok(read(path.join(main, "java/com/namello/app/MainActivity.java")).includes("package com.namello.app;"));
   assert.ok(fs.existsSync(path.join(main, "res/drawable-nodpi/namello_launcher_ruby.png")));
   fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test("1.0.41: quick-launch buttons open installed apps through the native launcher", () => {
+  assert.ok(java.includes("public String launchApp"));
+  assert.ok(java.includes("getLaunchIntentForPackage"));
+  assert.ok(index.includes("window.NamelloAndroid.launchApp(pkg || \"\", scheme || \"\")"));
+  // the web path (intent:// chain) must still exist for the PWA
+  assert.ok(index.includes("intent://#Intent;action=android.intent.action.MAIN"));
+});
+
+test("1.0.41: theme toggle is centred at the top of the page", () => {
+  assert.match(index, /id: "nm-theme-toggle"[^\n]*position: "absolute", left: "50%", transform: "translateX\(-50%\)", top: "max\(24px/);
+});
+
+test("1.0.41: header keeps clear of the status bar", () => {
+  assert.ok(index.includes('paddingTop: "max(24px, calc(var(--nm-safe-top, env(safe-area-inset-top, 0px)) + 14px))"'));
+  assert.ok(!index.includes('className: "px-4 pt-6 pb-4"'));
+});
+
+test("1.0.41: layer title box is gone but its size/padding are unchanged", () => {
+  const css = index.match(/\.nm-layer-heading \{[^}]*\}/)[0];
+  assert.match(css, /background: transparent; border: 1px solid transparent;/);
+  assert.match(css, /min-height: 42px; margin-bottom: 10px; padding: 5px 6px 5px 5px;/);
+  assert.ok(!/color-mix\(in srgb, var\(--bg-card\) 92%/.test(css));
 });
