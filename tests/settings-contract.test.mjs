@@ -83,6 +83,11 @@ test("configure-android produces launcher aliases, permissions and MainActivity 
   assert.ok(!act.includes("LAUNCHER"), "MainActivity itself must not be a launcher entry");
   for (const p of ["POST_NOTIFICATIONS", "SCHEDULE_EXACT_ALARM"]) assert.ok(m.includes(p));
   assert.equal((m.match(/<queries>/g) || []).length, 1, "package-visibility block (once)");
+  assert.equal((m.match(/FloatingReturnService"/g) || []).length, 1, "floating service declared once");
+  for (const p of ["SYSTEM_ALERT_WINDOW", "FOREGROUND_SERVICE_SPECIAL_USE"]) assert.ok(m.includes(p), p);
+  assert.ok(m.includes('android:foregroundServiceType="specialUse"'));
+  const svc = read(path.join(main, "java/com/namello/app/FloatingReturnService.java"));
+  assert.ok(svc.startsWith("package com.namello.app;") && !svc.includes("__PACKAGE__"));
   assert.ok(m.includes("net.metaquotes.metatrader5") && m.includes("com.tradingview.tradingviewapp"));
   assert.ok(read(path.join(main, "java/com/namello/app/MainActivity.java")).includes("package com.namello.app;"));
   assert.ok(fs.existsSync(path.join(main, "res/drawable-nodpi/namello_launcher_ruby.png")));
@@ -111,4 +116,25 @@ test("1.0.41: layer title box is gone but its size/padding are unchanged", () =>
   assert.match(css, /background: transparent; border: 1px solid transparent;/);
   assert.match(css, /min-height: 42px; margin-bottom: 10px; padding: 5px 6px 5px 5px;/);
   assert.ok(!/color-mix\(in srgb, var\(--bg-card\) 92%/.test(css));
+});
+
+test("1.0.42: launcher icon theme is switched natively (activity-alias)", () => {
+  assert.ok(java.includes("public void setLauncherIcon"));
+  assert.ok(java.includes("setComponentEnabledSetting"));
+  const javaKeys = [...java.match(/ICON_KEYS = \{([^}]*)\}/)[1].matchAll(/"(\w+)"/g)].map((m) => m[1]);
+  const appKeys = [...index.match(/const NM_ICON_THEMES = \[([\s\S]*?)\n\];/)[1].matchAll(/key: "(\w+)"/g)].map((m) => m[1]);
+  assert.deepEqual(javaKeys, appKeys);
+  assert.ok(index.includes("window.NamelloAndroid.setLauncherIcon(next)"));
+});
+
+test("1.0.42: floating return button over other apps (overlay service)", () => {
+  const svc = read("native/android/FloatingReturnService.java.tpl");
+  assert.ok(svc.includes("TYPE_APPLICATION_OVERLAY") && svc.includes("startForeground") && svc.includes("setAppForeground"));
+  assert.equal((svc.match(/\{/g) || []).length, (svc.match(/\}/g) || []).length, "balanced braces");
+  for (const s of ["enableFloatingReturn", "disableFloatingReturn", "restoreFloatingReturn", "hasOverlayPermission"]) assert.ok(java.includes(s), s);
+  assert.ok(java.includes("FloatingReturnService.setAppForeground(true)") && java.includes("FloatingReturnService.setAppForeground(false)"));
+  // the existing UI contract in index.html is what the bridge adapts
+  assert.ok(index.includes("window.NamelloNative.enableFloatingReturn()"));
+  const bridge = read("native-bridge.js");
+  assert.ok(bridge.includes("defineProperty(window, 'NamelloNative'") && !/showNotification\s*:/.test(bridge.slice(bridge.indexOf("floatingAdapter"), bridge.indexOf("floatingAdapter") + 400)));
 });
