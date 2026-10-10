@@ -8,6 +8,8 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Outline;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.GradientDrawable;
@@ -32,7 +34,9 @@ import androidx.core.app.NotificationCompat;
  *  - runs as a foreground service so Android keeps it alive while Namello is in the background;
  *  - hidden while Namello itself is on screen, shown as soon as the user leaves it;
  *  - can be dragged anywhere; it snaps to the nearest screen edge and remembers its position;
- *  - one tap brings Namello back to the front.
+ *  - one tap brings Namello back to the front;
+ *  - the button shows the SAME icon as the launcher: it follows the icon theme chosen in Settings
+ *    (MainActivity stores the theme and calls refreshIcon()). No ring / frame around the logo.
  * Started / stopped from the page through window.NamelloAndroid.enableFloatingReturn() / disableFloatingReturn().
  */
 public class FloatingReturnService extends Service {
@@ -40,6 +44,7 @@ public class FloatingReturnService extends Service {
     private static final String PREFS = "namello_native";
     private static final String KEY_X = "floating_x";
     private static final String KEY_Y = "floating_y";
+    private static final String KEY_ICON_THEME = "icon_theme";
     private static final String CHANNEL = "namello-floating";
     private static final int NOTIFICATION_ID = 424243;
 
@@ -61,6 +66,19 @@ public class FloatingReturnService extends Service {
                 @Override
                 public void run() {
                     service.applyVisibility();
+                }
+            });
+        }
+    }
+
+    /** Called by MainActivity after the launcher icon theme changed. */
+    public static void refreshIcon() {
+        final FloatingReturnService service = instance;
+        if (service != null) {
+            service.main.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (service.button != null) service.loadIcon(service.button);
                 }
             });
         }
@@ -130,20 +148,13 @@ public class FloatingReturnService extends Service {
             windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
             ImageView view = new ImageView(this);
-            int image = getResources().getIdentifier("namello_launcher", "drawable", getPackageName());
-            if (image != 0) {
-                view.setImageResource(image);
-            } else {
-                view.setImageResource(android.R.drawable.ic_menu_revert);
-            }
             view.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            int pad = (int) (2 * density);
-            view.setPadding(pad, pad, pad, pad);
-            GradientDrawable ring = new GradientDrawable();
-            ring.setShape(GradientDrawable.OVAL);
-            ring.setColor(0xFF12161C);
-            ring.setStroke((int) (2 * density), 0xFFD4A64A);
-            view.setBackground(ring);
+            // plain dark disc only as a fallback; the (opaque) logo covers it completely: no ring, no padding
+            GradientDrawable disc = new GradientDrawable();
+            disc.setShape(GradientDrawable.OVAL);
+            disc.setColor(0xFF0B0E11);
+            view.setBackground(disc);
+            loadIcon(view);
             view.setClipToOutline(true);
             view.setOutlineProvider(new ViewOutlineProvider() {
                 @Override
@@ -173,6 +184,35 @@ public class FloatingReturnService extends Service {
             // overlay permission revoked or window could not be added
             button = null;
             stopSelf();
+        }
+    }
+
+    /** Loads the launcher icon of the currently selected icon theme into the button. */
+    private void loadIcon(ImageView target) {
+        try {
+            String theme = getSharedPreferences(PREFS, MODE_PRIVATE).getString(KEY_ICON_THEME, "default");
+            String name = "default".equals(theme) ? "namello_launcher" : "namello_launcher_" + theme;
+            int id = getResources().getIdentifier(name, "drawable", getPackageName());
+            if (id == 0) id = getResources().getIdentifier("namello_launcher", "drawable", getPackageName());
+            if (id == 0) {
+                target.setImageResource(android.R.drawable.ic_menu_revert);
+                return;
+            }
+            BitmapFactory.Options bounds = new BitmapFactory.Options();
+            bounds.inJustDecodeBounds = true;
+            BitmapFactory.decodeResource(getResources(), id, bounds);
+            int wanted = Math.max(1, sizePx * 2);
+            int sample = 1;
+            while (bounds.outWidth / (sample * 2) >= wanted) sample *= 2;
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = sample;
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), id, options);
+            if (bitmap != null) {
+                target.setImageBitmap(bitmap);
+            } else {
+                target.setImageResource(id);
+            }
+        } catch (Throwable ignored) {
         }
     }
 

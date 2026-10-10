@@ -50,6 +50,7 @@ public class MainActivity extends BridgeActivity {
     private static final String KEY_NAV_MODE = "navbar_mode";
     private static final String MODE_SEPARATE = "separate";
     private static final String MODE_OVERLAP = "overlap";
+    private static final String KEY_ICON_THEME = "icon_theme";
     /** Must match NM_ICON_THEMES keys in index.html and the aliases written by configure-android.mjs. */
     private static final String[] ICON_KEYS = {"default", "midnight", "emerald", "royal", "graphite", "sunset", "ruby"};
 
@@ -116,6 +117,9 @@ public class MainActivity extends BridgeActivity {
         boolean known = false;
         for (String k : ICON_KEYS) if (k.equals(key)) known = true;
         if (!known) return;
+        // remembered so the floating button can show the same icon as the launcher
+        getSharedPreferences(PREFS, MODE_PRIVATE).edit().putString(KEY_ICON_THEME, key).apply();
+        FloatingReturnService.refreshIcon();
         String className = getClass().getName();
         String namespace = className.substring(0, className.lastIndexOf('.'));
         PackageManager pm = getPackageManager();
