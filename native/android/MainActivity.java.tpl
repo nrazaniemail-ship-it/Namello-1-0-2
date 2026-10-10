@@ -27,19 +27,19 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import com.getcapacitor.BridgeActivity;
 
 /**
- * Namello – Capacitor host activity (generated from native/android/MainActivity.java.tpl).
+ * Namello - Capacitor host activity (generated from native/android/MainActivity.java.tpl).
  *
- * 1. Edge-to-edge: from Android 15 the WebView is drawn under the system navigation bar.
- *    The content view is padded by the bottom/left/right system-bar (and keyboard) insets so the
- *    app's bottom tab bar can never overlap the 3-button / gesture navigation bar.
- * 2. Back button: the in-app layer logic (window.__nmNativeBack in index.html) decides what Back
- *    does (close dialog -> previous layer -> double-press to exit) instead of leaving the app.
- * 3. "Return to Namello" notification: shown natively when the app goes to the background (the web
- *    Notification API is not available in the WebView) and removed when the app comes back.
- * 4. Launcher icon theme: one <activity-alias> per theme is declared in the manifest by
- *    scripts/configure-android.mjs; the page switches between them with setLauncherIcon().
- * 5. A tiny JavaScript interface (NamelloAndroid) lets the page tell the system bars which
- *    colour to use so they follow the app's light / dark theme.
+ * 1. EDGE-TO-EDGE / NAVIGATION BAR
+ *    From Android 15 every app is drawn under the system bars. The whole content view (the WebView
+ *    container) is padded by the system-bar + display-cutout + keyboard insets on the left, right and
+ *    BOTTOM, and those insets are then consumed, so the page's bottom tab bar can never slide under
+ *    the 3-button / gesture navigation bar and nothing is padded twice.
+ *    The TOP is deliberately not padded (the page header already reserves space and is drawn under
+ *    the status bar); the status-bar height is handed to the page as the CSS variable --nm-safe-top.
+ * 2. BACK BUTTON: window.__nmNativeBack (index.html / widget.html) decides what Back does.
+ * 3. "Return to Namello" notification when the app goes to the background.
+ * 4. Launcher icon theme through <activity-alias> entries (written by scripts/configure-android.mjs).
+ * 5. NamelloAndroid JavaScript interface (system-bar colour, insets, return notification, icon).
  */
 public class MainActivity extends BridgeActivity {
 
@@ -51,9 +51,13 @@ public class MainActivity extends BridgeActivity {
     /** Must match NM_ICON_THEMES keys in index.html and the aliases written by configure-android.mjs. */
     private static final String[] ICON_KEYS = {"default", "midnight", "emerald", "royal", "graphite", "sunset", "ruby"};
 
+    /** Status-bar height in physical pixels (reported to the page as --nm-safe-top). */
+    private int topInsetPx = 0;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setupEdgeToEdge();
         installInsetsHandling();
         installBackHandling();
         installJavascriptInterface();
@@ -74,6 +78,85 @@ public class MainActivity extends BridgeActivity {
         super.onStop();
         showReturnNotificationIfEnabled();
     }
+
+    /* ------------------------------------------------------------------ 1. edge-to-edge */
+
+    @SuppressWarnings("deprecation")
+    private void setupEdgeToEdge() {
+        try {
+            // Android 15+ forces edge-to-edge; make older versions behave identically so the
+            // inset handling below is the only thing that positions the content.
+            WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+            if (Build.VERSION.SDK_INT < 35) {
+                getWindow().setStatusBarColor(Color.TRANSPARENT);
+                getWindow().setNavigationBarColor(Color.TRANSPARENT);
+            }
+            if (Build.VERSION.SDK_INT >= 29) {
+                getWindow().setNavigationBarContrastEnforced(false); // no grey scrim behind 3-button nav
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private void installInsetsHandling() {
+        try {
+            View content = findViewById(android.R.id.content);
+            if (content == null) return;
+            ViewCompat.setOnApplyWindowInsetsListener(content, (view, windowInsets) -> {
+                Insets bars = windowInsets.getInsets(
+                        WindowInsetsCompat.Type.systemBars()
+                                | WindowInsetsCompat.Type.displayCutout()
+                                | WindowInsetsCompat.Type.ime());
+                // Left / right / bottom: keep the page clear of the navigation bar, cut-out and keyboard.
+                view.setPadding(bars.left, 0, bars.right, bars.bottom);
+                Insets top = windowInsets.getInsets(
+                        WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+                topInsetPx = top.top;
+                pushTopInsetToPage();
+                // Consumed: the WebView must not apply the same insets a second time.
+                return WindowInsetsCompat.CONSUMED;
+            });
+            ViewCompat.requestApplyInsets(content);
+        } catch (Throwable ignored) {
+            // Never block app start-up because of cosmetic inset handling.
+        }
+    }
+
+    private void pushTopInsetToPage() {
+        try {
+            final WebView webView = (getBridge() != null) ? getBridge().getWebView() : null;
+            if (webView == null) return;
+            final float density = getResources().getDisplayMetrics().density;
+            final String js = "document.documentElement.style.setProperty('--nm-safe-top','"
+                    + (topInsetPx / density) + "px');";
+            webView.post(() -> webView.evaluateJavascript(js, null));
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /* ------------------------------------------------------------------ 2. back button */
+
+    private void installBackHandling() {
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                final WebView webView = (getBridge() != null) ? getBridge().getWebView() : null;
+                if (webView == null) {
+                    finish();
+                    return;
+                }
+                final String js = "(function(){try{return window.__nmNativeBack?String(window.__nmNativeBack()):'none';}catch(e){return 'none';}})()";
+                webView.evaluateJavascript(js, value -> {
+                    if (value != null && value.contains("handled")) {
+                        return; // the page consumed the Back press
+                    }
+                    finish();   // page asked to exit (second press) or is not ready yet
+                });
+            }
+        });
+    }
+
+    /* ------------------------------------------------------------------ 3. return notification */
 
     @SuppressLint("MissingPermission")
     private void showReturnNotificationIfEnabled() {
@@ -110,6 +193,8 @@ public class MainActivity extends BridgeActivity {
         }
     }
 
+    /* ------------------------------------------------------------------ 4. launcher icon theme */
+
     private void applyLauncherIcon(String key) {
         boolean known = false;
         for (String k : ICON_KEYS) if (k.equals(key)) known = true;
@@ -134,44 +219,7 @@ public class MainActivity extends BridgeActivity {
         }
     }
 
-    private void installInsetsHandling() {
-        try {
-            View content = findViewById(android.R.id.content);
-            if (content == null) return;
-            ViewCompat.setOnApplyWindowInsetsListener(content, (view, windowInsets) -> {
-                int mask = WindowInsetsCompat.Type.systemBars()
-                        | WindowInsetsCompat.Type.displayCutout()
-                        | WindowInsetsCompat.Type.ime();
-                Insets insets = windowInsets.getInsets(mask);
-                // Top is intentionally untouched: the page already pads itself under the status bar.
-                view.setPadding(insets.left, 0, insets.right, insets.bottom);
-                return windowInsets;
-            });
-            ViewCompat.requestApplyInsets(content);
-        } catch (Throwable ignored) {
-            // Never block app start-up because of cosmetic inset handling.
-        }
-    }
-
-    private void installBackHandling() {
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                final WebView webView = (getBridge() != null) ? getBridge().getWebView() : null;
-                if (webView == null) {
-                    finish();
-                    return;
-                }
-                final String js = "(function(){try{return window.__nmNativeBack?String(window.__nmNativeBack()):'none';}catch(e){return 'none';}})()";
-                webView.evaluateJavascript(js, value -> {
-                    if (value != null && value.contains("handled")) {
-                        return; // the page consumed the Back press
-                    }
-                    finish();   // page asked to exit (second press) or is not ready yet
-                });
-            }
-        });
-    }
+    /* ------------------------------------------------------------------ 5. JS interface + bar colour */
 
     private void installJavascriptInterface() {
         try {
@@ -185,6 +233,7 @@ public class MainActivity extends BridgeActivity {
 
     private void applyBarColor(final int color) {
         try {
+            // Visible behind the padded navigation-bar strip; also the colour of the bars' background.
             getWindow().setBackgroundDrawable(new ColorDrawable(color));
             double luminance = (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255.0;
             boolean lightBackground = luminance > 0.6;
@@ -201,16 +250,6 @@ public class MainActivity extends BridgeActivity {
     /** Methods callable from the page as window.NamelloAndroid.* */
     public class NamelloAndroid {
         @JavascriptInterface
-        public void setReturnNotification(boolean enabled) {
-            getSharedPreferences(PREFS, MODE_PRIVATE).edit().putBoolean(KEY_RETURN, enabled).apply();
-        }
-
-        @JavascriptInterface
-        public void setLauncherIcon(final String key) {
-            runOnUiThread(() -> applyLauncherIcon(key));
-        }
-
-        @JavascriptInterface
         public void setChromeColor(final String hex) {
             if (hex == null) return;
             final int color;
@@ -220,6 +259,23 @@ public class MainActivity extends BridgeActivity {
                 return;
             }
             runOnUiThread(() -> applyBarColor(color | 0xFF000000));
+        }
+
+        /** Status-bar height in CSS pixels (density-independent), for --nm-safe-top. */
+        @JavascriptInterface
+        public String getTopInset() {
+            float density = getResources().getDisplayMetrics().density;
+            return String.valueOf(topInsetPx / density);
+        }
+
+        @JavascriptInterface
+        public void setReturnNotification(boolean enabled) {
+            getSharedPreferences(PREFS, MODE_PRIVATE).edit().putBoolean(KEY_RETURN, enabled).apply();
+        }
+
+        @JavascriptInterface
+        public void setLauncherIcon(final String key) {
+            runOnUiThread(() -> applyLauncherIcon(key));
         }
     }
 }
