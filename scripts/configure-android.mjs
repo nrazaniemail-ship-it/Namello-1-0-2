@@ -95,6 +95,9 @@ if (!manifest.includes("<queries>")) {
 
 /* 3. permissions + soft input mode */
 const permissions = [
+  "android.permission.SYSTEM_ALERT_WINDOW",
+  "android.permission.FOREGROUND_SERVICE",
+  "android.permission.FOREGROUND_SERVICE_SPECIAL_USE",
   "android.permission.POST_NOTIFICATIONS",
   "android.permission.SCHEDULE_EXACT_ALARM",
   "android.permission.RECEIVE_BOOT_COMPLETED",
@@ -106,11 +109,25 @@ if (missing.length) {
   need(/<application[\s>]/.test(manifest), "AndroidManifest.xml: <application> not found");
   manifest = manifest.replace(/<application[\s>]/, (m) => `${lines}\n\n    ${m}`);
 }
+if (!manifest.includes("FloatingReturnService")) {
+  need(manifest.includes("</application>"), "AndroidManifest.xml: </application> not found");
+  manifest = manifest.replace("</application>", `
+        <service
+            android:name=".FloatingReturnService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Floating button that returns the user to the Namello app" />
+        </service>
+    </application>`);
+}
 if (!/android:windowSoftInputMode=/.test(manifest)) {
   need(/android:name="\.MainActivity"/.test(manifest), "AndroidManifest.xml: .MainActivity not found");
   manifest = manifest.replace(/android:name="\.MainActivity"/, 'android:name=".MainActivity"\n            android:windowSoftInputMode="adjustResize"');
 }
 await writeFile(manifestFile, manifest);
+need(manifest.includes('android:name=".FloatingReturnService"'), "floating-button service missing after patch");
 need(manifest.includes("<queries>") && manifest.includes("net.metaquotes.metatrader5"), "<queries> block missing after patch");
 need(manifest.includes('android:name=".LauncherDefault"') && manifest.includes('android:name=".LauncherRuby"'), "launcher icon aliases missing after patch");
 for (const p of permissions) need(manifest.includes(`android:name="${p}"`), `permission ${p} missing after patch`);
@@ -133,6 +150,8 @@ if (existing) {
   if (pkg) {
     const tpl = await readFile("native/android/MainActivity.java.tpl", "utf8");
     await writeFile(existing, tpl.replace(/__PACKAGE__/g, pkg));
+    const service = await readFile("native/android/FloatingReturnService.java.tpl", "utf8");
+    await writeFile(path.join(path.dirname(existing), "FloatingReturnService.java"), service.replace(/__PACKAGE__/g, pkg));
   }
 }
 

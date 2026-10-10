@@ -111,7 +111,7 @@ if (cap) {
   if (!/appId:\s*"[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+"/i.test(cap)) fail("capacitor.config.ts: appId missing/invalid");
   if (!/webDir:\s*"dist"/.test(cap)) fail('capacitor.config.ts: webDir must be "dist"');
 }
-for (const f of ["assets/icon-only.png", "native/android/MainActivity.java.tpl", "native/android/ic_stat_namello.xml",
+for (const f of ["assets/icon-only.png", "native/android/MainActivity.java.tpl", "native/android/FloatingReturnService.java.tpl", "native/android/ic_stat_namello.xml",
   "scripts/build-web.mjs", "scripts/configure-android.mjs"]) {
   if (!existsSync(f)) fail(`missing build input: ${f}`);
 }
