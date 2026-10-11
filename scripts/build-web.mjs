@@ -24,7 +24,8 @@ await cp("index.html", "dist/index.html");
 await cp("version.json", "dist/version.json");
 
 const required = ["index.html", "sw.js", "native-bridge.js", "manifest.json", "widget.html", "icon-192.png", "icon-512.png",
-  "icon-dashboard-logo.png", "icon-sessions.png", "icon-journal.png", "icon-mt5.jpg", "icon-tradingview.png"];
+  "icon-dashboard-logo.png", "icon-sessions.png", "icon-journal.png", "icon-mt5.jpg", "icon-tradingview.png",
+  ...["sat", "sun", "mon", "tue", "wed", "thu", "fri"].map((d) => `icon-day-${d}.jpg`)];
 for (const f of required) {
   if (!existsSync(`dist/${f}`) || (await stat(`dist/${f}`)).size === 0) throw new Error(`dist/${f} is missing or empty`);
 }

@@ -49,6 +49,12 @@ for (const t of THEMES.filter((x) => x !== "default")) {
   need(existsSync(src), `missing ${src}`);
   if (existsSync(src)) await copyFile(src, path.join(MAIN, `res/drawable-nodpi/${drawableOf(t)}.png`));
 }
+const DAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+for (const d of DAYS) {
+  const src = `icon-day-${d}.jpg`;
+  need(existsSync(src), `missing ${src}`);
+  if (existsSync(src)) await copyFile(src, path.join(MAIN, `res/drawable-nodpi/namello_launcher_day_${d}.jpg`));
+}
 if (!manifest.includes('android:name=".LauncherDefault"')) {
   const launcherFilter = /<intent-filter>\s*<action android:name="android\.intent\.action\.MAIN"\s*\/>\s*<category android:name="android\.intent\.category\.LAUNCHER"\s*\/>\s*<\/intent-filter>/;
   need(launcherFilter.test(manifest), "AndroidManifest.xml: MainActivity LAUNCHER intent-filter not found");
@@ -74,7 +80,21 @@ if (!manifest.includes('android:name=".LauncherDefault"')) {
             </intent-filter>
         </activity-alias>`;
     }).join("\n");
-    manifest = head + "</activity>\n" + aliases + manifest.slice(end + "</activity>".length);
+    const dayAliases = DAYS.map((d) => `
+        <activity-alias
+            android:name=".LauncherDay${d[0].toUpperCase() + d.slice(1)}"
+            android:targetActivity=".MainActivity"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@drawable/namello_launcher_day_${d}"
+            android:roundIcon="@drawable/namello_launcher_day_${d}"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>`).join("\n");
+    manifest = head + "</activity>\n" + aliases + "\n" + dayAliases + manifest.slice(end + "</activity>".length);
   }
 }
 
@@ -96,8 +116,6 @@ if (!manifest.includes("<queries>")) {
 /* 3. permissions + soft input mode */
 const permissions = [
   "android.permission.SYSTEM_ALERT_WINDOW",
-  "android.permission.FOREGROUND_SERVICE",
-  "android.permission.FOREGROUND_SERVICE_SPECIAL_USE",
   "android.permission.POST_NOTIFICATIONS",
   "android.permission.SCHEDULE_EXACT_ALARM",
   "android.permission.RECEIVE_BOOT_COMPLETED",
@@ -114,12 +132,21 @@ if (!manifest.includes("FloatingReturnService")) {
   manifest = manifest.replace("</application>", `
         <service
             android:name=".FloatingReturnService"
-            android:exported="false"
-            android:foregroundServiceType="specialUse">
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Floating button that returns the user to the Namello app" />
-        </service>
+            android:exported="false" />
+    </application>`);
+}
+if (!manifest.includes("DailyIconReceiver")) {
+  need(manifest.includes("</application>"), "AndroidManifest.xml: </application> not found");
+  manifest = manifest.replace("</application>", `
+        <receiver
+            android:name=".DailyIconReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
     </application>`);
 }
 if (!/android:windowSoftInputMode=/.test(manifest)) {
@@ -128,6 +155,7 @@ if (!/android:windowSoftInputMode=/.test(manifest)) {
 }
 await writeFile(manifestFile, manifest);
 need(manifest.includes('android:name=".FloatingReturnService"'), "floating-button service missing after patch");
+need(manifest.includes('android:name=".DailyIconReceiver"') && manifest.includes('android:name=".LauncherDaySat"'), "weekly icon aliases/receiver missing after patch");
 need(manifest.includes("<queries>") && manifest.includes("net.metaquotes.metatrader5"), "<queries> block missing after patch");
 need(manifest.includes('android:name=".LauncherDefault"') && manifest.includes('android:name=".LauncherRuby"'), "launcher icon aliases missing after patch");
 for (const p of permissions) need(manifest.includes(`android:name="${p}"`), `permission ${p} missing after patch`);
@@ -152,6 +180,10 @@ if (existing) {
     await writeFile(existing, tpl.replace(/__PACKAGE__/g, pkg));
     const service = await readFile("native/android/FloatingReturnService.java.tpl", "utf8");
     await writeFile(path.join(path.dirname(existing), "FloatingReturnService.java"), service.replace(/__PACKAGE__/g, pkg));
+    for (const name of ["IconThemeHelper", "DailyIconReceiver"]) {
+      const tplText = await readFile(`native/android/${name}.java.tpl`, "utf8");
+      await writeFile(path.join(path.dirname(existing), `${name}.java`), tplText.replace(/__PACKAGE__/g, pkg));
+    }
   }
 }
 

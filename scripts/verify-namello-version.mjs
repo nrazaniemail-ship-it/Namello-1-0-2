@@ -99,7 +99,8 @@ for (const dir of ["", "public/"]) {
   if (!sw.includes(`const CACHE_NAME = "namello-${V}-c${C}";`)) fail(`${dir}sw.js: CACHE_NAME is not namello-${V}-c${C}`);
 }
 for (const f of [...manifests, "sw.js", "widget.html", "native-bridge.js", "icon-192.png", "icon-512.png",
-  "icon-dashboard-logo.png", "icon-sessions.png", "icon-journal.png", "icon-mt5.jpg", "icon-tradingview.png"]) {
+  "icon-dashboard-logo.png", "icon-sessions.png", "icon-journal.png", "icon-mt5.jpg", "icon-tradingview.png",
+  ...["sat", "sun", "mon", "tue", "wed", "thu", "fri"].map((d) => `icon-day-${d}.jpg`)]) {
   if (!existsSync(f)) { fail(`missing root file: ${f}`); continue; }
   if (!existsSync("public/" + f)) { fail(`missing public/${f} (it is what ends up in dist/)`); continue; }
   if (!(await sameBytes(f, "public/" + f))) fail(`public/${f} differs from ${f} – keep both copies identical`);
@@ -111,7 +112,7 @@ if (cap) {
   if (!/appId:\s*"[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+"/i.test(cap)) fail("capacitor.config.ts: appId missing/invalid");
   if (!/webDir:\s*"dist"/.test(cap)) fail('capacitor.config.ts: webDir must be "dist"');
 }
-for (const f of ["assets/icon-only.png", "native/android/MainActivity.java.tpl", "native/android/FloatingReturnService.java.tpl", "native/android/ic_stat_namello.xml",
+for (const f of ["assets/icon-only.png", "native/android/MainActivity.java.tpl", "native/android/FloatingReturnService.java.tpl", "native/android/IconThemeHelper.java.tpl", "native/android/DailyIconReceiver.java.tpl", "native/android/ic_stat_namello.xml",
   "scripts/build-web.mjs", "scripts/configure-android.mjs"]) {
   if (!existsSync(f)) fail(`missing build input: ${f}`);
 }
