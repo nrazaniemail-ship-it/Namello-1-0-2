@@ -1,3 +1,16 @@
+## 1.0.46 (versionCode 45)
+- دکمه‌ی شناور: تغییر نام بخش، حذف نوتیفیکیشن دائمی (سرویس معمولی بدون Foreground)، به‌روزرسانی متن‌های راهنما.
+- تم آیکون: زیربخش «تم آیکون سفارشی ثابت» + «تم آیکون متغیر هفتگی» (۷ تصویر روزهای هفته؛ 14 activity-alias؛ DailyIconReceiver برای تعویض نیمه‌شب).
+
+## 1.0.45 (versionCode 44)
+- استیتمنت: تشخیص کدگذاری UTF-16/UTF-8/Windows-1256 برای HTML (گزارش MT5).
+- APK: ورودی‌های فایل استیتمنت بدون فیلتر accept باز می‌شوند.
+
+## 1.0.44 (versionCode 43)
+- APK: دانلود blob:/data: (Excel، CSV، JSON، پشتیبان) → MediaStore Downloads + باز کردن Excel/PDF.
+- APK: خروجی PDF با PrintManager (Save as PDF).
+- سربرگ PDF: نسخه‌ی واقعی به‌جای 1.0.26.
+
 ## 1.0.43 (versionCode 42)
 - دکمه‌ی شناور: حذف حلقه و padding؛ آیکون = آیکون لانچر تم انتخابی (refreshIcon).
 
