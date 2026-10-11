@@ -227,3 +227,29 @@ test("1.0.46: help texts follow the new behaviour", () => {
   assert.ok(index.includes("«تم آیکون سفارشی ثابت»") );
   assert.ok(!index.includes("آیکون لانچر در خودِ APK ثابت است"), "outdated APK icon statement removed");
 });
+
+test("1.0.47: Excel sheet names never contain forbidden characters or exceed 31 characters", () => {
+  const fn = index.match(/function nmSafeSheetName\(name\) \{[\s\S]*?\n\}/)[0];
+  const safe = new Function(fn + "; return nmSafeSheetName;")();
+  assert.equal(safe("شکرگزاری / Gratitude"), "شکرگزاری - Gratitude");
+  assert.equal(safe("R:R"), "R-R");
+  assert.equal(safe("a\\b/c?d*e[f]g"), "a-b-c-d-e-f-g");
+  assert.equal(safe("").length > 0, true);
+  assert.ok(safe("x".repeat(80)).length === 31);
+  // every predefined bilingual title (the ones that used to crash with "Sheet name cannot contain ...")
+  const map = index.match(/const NM_EXPORT_EXTRA_BI = \{([\s\S]*?)\n\};/)[1];
+  const values = [...map.matchAll(/:"([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(values.length > 50);
+  for (const v of values) {
+    const s = safe(v);
+    assert.ok(s.length <= 31 && !/[:\\/?*\[\]]/.test(s), v + " -> " + s);
+  }
+  assert.ok(index.includes("nmSafeSheetName(nmExportBilingualText(name))"));
+  assert.ok(index.includes("// نام تکراری") || index.includes("نام تکراری (بعد از کوتاه‌سازی)"));
+});
+
+test("1.0.47: PDF print job is started from a main-thread Handler (a detached WebView never runs View.postDelayed)", () => {
+  assert.ok(java.includes("new Handler(Looper.getMainLooper()).postDelayed("));
+  assert.ok(!/view\.postDelayed\(/.test(java));
+  assert.ok(java.includes("toastToPage("), "failures are reported in the page");
+});
