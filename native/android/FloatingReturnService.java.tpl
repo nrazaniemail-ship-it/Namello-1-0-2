@@ -1,13 +1,8 @@
 package __PACKAGE__;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ServiceInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Outline;
@@ -25,18 +20,17 @@ import android.view.ViewOutlineProvider;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
-import androidx.core.app.NotificationCompat;
-
 /**
  * Namello - floating "return to Namello" button that stays on top of other apps (MT5, TradingView ...).
  *
  *  - needs the "Display over other apps" permission (SYSTEM_ALERT_WINDOW), requested from Settings;
- *  - runs as a foreground service so Android keeps it alive while Namello is in the background;
+ *  - a plain (non-foreground) service: NO notification is shown. The visible overlay window keeps the
+ *    process at a high priority; if Android still closes it, the button comes back when Namello is opened;
  *  - hidden while Namello itself is on screen, shown as soon as the user leaves it;
  *  - can be dragged anywhere; it snaps to the nearest screen edge and remembers its position;
  *  - one tap brings Namello back to the front;
- *  - the button shows the SAME icon as the launcher: it follows the icon theme chosen in Settings
- *    (MainActivity stores the theme and calls refreshIcon()). No ring / frame around the logo.
+ *  - the button shows the SAME icon as the launcher: the fixed icon theme or, in weekly mode, today's
+ *    image (IconThemeHelper). MainActivity calls refreshIcon() when it changes. No ring around the logo.
  * Started / stopped from the page through window.NamelloAndroid.enableFloatingReturn() / disableFloatingReturn().
  */
 public class FloatingReturnService extends Service {
@@ -44,9 +38,6 @@ public class FloatingReturnService extends Service {
     private static final String PREFS = "namello_native";
     private static final String KEY_X = "floating_x";
     private static final String KEY_Y = "floating_y";
-    private static final String KEY_ICON_THEME = "icon_theme";
-    private static final String CHANNEL = "namello-floating";
-    private static final int NOTIFICATION_ID = 424243;
 
     private static volatile FloatingReturnService instance;
     private static volatile boolean appForeground = false;
@@ -92,7 +83,6 @@ public class FloatingReturnService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         instance = this;
-        startInForeground();
         if (button == null) {
             createButton();
         }
@@ -105,38 +95,6 @@ public class FloatingReturnService extends Service {
         instance = null;
         removeButton();
         super.onDestroy();
-    }
-
-    private void startInForeground() {
-        try {
-            NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && manager != null) {
-                NotificationChannel channel = new NotificationChannel(
-                        CHANNEL, "دکمه‌ی شناور Namello", NotificationManager.IMPORTANCE_LOW);
-                channel.setShowBadge(false);
-                manager.createNotificationChannel(channel);
-            }
-            Intent open = new Intent(this, MainActivity.class);
-            open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            PendingIntent pending = PendingIntent.getActivity(
-                    this, 0, open, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-            int icon = getResources().getIdentifier("ic_stat_namello", "drawable", getPackageName());
-            if (icon == 0) icon = android.R.drawable.ic_dialog_info;
-            Notification notification = new NotificationCompat.Builder(this, CHANNEL)
-                    .setSmallIcon(icon)
-                    .setContentTitle("دکمه‌ی شناور Namello فعال است")
-                    .setContentText("برای بازگشت سریع به Namello روی دکمه‌ی شناور بزن.")
-                    .setContentIntent(pending)
-                    .setOngoing(true)
-                    .setPriority(NotificationCompat.PRIORITY_LOW)
-                    .build();
-            if (Build.VERSION.SDK_INT >= 34) {
-                startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
-            } else {
-                startForeground(NOTIFICATION_ID, notification);
-            }
-        } catch (Throwable ignored) {
-        }
     }
 
     private void createButton() {
@@ -190,8 +148,7 @@ public class FloatingReturnService extends Service {
     /** Loads the launcher icon of the currently selected icon theme into the button. */
     private void loadIcon(ImageView target) {
         try {
-            String theme = getSharedPreferences(PREFS, MODE_PRIVATE).getString(KEY_ICON_THEME, "default");
-            String name = "default".equals(theme) ? "namello_launcher" : "namello_launcher_" + theme;
+            String name = IconThemeHelper.currentDrawableName(this);
             int id = getResources().getIdentifier(name, "drawable", getPackageName());
             if (id == 0) id = getResources().getIdentifier("namello_launcher", "drawable", getPackageName());
             if (id == 0) {

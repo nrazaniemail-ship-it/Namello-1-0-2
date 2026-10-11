@@ -1,17 +1,29 @@
 package __PACKAGE__;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.ComponentName;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Environment;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
+import android.print.PrintManager;
+import android.provider.MediaStore;
+import android.util.Base64;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
+import java.io.OutputStream;
 
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -35,8 +47,12 @@ import com.getcapacitor.BridgeActivity;
  *
  * The chosen mode is stored natively (SharedPreferences) so it is applied at start-up before the page
  * has loaded. The page changes it with window.NamelloAndroid.setNavBarMode("separate" | "overlap").
- * Launcher icon theme: scripts/configure-android.mjs declares one <activity-alias> per theme; the page
- * switches between them with setLauncherIcon(key).
+ * Launcher icon: scripts/configure-android.mjs declares one <activity-alias> per fixed theme and one per
+ * weekday; the page switches with setLauncherIcon(key) (fixed) / setWeeklyIcon(true|false) (daily change,
+ * see IconThemeHelper + DailyIconReceiver).
+ * File export: saveToDownloads() stores Excel/CSV/JSON files in the public Download folder and
+ * openUri() opens them; printHtml() opens Android's print dialog ("Save as PDF") for PDF reports.
+ * (The WebView can neither download blob: files nor call window.print().)
  * Floating "return to Namello" button over other apps: FloatingReturnService (see that class).
  * It also exposes launchApp(pkg, scheme) for the floating MT5 / TradingView quick-launch buttons
  * (intent:// links do not work inside a WebView, PackageManager does).
@@ -50,11 +66,9 @@ public class MainActivity extends BridgeActivity {
     private static final String KEY_NAV_MODE = "navbar_mode";
     private static final String MODE_SEPARATE = "separate";
     private static final String MODE_OVERLAP = "overlap";
-    private static final String KEY_ICON_THEME = "icon_theme";
-    /** Must match NM_ICON_THEMES keys in index.html and the aliases written by configure-android.mjs. */
-    private static final String[] ICON_KEYS = {"default", "midnight", "emerald", "royal", "graphite", "sunset", "ruby"};
 
     private volatile boolean separate = true;
+    private WebView printWebView;   // kept alive while the print dialog is open
     private int topInsetPx = 0;
     private int navInsetPx = 0;
 
@@ -105,6 +119,13 @@ public class MainActivity extends BridgeActivity {
     public void onStart() {
         super.onStart();
         FloatingReturnService.setAppForeground(true);   // floating button is hidden while Namello is visible
+        try {
+            if (IconThemeHelper.isWeekly(this)) {       // weekly icon theme: make sure today's icon + the midnight alarm are set
+                IconThemeHelper.apply(this);
+                IconThemeHelper.scheduleNext(this);
+            }
+        } catch (Throwable ignored) {
+        }
     }
 
     @Override
@@ -114,30 +135,17 @@ public class MainActivity extends BridgeActivity {
     }
 
     private void applyLauncherIcon(String key) {
-        boolean known = false;
-        for (String k : ICON_KEYS) if (k.equals(key)) known = true;
-        if (!known) return;
-        // remembered so the floating button can show the same icon as the launcher
-        getSharedPreferences(PREFS, MODE_PRIVATE).edit().putString(KEY_ICON_THEME, key).apply();
+        if (!IconThemeHelper.isValidTheme(key)) return;
+        IconThemeHelper.saveFixedTheme(this, key);        // remembered for the fixed theme / floating button
+        IconThemeHelper.apply(this);                       // (does nothing visible while the weekly theme is on)
         FloatingReturnService.refreshIcon();
-        String className = getClass().getName();
-        String namespace = className.substring(0, className.lastIndexOf('.'));
-        PackageManager pm = getPackageManager();
-        // enable the wanted alias first so the app never has zero launcher entries, then disable the rest
-        for (int pass = 0; pass < 2; pass++) {
-            for (String k : ICON_KEYS) {
-                boolean wanted = k.equals(key);
-                if (wanted != (pass == 0)) continue;
-                String alias = namespace + ".Launcher" + Character.toUpperCase(k.charAt(0)) + k.substring(1);
-                try {
-                    pm.setComponentEnabledSetting(
-                            new ComponentName(getPackageName(), alias),
-                            wanted ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                            PackageManager.DONT_KILL_APP);
-                } catch (Throwable ignored) {
-                }
-            }
-        }
+    }
+
+    private void applyWeeklyIcon(boolean weekly) {
+        IconThemeHelper.saveWeekly(this, weekly);
+        IconThemeHelper.apply(this);
+        IconThemeHelper.scheduleNext(this);                // schedules the midnight alarm, or cancels it
+        FloatingReturnService.refreshIcon();
     }
 
     private boolean canDrawOverlays() {
@@ -146,7 +154,7 @@ public class MainActivity extends BridgeActivity {
 
     private void startFloatingService() {
         try {
-            ContextCompat.startForegroundService(this, new Intent(this, FloatingReturnService.class));
+            startService(new Intent(this, FloatingReturnService.class));   // plain service: no notification
         } catch (Throwable ignored) {
         }
     }
@@ -191,6 +199,11 @@ public class MainActivity extends BridgeActivity {
         }
 
         @JavascriptInterface
+        public void setWeeklyIcon(final boolean weekly) {
+            runOnUiThread(() -> applyWeeklyIcon(weekly));
+        }
+
+        @JavascriptInterface
         public boolean hasOverlayPermission() {
             return canDrawOverlays();
         }
@@ -230,6 +243,99 @@ public class MainActivity extends BridgeActivity {
                 } catch (Throwable ignored) {
                 }
             });
+        }
+
+        /**
+         * Saves a file into the public Download folder (Android 10+, no permission needed).
+         * Returns "ok|name|uri", "unsupported" (Android 9 or older) or "error:...".
+         */
+        @JavascriptInterface
+        public String saveToDownloads(String fileName, String mime, String base64) {
+            if (Build.VERSION.SDK_INT < 29) return "unsupported";
+            try {
+                String name = (fileName == null ? "" : fileName).replaceAll("[\\\\/:*?\"<>|]", "_").trim();
+                if (name.isEmpty()) name = "namello-export";
+                byte[] data = Base64.decode(base64, Base64.DEFAULT);
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Downloads.DISPLAY_NAME, name);
+                values.put(MediaStore.Downloads.MIME_TYPE, (mime == null || mime.isEmpty()) ? "application/octet-stream" : mime);
+                values.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+                values.put(MediaStore.Downloads.IS_PENDING, 1);
+                ContentResolver resolver = getContentResolver();
+                Uri uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+                if (uri == null) return "error:insert";
+                OutputStream out = resolver.openOutputStream(uri);
+                if (out == null) return "error:stream";
+                try {
+                    out.write(data);
+                } finally {
+                    out.close();
+                }
+                ContentValues done = new ContentValues();
+                done.put(MediaStore.Downloads.IS_PENDING, 0);
+                resolver.update(uri, done, null, null);
+                return "ok|" + name + "|" + uri.toString();
+            } catch (Throwable t) {
+                return "error:" + t.getClass().getSimpleName();
+            }
+        }
+
+        /** Opens a saved file with an app chosen by the user (Excel, PDF viewer ...). */
+        @JavascriptInterface
+        public boolean openUri(final String uriString, final String mime) {
+            try {
+                final Intent view = new Intent(Intent.ACTION_VIEW);
+                view.setDataAndType(Uri.parse(uriString), (mime == null || mime.isEmpty()) ? "*/*" : mime);
+                view.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                final Intent chooser = Intent.createChooser(view, "باز کردن با…");
+                runOnUiThread(() -> {
+                    try {
+                        startActivity(chooser);
+                    } catch (Throwable ignored) {
+                    }
+                });
+                return true;
+            } catch (Throwable t) {
+                return false;
+            }
+        }
+
+        /** Opens Android's print dialog for an HTML report; the user picks "Save as PDF". */
+        @JavascriptInterface
+        public boolean printHtml(final String html, final String jobName) {
+            if (html == null || html.isEmpty()) return false;
+            final String job = (jobName == null || jobName.trim().isEmpty()) ? "Namello" : jobName.trim();
+            runOnUiThread(() -> {
+                try {
+                    final WebView web = new WebView(MainActivity.this);
+                    printWebView = web;
+                    web.setWebViewClient(new WebViewClient() {
+                        private boolean started = false;
+
+                        @Override
+                        public void onPageFinished(final WebView view, String url) {
+                            if (started) return;
+                            started = true;
+                            // short delay so the web font and logo can finish loading
+                            view.postDelayed(() -> {
+                                try {
+                                    PrintManager manager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
+                                    PrintDocumentAdapter adapter = view.createPrintDocumentAdapter(job);
+                                    PrintAttributes attributes = new PrintAttributes.Builder()
+                                            .setMediaSize(PrintAttributes.MediaSize.ISO_A4.asLandscape())
+                                            .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
+                                            .build();
+                                    manager.print(job, adapter, attributes);
+                                } catch (Throwable ignored) {
+                                }
+                            }, 900);
+                        }
+                    });
+                    web.loadDataWithBaseURL("https://localhost/", html, "text/html", "UTF-8", null);
+                } catch (Throwable ignored) {
+                }
+            });
+            return true;
         }
 
         /**
