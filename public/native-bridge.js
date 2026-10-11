@@ -475,9 +475,99 @@
       Promise.resolve(window.storage.get('namello_icon_theme_v1')).then(function (r) {
         var k = r && r.value;
         if (ICON_KEYS.indexOf(k) >= 0 && typeof A.setLauncherIcon === 'function') A.setLauncherIcon(k);
+      }).catch(function () { }).then(function () {
+        return Promise.resolve(window.storage.get('namello_icon_weekly_v1'));
+      }).then(function (r) {
+        if (r && (r.value === '1' || r.value === '0') && typeof A.setWeeklyIcon === 'function') A.setWeeklyIcon(r.value === '1');
       }).catch(function () { });
     } catch (e) { }
   }
+
+  /* ------------------------------------------------------------------ downloads (Excel / CSV / JSON ...) */
+  // The Android WebView cannot download blob:/data: files (<a download>, SheetJS XLSX.writeFile ...).
+  // Every such click is caught here and the file is stored in the public Download folder instead.
+  var MIME_BY_EXT = {
+    xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', xls: 'application/vnd.ms-excel',
+    csv: 'text/csv', json: 'application/json', txt: 'text/plain', md: 'text/markdown', pdf: 'application/pdf',
+    html: 'text/html', htm: 'text/html', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', zip: 'application/zip'
+  };
+  function mimeFor(name, blobType) {
+    var ext = String(name || '').split('.').pop().toLowerCase();
+    return MIME_BY_EXT[ext] || (blobType && blobType !== 'application/octet-stream' ? blobType : 'application/octet-stream');
+  }
+  var blobRegistry = {};
+  try {
+    var origCreate = URL.createObjectURL.bind(URL);
+    URL.createObjectURL = function (obj) {
+      var u = origCreate(obj);
+      try { if (obj instanceof Blob) { blobRegistry[u] = obj; setTimeout(function () { delete blobRegistry[u]; }, 120000); } } catch (e) { }
+      return u;
+    };
+  } catch (e) { }
+  var lastSaved = { key: '', t: 0 };
+  function saveDownloadedBlob(blob, fileName) {
+    var name = String(fileName || 'namello-export');
+    var mime = mimeFor(name, blob && blob.type);
+    var key = name + '|' + (blob && blob.size);
+    if (lastSaved.key === key && Date.now() - lastSaved.t < 3000) return Promise.resolve(true);
+    lastSaved = { key: key, t: Date.now() };
+    var A = window.NamelloAndroid;
+    var viaShare = function () {
+      return window.NamelloNativeFiles.shareBlob(blob, name, mime, name).then(function (ok) {
+        if (!ok) toast('ذخیره‌ی فایل «' + name + '» انجام نشد.');
+        return ok;
+      });
+    };
+    if (!A || typeof A.saveToDownloads !== 'function') return viaShare();
+    return blobToBase64(blob).then(function (b64) {
+      var res = String(A.saveToDownloads(name, mime, b64));
+      if (res.indexOf('ok|') === 0) {
+        var parts = res.split('|');
+        toast('فایل در پوشه‌ی Download ذخیره شد: ' + parts[1]);
+        if (/\.(xlsx|xls|pdf)$/i.test(name) && typeof A.openUri === 'function') { try { A.openUri(parts.slice(2).join('|'), mime); } catch (e) { } }
+        return true;
+      }
+      return viaShare(); // Android 9 or older / write failed -> share sheet
+    }).catch(function () { return viaShare(); });
+  }
+  function handleDownloadAnchor(a) {
+    var href = a.href || '';
+    if (!/^(blob:|data:)/i.test(href)) return false;
+    var name = a.download || 'namello-export';
+    var known = blobRegistry[href];
+    var pending = known ? Promise.resolve(known) : fetch(href).then(function (r) { return r.blob(); });
+    pending.then(function (blob) { return saveDownloadedBlob(blob, name); })
+      .catch(function () { toast('ذخیره‌ی فایل انجام نشد.'); });
+    return true;
+  }
+  try {
+    var origClick = HTMLAnchorElement.prototype.click;
+    HTMLAnchorElement.prototype.click = function () {
+      try { if (this.hasAttribute('download') && handleDownloadAnchor(this)) return; } catch (e) { }
+      return origClick.apply(this, arguments);
+    };
+    document.addEventListener('click', function (ev) {
+      try {
+        var a = ev.target && ev.target.closest ? ev.target.closest('a[download]') : null;
+        if (a && handleDownloadAnchor(a)) { ev.preventDefault(); ev.stopPropagation(); }
+      } catch (e) { }
+    }, true);
+  } catch (e) { }
+
+  /* ------------------------------------------------------------------ statement file picker */
+  // Android's file picker greys out CSV/Excel files whose MIME type differs from the one derived from
+  // accept=".csv,.xlsx,..." (e.g. text/comma-separated-values). The app validates files itself, so the
+  // statement inputs are opened without an accept filter inside the Android app.
+  try {
+    document.addEventListener('click', function (ev) {
+      try {
+        var t = ev.target;
+        if (t && t.tagName === 'INPUT' && t.type === 'file' && /\.csv/i.test(t.getAttribute('accept') || '')) {
+          t.setAttribute('accept', '');
+        }
+      } catch (e) { }
+    }, true);
+  } catch (e) { }
 
   /* ------------------------------------------------------------------ files: "open with" sheet */
   function blobToBase64(blob) {
