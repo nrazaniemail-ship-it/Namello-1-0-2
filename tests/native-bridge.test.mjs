@@ -175,13 +175,13 @@ test("after the DST change (EST, UTC-5) the standard-time window is used", async
   assert.equal(new RealDate(first.schedule.at).toISOString(), "2026-11-03T22:00:00.000Z"); // 17:00 EST
 });
 
-test("news alarms schedule a 5-minute warning and the event itself", async () => {
+test("news alarms schedule a 30-second warning and the event itself", async () => {
   const at = RealDate.UTC(2026, 9, 10, 14, 0, 0);
   const env = boot({ storageData: { namello_news_events_v1: [{ id: "n1", title: "NFP", currency: "USD", datetime: new RealDate(at).toISOString(), alarmStart: true }, { id: "n2", title: "off", currency: "EUR", datetime: new RealDate(at).toISOString(), alarmStart: false }] } });
   await settle(); await settle(); await env.flushTimers();
   const list = env.scheduled();
   assert.equal(list.length, 2);
-  assert.equal(new RealDate(list[0].schedule.at).getTime(), at - 5 * 60 * 1000);
+  assert.equal(new RealDate(list[0].schedule.at).getTime(), at - 30 * 1000);
   assert.equal(new RealDate(list[1].schedule.at).getTime(), at);
   assert.ok(list[0].title.includes("NFP"));
 });
