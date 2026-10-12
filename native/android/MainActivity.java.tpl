@@ -18,6 +18,7 @@ import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintManager;
 import android.provider.MediaStore;
+import android.provider.DocumentsContract;
 import android.util.Base64;
 import android.os.Build;
 import android.os.Bundle;
@@ -82,6 +83,8 @@ public class MainActivity extends BridgeActivity {
     private WebView printWebView;   // kept alive while the print dialog is open
     private int topInsetPx = 0;
     private int navInsetPx = 0;
+    private static final int REQ_BACKUP_TREE = 7412;
+    private static final String KEY_BACKUP_TREE_URI = "backup_tree_uri";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -127,6 +130,58 @@ public class MainActivity extends BridgeActivity {
         } catch (Throwable ignored) {
             // never block app start-up because of cosmetic inset handling
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != REQ_BACKUP_TREE) return;
+        try {
+            if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                Uri tree = data.getData();
+                int flags = data.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                getContentResolver().takePersistableUriPermission(tree, flags);
+                getSharedPreferences(PREFS, MODE_PRIVATE).edit().putString(KEY_BACKUP_TREE_URI, tree.toString()).apply();
+                String name = "پوشه‌ی انتخاب‌شده";
+                try {
+                    android.database.Cursor c = getContentResolver().query(tree, new String[]{DocumentsContract.Document.COLUMN_DISPLAY_NAME}, null, null, null);
+                    if (c != null) { try { if (c.moveToFirst()) name = c.getString(0); } finally { c.close(); } }
+                } catch (Throwable ignored) { }
+                final String safeName = name.replace("\\", "\\\\").replace("'", "\\'");
+                final String uriText = tree.toString().replace("\\", "\\\\").replace("'", "\\'");
+                final WebView web = (getBridge() != null) ? getBridge().getWebView() : null;
+                if (web != null) web.post(() -> web.evaluateJavascript("window.__nmBackupFolderResult && window.__nmBackupFolderResult(true,'" + safeName + "','" + uriText + "')", null));
+                return;
+            }
+        } catch (Throwable ignored) { }
+        final WebView web = (getBridge() != null) ? getBridge().getWebView() : null;
+        if (web != null) web.post(() -> web.evaluateJavascript("window.__nmBackupFolderResult && window.__nmBackupFolderResult(false,'','')", null));
+    }
+
+    private long lastBackPressAt = 0L;
+
+    /** Delegate Android system Back to the page first so dialogs and sub-layers close in order. */
+    @Override
+    public void onBackPressed() {
+        try {
+            final WebView webView = (getBridge() != null) ? getBridge().getWebView() : null;
+            if (webView != null) {
+                webView.evaluateJavascript("(function(){try{return window.__nmNativeBack?window.__nmNativeBack():'exit'}catch(e){return 'exit'}})()", value -> {
+                    String result = value == null ? "\"exit\"" : value;
+                    if (result.contains("handled")) return;
+                    long now = System.currentTimeMillis();
+                    if (now - lastBackPressAt < 1800L) {
+                        lastBackPressAt = 0L;
+                        finish();
+                    } else {
+                        lastBackPressAt = now;
+                        toastToPage("برای خروج، دوباره دکمه‌ی بازگشت را بزنید.");
+                    }
+                });
+                return;
+            }
+        } catch (Throwable ignored) { }
+        super.onBackPressed();
     }
 
     @Override
@@ -359,6 +414,45 @@ public class MainActivity extends BridgeActivity {
                 } catch (Throwable ignored) {
                 }
             });
+        }
+
+        /** Launches Android's Storage Access Framework folder picker and remembers its persistent URI. */
+        @JavascriptInterface
+        public void pickBackupFolder() {
+            runOnUiThread(() -> {
+                try {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+                    startActivityForResult(intent, REQ_BACKUP_TREE);
+                } catch (Throwable t) {
+                    final WebView web = (getBridge() != null) ? getBridge().getWebView() : null;
+                    if (web != null) web.post(() -> web.evaluateJavascript("window.__nmBackupFolderResult && window.__nmBackupFolderResult(false,'','')", null));
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public boolean hasPickedBackupFolder() {
+            return !getSharedPreferences(PREFS, MODE_PRIVATE).getString(KEY_BACKUP_TREE_URI, "").isEmpty();
+        }
+
+        /** Writes a backup JSON into the SAF folder selected by the user. */
+        @JavascriptInterface
+        public String saveToPickedBackupFolder(String fileName, String mime, String base64) {
+            try {
+                String treeText = getSharedPreferences(PREFS, MODE_PRIVATE).getString(KEY_BACKUP_TREE_URI, "");
+                if (treeText.isEmpty()) return "no-folder";
+                Uri tree = Uri.parse(treeText);
+                String name = (fileName == null ? "Namello-backup.json" : fileName).replaceAll("[\\\\/:*?\"<>|]", "_");
+                Uri dir = DocumentsContract.buildDocumentUriUsingTree(tree, DocumentsContract.getTreeDocumentId(tree));
+                Uri file = DocumentsContract.createDocument(getContentResolver(), dir, (mime == null || mime.isEmpty()) ? "application/json" : mime, name);
+                if (file == null) return "error:create";
+                byte[] bytes = Base64.decode(base64, Base64.DEFAULT);
+                OutputStream out = getContentResolver().openOutputStream(file, "w");
+                if (out == null) return "error:stream";
+                try { out.write(bytes); } finally { out.close(); }
+                return "ok|" + name + "|" + file.toString();
+            } catch (Throwable t) { return "error:" + t.getClass().getSimpleName(); }
         }
 
         /**
