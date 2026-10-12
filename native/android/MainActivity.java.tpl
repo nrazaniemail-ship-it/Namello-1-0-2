@@ -31,6 +31,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import java.io.OutputStream;
+import java.io.InputStream;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import java.util.concurrent.Executor;
 
 import androidx.core.content.ContextCompat;
@@ -136,29 +139,54 @@ public class MainActivity extends BridgeActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode != REQ_BACKUP_TREE) return;
+        String failure = "cancelled";
         try {
             if (resultCode == RESULT_OK && data != null && data.getData() != null) {
                 Uri tree = data.getData();
                 int flags = data.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                // A backup folder must support both reading (restore) and writing (backup).
+                // Do not persist a read-only selection and later report it as a valid folder.
+                if ((flags & Intent.FLAG_GRANT_READ_URI_PERMISSION) == 0 ||
+                        (flags & Intent.FLAG_GRANT_WRITE_URI_PERMISSION) == 0) {
+                    throw new SecurityException("folder-needs-read-write-access");
+                }
                 getContentResolver().takePersistableUriPermission(tree, flags);
+                boolean persisted = false;
+                for (android.content.UriPermission permission : getContentResolver().getPersistedUriPermissions()) {
+                    if (tree.equals(permission.getUri()) && permission.isReadPermission() && permission.isWritePermission()) {
+                        persisted = true;
+                        break;
+                    }
+                }
+                if (!persisted) throw new SecurityException("folder-access-not-persisted");
                 getSharedPreferences(PREFS, MODE_PRIVATE).edit().putString(KEY_BACKUP_TREE_URI, tree.toString()).apply();
                 String name = "پوشه‌ی انتخاب‌شده";
                 try {
-                    android.database.Cursor c = getContentResolver().query(tree, new String[]{DocumentsContract.Document.COLUMN_DISPLAY_NAME}, null, null, null);
-                    if (c != null) { try { if (c.moveToFirst()) name = c.getString(0); } finally { c.close(); } }
+                    Uri rootDocument = DocumentsContract.buildDocumentUriUsingTree(tree, DocumentsContract.getTreeDocumentId(tree));
+                    android.database.Cursor c = getContentResolver().query(rootDocument, new String[]{DocumentsContract.Document.COLUMN_DISPLAY_NAME}, null, null, null);
+                    if (c != null) { try { if (c.moveToFirst() && c.getString(0) != null) name = c.getString(0); } finally { c.close(); } }
                 } catch (Throwable ignored) { }
-                final String safeName = name.replace("\\", "\\\\").replace("'", "\\'");
-                final String uriText = tree.toString().replace("\\", "\\\\").replace("'", "\\'");
+                // JSON-quote provider-controlled strings before embedding them in JavaScript.
+                final String callback = "window.__nmBackupFolderResult && window.__nmBackupFolderResult(true,"
+                        + JSONObject.quote(name) + "," + JSONObject.quote(tree.toString()) + ", '')";
                 final WebView web = (getBridge() != null) ? getBridge().getWebView() : null;
-                if (web != null) web.post(() -> web.evaluateJavascript("window.__nmBackupFolderResult && window.__nmBackupFolderResult(true,'" + safeName + "','" + uriText + "')", null));
+                if (web != null) web.post(() -> web.evaluateJavascript(callback, null));
                 return;
             }
-        } catch (Throwable ignored) { }
+        } catch (SecurityException denied) {
+            failure = "permission";
+        } catch (Throwable ignored) {
+            failure = "unavailable";
+        }
+        final String errorCode = failure;
         final WebView web = (getBridge() != null) ? getBridge().getWebView() : null;
-        if (web != null) web.post(() -> web.evaluateJavascript("window.__nmBackupFolderResult && window.__nmBackupFolderResult(false,'','')", null));
+        if (web != null) web.post(() -> web.evaluateJavascript(
+                "window.__nmBackupFolderResult && window.__nmBackupFolderResult(false,'','','" + errorCode + "')", null));
     }
 
     private long lastBackPressAt = 0L;
+    private boolean backDecisionPending = false;
+    private final Handler backHandler = new Handler(Looper.getMainLooper());
 
     /** Delegate Android system Back to the page first so dialogs and sub-layers close in order. */
     @Override
@@ -166,22 +194,42 @@ public class MainActivity extends BridgeActivity {
         try {
             final WebView webView = (getBridge() != null) ? getBridge().getWebView() : null;
             if (webView != null) {
+                // Avoid stacking asynchronous JavaScript callbacks on rapid repeated presses.
+                if (backDecisionPending) return;
+                backDecisionPending = true;
+                final boolean[] completed = {false};
+                final Runnable timeout = () -> {
+                    if (completed[0]) return;
+                    completed[0] = true;
+                    completeBackDecision("exit");
+                };
+                // WebView callbacks can be delayed while the renderer is busy or shutting down.
+                // A timeout guarantees that Back still behaves predictably instead of doing nothing.
+                backHandler.postDelayed(timeout, 800L);
                 webView.evaluateJavascript("(function(){try{return window.__nmNativeBack?window.__nmNativeBack():'exit'}catch(e){return 'exit'}})()", value -> {
-                    String result = value == null ? "\"exit\"" : value;
-                    if (result.contains("handled")) return;
-                    long now = System.currentTimeMillis();
-                    if (now - lastBackPressAt < 1800L) {
-                        lastBackPressAt = 0L;
-                        finish();
-                    } else {
-                        lastBackPressAt = now;
-                        toastToPage("برای خروج، دوباره دکمه‌ی بازگشت را بزنید.");
-                    }
+                    if (completed[0]) return;
+                    completed[0] = true;
+                    backHandler.removeCallbacks(timeout);
+                    completeBackDecision(value == null ? "exit" : value);
                 });
                 return;
             }
         } catch (Throwable ignored) { }
+        backDecisionPending = false;
         super.onBackPressed();
+    }
+
+    private void completeBackDecision(String result) {
+        backDecisionPending = false;
+        if (result != null && result.contains("handled")) return;
+        long now = System.currentTimeMillis();
+        if (now - lastBackPressAt < 1800L) {
+            lastBackPressAt = 0L;
+            finish();
+        } else {
+            lastBackPressAt = now;
+            toastToPage("برای خروج، دوباره دکمه‌ی بازگشت را بزنید.");
+        }
     }
 
     @Override
@@ -436,23 +484,131 @@ public class MainActivity extends BridgeActivity {
             return !getSharedPreferences(PREFS, MODE_PRIVATE).getString(KEY_BACKUP_TREE_URI, "").isEmpty();
         }
 
+        /** Lists JSON backup files in the persisted SAF folder for in-app restore. */
+        @JavascriptInterface
+        public String listPickedBackupFiles() {
+            JSONArray out = new JSONArray();
+            try {
+                String treeText = getSharedPreferences(PREFS, MODE_PRIVATE).getString(KEY_BACKUP_TREE_URI, "");
+                if (treeText.isEmpty()) return out.toString();
+                Uri tree = Uri.parse(treeText);
+                String treeId = DocumentsContract.getTreeDocumentId(tree);
+                Uri children = DocumentsContract.buildChildDocumentsUriUsingTree(tree, treeId);
+                try (android.database.Cursor c = getContentResolver().query(children,
+                        new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_DISPLAY_NAME, DocumentsContract.Document.COLUMN_MIME_TYPE, DocumentsContract.Document.COLUMN_SIZE, DocumentsContract.Document.COLUMN_LAST_MODIFIED},
+                        null, null, null)) {
+                    if (c != null) while (c.moveToNext()) {
+                        String name = c.getString(1);
+                        String mime = c.getString(2);
+                        if (name == null || !(name.toLowerCase(java.util.Locale.ROOT).endsWith(".json") || "application/json".equals(mime))) continue;
+                        JSONObject item = new JSONObject();
+                        item.put("id", c.getString(0)); item.put("name", name); item.put("size", c.isNull(3) ? 0 : c.getLong(3));
+                        item.put("modifiedAt", c.isNull(4) ? 0 : c.getLong(4));
+                        out.put(item);
+                    }
+                }
+                // SAF providers do not all honor SQL-style sortOrder. Sort locally so the newest
+                // backup is offered first even when names are not timestamp-prefixed.
+                java.util.ArrayList<JSONObject> sorted = new java.util.ArrayList<>();
+                for (int i = 0; i < out.length(); i++) sorted.add(out.getJSONObject(i));
+                java.util.Collections.sort(sorted, (a, b) -> Long.compare(b.optLong("modifiedAt", 0), a.optLong("modifiedAt", 0)));
+                JSONArray ordered = new JSONArray();
+                for (JSONObject item : sorted) ordered.put(item);
+                return ordered.toString();
+            } catch (Throwable ignored) { }
+            return out.toString();
+        }
+
+        /** Keeps only the newest matching JSON backups in the user-picked SAF folder. */
+        @JavascriptInterface
+        public int prunePickedBackupFiles(String prefix, int keep) {
+            try {
+                String treeText = getSharedPreferences(PREFS, MODE_PRIVATE).getString(KEY_BACKUP_TREE_URI, "");
+                if (treeText.isEmpty()) return -1;
+                Uri tree = Uri.parse(treeText);
+                String treeId = DocumentsContract.getTreeDocumentId(tree);
+                Uri children = DocumentsContract.buildChildDocumentsUriUsingTree(tree, treeId);
+                // Retention must use the provider's modification time, not lexicographic file
+                // names: users can rename backups and SAF providers do not guarantee name order.
+                java.util.ArrayList<JSONObject> backups = new java.util.ArrayList<>();
+                try (android.database.Cursor c = getContentResolver().query(children,
+                        new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                                DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                                DocumentsContract.Document.COLUMN_LAST_MODIFIED},
+                        null, null, null)) {
+                    if (c != null) while (c.moveToNext()) {
+                        String id = c.getString(0), name = c.getString(1);
+                        if (id == null || name == null || !name.startsWith(prefix == null ? "" : prefix)
+                                || !name.toLowerCase(java.util.Locale.ROOT).endsWith(".json")) continue;
+                        JSONObject item = new JSONObject();
+                        item.put("id", id);
+                        item.put("name", name);
+                        item.put("modifiedAt", c.isNull(2) ? 0L : c.getLong(2));
+                        backups.add(item);
+                    }
+                }
+                java.util.Collections.sort(backups, (a, b) -> {
+                    int byTime = Long.compare(b.optLong("modifiedAt", 0L), a.optLong("modifiedAt", 0L));
+                    return byTime != 0 ? byTime : a.optString("name", "").compareToIgnoreCase(b.optString("name", ""));
+                });
+                int limit = Math.max(1, Math.min(100, keep));
+                int removed = 0;
+                for (int i = limit; i < backups.size(); i++) {
+                    JSONObject item = backups.get(i);
+                    Uri file = DocumentsContract.buildDocumentUriUsingTree(tree, item.optString("id", ""));
+                    if (DocumentsContract.deleteDocument(getContentResolver(), file)) removed++;
+                }
+                return removed;
+            } catch (Throwable t) { return -1; }
+        }
+
+        /** Reads a JSON backup selected from the SAF folder and returns UTF-8 contents as Base64. */
+        @JavascriptInterface
+        public String readPickedBackupFile(String documentId) {
+            try {
+                String treeText = getSharedPreferences(PREFS, MODE_PRIVATE).getString(KEY_BACKUP_TREE_URI, "");
+                if (treeText.isEmpty() || documentId == null || documentId.isEmpty()) return "";
+                Uri tree = Uri.parse(treeText);
+                Uri file = DocumentsContract.buildDocumentUriUsingTree(tree, documentId);
+                try (InputStream in = getContentResolver().openInputStream(file); java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream()) {
+                    if (in == null) return "";
+                    byte[] buf = new byte[8192]; int n;
+                    while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
+                    return Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP);
+                }
+            } catch (Throwable t) { return ""; }
+        }
+
         /** Writes a backup JSON into the SAF folder selected by the user. */
         @JavascriptInterface
         public String saveToPickedBackupFolder(String fileName, String mime, String base64) {
+            Uri file = null;
             try {
                 String treeText = getSharedPreferences(PREFS, MODE_PRIVATE).getString(KEY_BACKUP_TREE_URI, "");
                 if (treeText.isEmpty()) return "no-folder";
                 Uri tree = Uri.parse(treeText);
                 String name = (fileName == null ? "Namello-backup.json" : fileName).replaceAll("[\\\\/:*?\"<>|]", "_");
-                Uri dir = DocumentsContract.buildDocumentUriUsingTree(tree, DocumentsContract.getTreeDocumentId(tree));
-                Uri file = DocumentsContract.createDocument(getContentResolver(), dir, (mime == null || mime.isEmpty()) ? "application/json" : mime, name);
-                if (file == null) return "error:create";
                 byte[] bytes = Base64.decode(base64, Base64.DEFAULT);
-                OutputStream out = getContentResolver().openOutputStream(file, "w");
-                if (out == null) return "error:stream";
-                try { out.write(bytes); } finally { out.close(); }
+                Uri dir = DocumentsContract.buildDocumentUriUsingTree(tree, DocumentsContract.getTreeDocumentId(tree));
+                file = DocumentsContract.createDocument(getContentResolver(), dir, (mime == null || mime.isEmpty()) ? "application/json" : mime, name);
+                if (file == null) return "error:create";
+                try (OutputStream out = getContentResolver().openOutputStream(file, "w")) {
+                    if (out == null) {
+                        try { DocumentsContract.deleteDocument(getContentResolver(), file); } catch (Throwable ignored) { }
+                        return "error:stream";
+                    }
+                    out.write(bytes);
+                    out.flush();
+                } catch (Throwable writeError) {
+                    // Never leave a truncated JSON backup behind after a failed write.
+                    try { DocumentsContract.deleteDocument(getContentResolver(), file); } catch (Throwable ignored) { }
+                    throw writeError;
+                }
                 return "ok|" + name + "|" + file.toString();
-            } catch (Throwable t) { return "error:" + t.getClass().getSimpleName(); }
+            } catch (Throwable t) {
+                if (file != null) { try { DocumentsContract.deleteDocument(getContentResolver(), file); } catch (Throwable ignored) { } }
+                return "error:" + t.getClass().getSimpleName();
+            }
         }
 
         /**
