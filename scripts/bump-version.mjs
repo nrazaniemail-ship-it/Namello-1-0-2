@@ -45,6 +45,10 @@ async function edit(file, fn, { required = true } = {}) {
 await writeFile("version.json", JSON.stringify({ version: next, versionCode: nextCode }, null, 2) + "\n");
 console.log(`updated version.json  ${oldV}/${oldC} -> ${next}/${nextCode}`);
 
+// public/version.json is served directly by the PWA; keep it aligned with the source of truth.
+await writeFile("public/version.json", JSON.stringify({ version: next, versionCode: nextCode }, null, 2) + "\n");
+console.log("updated public/version.json");
+
 await edit("package.json", (t) => t.replace(/("version"\s*:\s*")[^"]+(")/, `$1${next}$2`));
 
 for (const f of ["index.html"]) {

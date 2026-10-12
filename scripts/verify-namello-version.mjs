@@ -47,6 +47,12 @@ C = version.versionCode;
 if (!/^\d+\.\d+\.\d+$/.test(V || "")) fail(`version.json: "version" must look like 1.2.3 (got ${JSON.stringify(V)})`);
 if (!Number.isInteger(C) || C < 1) fail(`version.json: "versionCode" must be a positive integer (got ${JSON.stringify(C)})`);
 
+/* ---------------------------------------------------------------- public version mirror */
+const publicVersion = await json("public/version.json");
+if (publicVersion && (publicVersion.version !== V || publicVersion.versionCode !== C)) {
+  fail(`public/version.json (${publicVersion.version}/code ${publicVersion.versionCode}) != version.json (${V}/code ${C}); run scripts/bump-version.mjs ${V} ${C}`);
+}
+
 /* ---------------------------------------------------------------- package.json */
 const pkg = await json("package.json");
 if (pkg) {

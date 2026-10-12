@@ -191,6 +191,20 @@ if (existing) {
 await mkdir(path.join(MAIN, "res/drawable"), { recursive: true });
 await copyFile("native/android/ic_stat_namello.xml", path.join(MAIN, "res/drawable/ic_stat_namello.xml"));
 
+/* 5b. Category artwork shown as the large icon on Android notifications. */
+const notificationArtwork = [
+  ["logos/01-evaluation.png", "nm_notif_evaluation.png"],
+  ["logos/02-psychology.png", "nm_notif_psychology.png"],
+  ["logos/03-sessions-and-events.png", "nm_notif_sessions.png"],
+  ["logos/04-news.png", "nm_notif_news.png"],
+  ["logos/05-motivation.png", "nm_notif_motivation.png"],
+];
+await mkdir(path.join(MAIN, "res/drawable-nodpi"), { recursive: true });
+for (const [src, dest] of notificationArtwork) {
+  need(existsSync(src), `missing notification artwork ${src}`);
+  if (existsSync(src)) await copyFile(src, path.join(MAIN, "res/drawable-nodpi", dest));
+}
+
 if (problems.length) {
   console.error("Android configuration FAILED:\n" + problems.map((p) => "  ✗ " + p).join("\n"));
   process.exit(1);
