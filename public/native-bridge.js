@@ -291,14 +291,14 @@
   }
   function planNews(events, now, out) {
     if (!Array.isArray(events)) return;
-    var LEAD = 5 * 60 * 1000;
+    var LEAD = 30 * 1000;
     events.forEach(function (ev) {
       if (!ev || !ev.alarmStart) return;
       var ms = new Date(ev.datetime).getTime();
       if (!isFinite(ms)) return;
       var title = ev.title || '', cur = ev.currency || '';
       if (ms - LEAD > now + 5000 && ms - LEAD < now + HORIZON_MS) {
-        out.push({ at: ms - LEAD, title: '۵ دقیقه تا خبر: ' + title, body: 'خبر «' + title + '» (' + cur + ') تا ۵ دقیقه دیگر اعلام می‌شود.', kind: 'news' });
+        out.push({ at: ms - LEAD, title: '۳۰ ثانیه تا خبر: ' + title, body: 'خبر «' + title + '» (' + cur + ') تا ۳۰ ثانیه دیگر اعلام می‌شود.', kind: 'news' });
       }
       if (ms > now + 5000 && ms < now + HORIZON_MS) {
         out.push({ at: ms, title: 'خبر: ' + title, body: 'خبر «' + title + '» (' + cur + ') هم‌اکنون اعلام شد.', kind: 'news' });
