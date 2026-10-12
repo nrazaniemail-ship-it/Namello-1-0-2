@@ -2977,12 +2977,13 @@ const JournalEditToggle = ({ editMode, onToggle }) => RE("button", { type: "butt
    Version Code = عدد صحیحِ افزایشی؛ با «هر» آپدیت یکی زیاد می‌شود (حتی PATCH).
    هنگام انتشار نسخه‌ی جدید فقط همین سه ثابت + فایل version.json را به‌روز کن. */
 const NM_APP_NAME = "Namello";
-const NM_VERSION_NAME = "1.0.49";
-const NM_VERSION_CODE = 48;
+const NM_VERSION_NAME = "1.0.61";
+const NM_VERSION_CODE = 60;
 const NM_VERSION_LABEL = NM_APP_NAME + " " + NM_VERSION_NAME;
 const NM_VERSION_027_NOTE = "نسخه 1.0.27: اصلاحات محدود لایه ژورنال شامل چک‌لیست، گزینه‌های آیتم‌های ثبت ورود، هم‌راستایی با روند ورود و نام‌گذاری مدیریت معامله.";
 const NM_VERSION_DATE = "یکدست‌سازی نسخه و کش آفلاین";
 const NM_CHANGELOG = [
+    "نسخه 1.0.58: پاک‌سازی پشتیبان‌های قدیمی در پوشه انتخابی اندروید اکنون بر اساس زمان آخرین تغییر واقعی فایل انجام می‌شود، نه ترتیب الفبایی نام فایل‌ها.",
     "نسخه 1.0.33: رفع خطای TypeScript در ماژول رمزنگاری (نیاز به ساخت APK در GitHub Actions) و بازنویسی workflow ساخت APK با نسخه‌گذاری خودکار از version.json.",
     "نسخه 1.0.33: بدون تغییر در رفتار و رابط کاربری برنامه؛ فقط پایدارسازی فرایند ساخت.",
 ];
