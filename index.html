@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Namello 1.0.49</title>
+<title>Namello 1.0.61</title>
 <meta name="theme-color" content="#0B0E11" id="themeColorMeta" />
 <link rel="manifest" href="manifest.json" />
 <link rel="icon" href="icon-192.png" />
@@ -146,7 +146,7 @@
 </style>
 </head>
 <body>
-<div id="boot-status">Loading Namello 1.0.49…</div>
+<div id="boot-status">Loading Namello 1.0.61…</div>
 <div id="boot-error"></div>
 <div id="root"></div>
 <div id="runtime-error-banner" style="display:none; position:fixed; left:0; right:0; bottom:0; z-index:99999; background:#1A0B0B; color:#F87171; padding:10px 14px; font-family:monospace; font-size:11px; direction:ltr; text-align:left; border-top:1px solid #F8717155;"></div>
@@ -3442,13 +3442,24 @@ const JournalEditToggle = ({ editMode, onToggle }) => RE("button", { type: "butt
    Version Code = عدد صحیحِ افزایشی؛ با «هر» آپدیت یکی زیاد می‌شود (حتی PATCH).
    هنگام انتشار نسخه‌ی جدید فقط همین سه ثابت + فایل version.json را به‌روز کن. */
 const NM_APP_NAME = "Namello";
-const NM_VERSION_NAME = "1.0.49";
-const NM_VERSION_CODE = 48;
+const NM_VERSION_NAME = "1.0.61";
+const NM_VERSION_CODE = 60;
 const NM_VERSION_LABEL = NM_APP_NAME + " " + NM_VERSION_NAME;
 const NM_VERSION_029_NOTE = "نسخه 1.0.29: یکدست‌سازی شماره نسخه، کد نسخه و کش آفلاین در بسته PWA؛ قابلیت‌های هوش مصنوعی نسخه قبل حفظ شده‌اند.";
 const NM_VERSION_DATE = "یکدست‌سازی نسخه و کش آفلاین";
 const NM_CHANGELOG = [
-    "نسخه 1.0.49: انتخاب پوشه‌ی واقعی اندروید برای ذخیره‌ی پشتیبان با Storage Access Framework و ارسال دکمه‌ی Back اندروید به مدیریت داخلی لایه‌ها/پنجره‌ها؛ خروج از برنامه با دوبار Back در صفحه‌ی اصلی.",
+    "نسخه 1.0.61: مدیریت دکمه بازگشت اندروید مقاوم‌تر شد؛ اگر WebView پاسخ جاوااسکریپت را به‌موقع برنگرداند، مسیر جایگزین فعال می‌شود و فشردن‌های سریع هم‌زمان پردازش نمی‌شوند.",
+    "نسخه 1.0.60: انتخاب پوشه پشتیبان اندروید فقط پس از تأیید دسترسی پایدار خواندن و نوشتن پذیرفته می‌شود؛ خطای مجوز از لغو انتخاب جدا شده است.",
+    "نسخه 1.0.59: انتخاب لوگوی اعلان ابتدا به دسته‌بندی صریح kind/category تکیه می‌کند؛ متن عنوان یا پیام دیگر نمی‌تواند دسته‌ی مشخص‌شده را ناخواسته تحت‌الشعاع قرار دهد.",
+    "نسخه 1.0.58: پاک‌سازی پشتیبان‌های قدیمی در پوشه انتخابی اندروید اکنون بر اساس زمان آخرین تغییر واقعی فایل انجام می‌شود، نه ترتیب الفبایی نام فایل‌ها.",
+    "نسخه 1.0.57: فهرست بازیابی پشتیبان در پوشه‌ی اندروید بر اساس زمان آخرین تغییر مرتب می‌شود؛ نام پوشه از سند ریشه‌ی SAF خوانده می‌شود تا در ارائه‌دهنده‌های مختلف اندروید دقیق‌تر باشد.",
+    "نسخه 1.0.56: ذخیره‌ی پشتیبان در پوشه‌ی انتخاب‌شده ایمن‌تر شد؛ فایل ناقص پس از شکست نوشتن حذف می‌شود. پاسخ انتخاب پوشه با JSON quote ایمن شده و callback پس از پایان مهلت انتظار پاک می‌شود.",
+    "نسخه 1.0.55: بازیابی پشتیبان امن‌تر شد؛ در صورت خطای حذف یا ذخیره هنگام بازیابی، برنامه تلاش می‌کند Snapshot قبل از بازیابی را خودکار برگرداند و خطا را پنهان نمی‌کند.",
+    "نسخه 1.0.54: انتخاب لوگوی اعلان‌های اندروید علاوه بر عنوان و متن، فراداده‌ی ساختاریافته‌ی دسته را هم بررسی می‌کند تا اعلان‌های با عنوان عمومی نیز لوگوی مناسب‌تری بگیرند.",
+    "نسخه 1.0.53: نگه‌داری فایل‌های پشتیبان خودکار در پوشه‌ی انتخاب‌شده‌ی اندروید محدود شد؛ پس از ذخیره، فایل‌های قدیمی‌تر همان پیشوند پاک می‌شوند و جدیدترین فایل‌ها حفظ می‌شوند.",
+    "نسخه 1.0.52: بازیابی مستقیم فایل JSON از پوشه‌ی انتخاب‌شده‌ی اندروید اضافه شد؛ فهرست فایل‌های پشتیبان از SAF خوانده می‌شود و فایل انتخابی پیش از اعمال، مانند مسیر معمول بررسی اعتبار می‌شود. نمایش مسیر دستی نیز نام پوشه‌ی انتخاب‌شده را نشان می‌دهد.",
+    "نسخه 1.0.51: حالت و پیکربندی سفارشی ثبت ورود و ثبت نتیجه معامله اکنون جداگانه ذخیره و اعمال می‌شوند؛ انتخاب یک پیکربندی برای یک فرم، تنظیمات فرم دیگر را بازنویسی نمی‌کند.",
+    "نسخه 1.0.50: ذخیره‌ی پیکربندی‌های فیلد سفارشی، حالت‌های Namello/خام/سفارشی، و اتصال لوگوهای دسته‌بندی به آیکون بزرگ اعلان‌های اندروید؛ انتخاب پوشه‌ی پشتیبان و مدیریت دکمه‌ی Back نیز حفظ شده‌اند.",
     "نسخه 1.0.48: اصلاحات پشتیبان‌گیری، جایگاه و پیش‌فرض دکمه‌های شناور، نام TradingView و رفتار دکمه‌ی برگشت.",
     "نسخه 1.0.47: خروجی Excel در همه‌ی بخش‌ها درست شد (نام شیت‌های دوزبانه با «/» خطا می‌دادند) و خروجی PDF در APK پنجره‌ی چاپ اندروید را باز می‌کند.",
     "نسخه 1.0.47: پشتیبان خودکار هفتگی در APK فایل واقعی در Download/Namello-Backups می‌سازد (آخرین ۸ فایل) و یادآوری پشتیبان اضافه شد.",
@@ -4390,10 +4401,14 @@ function nmBkNativePickFolder() {
     if (!window.NamelloAndroid || typeof window.NamelloAndroid.pickBackupFolder !== "function") return Promise.resolve({ unsupported: true });
     return new Promise(resolve => {
         let done = false;
-        const timer = setTimeout(() => { if (!done) { done = true; resolve({ cancelled: true }); } }, 120000);
-        window.__nmBackupFolderResult = (ok, name, uri) => {
+        const timer = setTimeout(() => {
+            if (!done) { done = true; delete window.__nmBackupFolderResult; resolve({ cancelled: true }); }
+        }, 120000);
+        window.__nmBackupFolderResult = (ok, name, uri, errorCode) => {
             if (done) return; done = true; clearTimeout(timer); delete window.__nmBackupFolderResult;
-            resolve(ok ? { ok: true, name: String(name || "پوشه انتخابی"), uri: String(uri || "") } : { cancelled: true });
+            if (ok) resolve({ ok: true, name: String(name || "پوشه انتخابی"), uri: String(uri || "") });
+            else if (errorCode === "cancelled") resolve({ cancelled: true });
+            else resolve({ error: String(errorCode || "folder-selection-failed") });
         };
         try { window.NamelloAndroid.pickBackupFolder(); } catch (e) { done = true; clearTimeout(timer); delete window.__nmBackupFolderResult; resolve({ error: true }); }
     });
@@ -4407,10 +4422,13 @@ function nmBkNativeSave(name, text, pruneKeepPrefix, keep) {
             : bridge.saveToDownloadsIn(NM_BK_NATIVE_DIR, name, "application/json", encoded));
         if (r.indexOf("ok|") !== 0)
             return { ok: false, reason: r };
-        if (pruneKeepPrefix && !(bridge && typeof bridge.hasPickedBackupFolder === "function" && bridge.hasPickedBackupFolder())) {
-            try { bridge.pruneDownloads(NM_BK_NATIVE_DIR, pruneKeepPrefix, keep || 8); } catch (e) { }
-        }
         const custom = !!(bridge && typeof bridge.hasPickedBackupFolder === "function" && bridge.hasPickedBackupFolder());
+        if (pruneKeepPrefix) {
+            try {
+                if (custom && typeof bridge.prunePickedBackupFiles === "function") bridge.prunePickedBackupFiles(pruneKeepPrefix, keep || 8);
+                else if (!custom && typeof bridge.pruneDownloads === "function") bridge.pruneDownloads(NM_BK_NATIVE_DIR, pruneKeepPrefix, keep || 8);
+            } catch (e) { }
+        }
         return { ok: true, name: r.split("|")[1] || name, where: custom ? "پوشه‌ی انتخاب‌شده" : "Download/" + NM_BK_NATIVE_DIR };
     }
     catch (e) { return { ok: false, reason: "exception" }; }
@@ -4625,7 +4643,8 @@ function useNativeBackupGuard(loaded) {
                 const m = await nmBkLoadMeta();
                 if (!m.auto && !m.weeklyOffered) {
                     await nmBkSaveMeta({ ...m, weeklyOffered: true });
-                    if (window.confirm("پشتیبان خودکار هفتگی فعال شود؟\n\nهر هفته (وقتی Namello باز می‌شود) یک فایل پشتیبان در پوشه‌ی Download/Namello-Backups ذخیره می‌شود و آخرین ۸ فایل نگه داشته می‌شود. بدون پشتیبان، با حذف برنامه یا نصب نسخه‌ی دیگر تمام داده‌ها پاک می‌شود.")) {
+                    const targetText = (m.autoKind === "native-picked" && m.autoName) ? ("پوشه‌ی انتخاب‌شده: " + m.autoName) : "Download/Namello-Backups";
+                    if (window.confirm("پشتیبان خودکار هفتگی فعال شود؟\n\nهر هفته (وقتی Namello باز می‌شود) یک فایل پشتیبان در " + targetText + " ذخیره می‌شود و آخرین ۸ فایل نگه داشته می‌شود. بدون پشتیبان، با حذف برنامه یا نصب نسخه‌ی دیگر تمام داده‌ها پاک می‌شود.")) {
                         await nmBkSaveMeta({ ...(await nmBkLoadMeta()), auto: true, intervalMin: 10080, lastAutoAt: 0, weeklyOffered: true });
                         nmToast("پشتیبان خودکار هفتگی فعال شد.");
                     }
@@ -4668,6 +4687,7 @@ function nmMergeRaw(curStr, incStr) {
     try { return JSON.stringify(nmMergeVal(JSON.parse(curStr), JSON.parse(incStr))); } catch (e) { return curStr; }
 }
 async function nmBkApply(payload, mode) {
+    if (mode !== "merge" && mode !== "replace") throw new Error("invalid-restore-mode");
     const incoming = {};
     Object.keys(payload.data || {}).forEach(k => {
         if (k.indexOf("namello") !== 0 || k === NM_BK_META_KEY) return;
@@ -4677,19 +4697,40 @@ async function nmBkApply(payload, mode) {
     const current = await gatherAllAppData();
     // نسخه‌ی ایمن از وضعیت فعلی، تا بشود بازیابی را لغو کرد
     try { await nmIdbSet("preRestore", { at: new Date().toISOString(), text: JSON.stringify({ app: "Namello", format: 1, data: current }) }); } catch (e) { }
-    let failed = 0;
-    if (mode === "replace") {
-        for (const k of Object.keys(current)) { if (k === NM_BK_META_KEY) continue; try { await window.storage.delete(k); } catch (e) { } }
-        for (const k of Object.keys(incoming)) { try { await window.storage.set(k, incoming[k]); } catch (e) { failed++; } }
-    } else {
-        for (const k of Object.keys(incoming)) {
-            try {
+    const touched = new Set([...Object.keys(current), ...Object.keys(incoming)]);
+    const rollback = async () => {
+        let rollbackErrors = 0;
+        // برگرداندن کلیدهای درگیر به Snapshot قبلی، حتی اگر بازیابی فقط نیمه‌کاره پیش رفته باشد.
+        for (const k of touched) {
+            if (k === NM_BK_META_KEY) continue;
+            try { await window.storage.delete(k); } catch (e) { rollbackErrors++; }
+        }
+        for (const k of Object.keys(current)) {
+            if (k === NM_BK_META_KEY) continue;
+            try { await window.storage.set(k, current[k]); } catch (e) { rollbackErrors++; }
+        }
+        if (rollbackErrors) throw new Error("restore-rollback-failed:" + rollbackErrors);
+    };
+    try {
+        if (mode === "replace") {
+            for (const k of Object.keys(current)) {
+                if (k === NM_BK_META_KEY) continue;
+                await window.storage.delete(k);
+            }
+            for (const k of Object.keys(incoming)) await window.storage.set(k, incoming[k]);
+        } else {
+            for (const k of Object.keys(incoming)) {
                 const val = (k in current) ? nmMergeRaw(current[k], incoming[k]) : incoming[k];
                 await window.storage.set(k, val);
-            } catch (e) { failed++; }
+            }
         }
+    } catch (e) {
+        try { await rollback(); } catch (rollbackError) {
+            throw new Error("restore-failed-and-rollback-failed; use the saved pre-restore snapshot");
+        }
+        throw new Error("restore-failed; previous data restored");
     }
-    return { count: Object.keys(incoming).length, failed };
+    return { count: Object.keys(incoming).length, failed: 0 };
 }
 function NmRestoreDialog({ open, onClose }) {
     const [mode, setMode] = useState("merge");
@@ -4699,6 +4740,32 @@ function NmRestoreDialog({ open, onClose }) {
     useEffect(() => { if (open) { setMode("merge"); setStage(1); setParsed(null); setBusy(false); } }, [open]);
     useBackClose(open, onClose);
     if (!open) return null;
+    const pickFromNativeFolder = async () => {
+        const bridge = window.NamelloAndroid;
+        if (!bridge || typeof bridge.listPickedBackupFiles !== "function" || typeof bridge.readPickedBackupFile !== "function") {
+            nmToast("بازیابی از پوشه‌ی انتخابی فقط در نسخه‌ی اندروید پشتیبانی می‌شود."); return;
+        }
+        try {
+            if (typeof bridge.hasPickedBackupFolder === "function" && !bridge.hasPickedBackupFolder()) {
+                const selected = await nmBkNativePickFolder();
+                if (!selected.ok) { nmToast(selected.error === "permission" ? "برای پوشه‌ی پشتیبان، دسترسی خواندن و نوشتن لازم است؛ پوشه‌ی دیگری انتخاب کنید." : "پوشه‌ای انتخاب نشد."); return; }
+            }
+            const files = JSON.parse(String(bridge.listPickedBackupFiles() || "[]"));
+            if (!Array.isArray(files) || !files.length) { nmToast("در پوشه‌ی انتخاب‌شده فایل پشتیبان JSON پیدا نشد."); return; }
+            const choices = files.map((f, i) => `${i + 1}. ${f.name} (${nmFmtKB(Number(f.size || 0))})`).join("\n");
+            const answer = window.prompt("شماره‌ی فایل پشتیبان را وارد کنید:\n" + choices, "1");
+            if (answer === null) return;
+            const idx = Number(answer) - 1;
+            if (!Number.isInteger(idx) || idx < 0 || idx >= files.length) { nmToast("شماره‌ی فایل معتبر نیست."); return; }
+            const encoded = String(bridge.readPickedBackupFile(String(files[idx].id)) || "");
+            if (!encoded) { nmToast("خواندن فایل از پوشه ناموفق بود."); return; }
+            const bin = atob(encoded), bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+            const text = new TextDecoder("utf-8").decode(bytes);
+            const payload = nmBkParse(text);
+            setParsed({ payload, fileName: files[idx].name, size: Number(files[idx].size || bytes.byteLength) });
+            setStage(2);
+        } catch (e) { nmToast("فایل انتخابی خوانده نشد یا پشتیبان معتبر Namello نیست."); }
+    };
     const pickFile = () => {
         const input = document.createElement("input");
         input.type = "file"; input.style.display = "none";
@@ -4735,7 +4802,8 @@ function NmRestoreDialog({ open, onClose }) {
                 RE("p", { className: "text-[10px] leading-5 mt-1", style: { color: "var(--text-muted)" } }, "پیش از بازیابی، یک نسخه‌ی ایمن از وضعیت فعلی در حافظه‌ی داخلی برنامه نگه‌داری می‌شود تا بتوانید آن را لغو کنید."),
                 RE("div", { className: "flex gap-3 mt-4" },
                     RE("button", { type: "button", onClick: onClose, className: "flex-1 py-3 rounded-2xl text-[13px]", style: { color: "var(--text-secondary)", background: "var(--bg-card2)" } }, "انصراف"),
-                    RE("button", { type: "button", onClick: pickFile, className: "py-3 rounded-2xl text-[13px] font-bold", style: { flex: 2, background: "var(--accent-gold)", color: "var(--bg-page)" } }, "تایید و انتخاب فایل پشتیبان")))
+                    RE("button", { type: "button", onClick: pickFile, className: "py-3 rounded-2xl text-[13px] font-bold", style: { flex: 2, background: "var(--accent-gold)", color: "var(--bg-page)" } }, "انتخاب فایل"),
+                    window.NamelloAndroid && typeof window.NamelloAndroid.listPickedBackupFiles === "function" ? RE("button", { type: "button", onClick: pickFromNativeFolder, className: "w-full py-3 rounded-2xl text-[12px] font-semibold mt-2", style: { background: "var(--bg-card2)", color: "var(--accent-gold)", border: "1px solid var(--border-2)" } }, "انتخاب از پوشه‌ی پشتیبان اندروید") : null))
                 : RE(React.Fragment, null,
                     RE("p", { className: "text-[13px] mb-2", style: { color: "var(--text-secondary)" } }, "فایل پشتیبان خوانده شد. اطلاعات آن را بررسی و تایید کنید:"),
                     RE("div", { className: "rounded-xl px-3 py-1 mb-3", style: { background: "var(--bg-card2)" } },
@@ -4780,8 +4848,10 @@ function NmBackupCard({ showToast }) {
     const onPickManual = async () => {
         if (caps.native) {
             const r = await nmBkNativePickFolder();
-            if (r.ok) { const m = await nmBkLoadMeta(); m.manualFolder = r.name; await nmBkSaveMeta(m); showToast("پوشه‌ی پشتیبان انتخاب شد: " + r.name); }
+            if (r.ok) { const m = await nmBkLoadMeta(); m.manualFolder = r.name; m.autoName = r.name; m.autoKind = "native-picked"; await nmBkSaveMeta(m); showToast("پوشه‌ی پشتیبان دستی و خودکار انتخاب شد: " + r.name); }
             else if (r.unsupported) showToast("انتخاب پوشه در این نسخه پشتیبانی نمی‌شود.");
+            else if (r.error === "permission") showToast("برای پوشه‌ی پشتیبان، دسترسی خواندن و نوشتن لازم است.");
+            else if (r.error) showToast("انتخاب پوشه ناموفق بود؛ لطفاً پوشه‌ی دیگری انتخاب کنید.");
             return;
         }
         const r = await nmBkPickManualFolder();
@@ -4800,6 +4870,8 @@ function NmBackupCard({ showToast }) {
         if (caps.native) {
             const r = await nmBkNativePickFolder();
             if (r.ok) { await saveMeta({ autoName: r.name, autoKind: "native-picked" }); showToast("پوشه‌ی پشتیبان خودکار انتخاب شد: " + r.name); }
+            else if (r.error === "permission") showToast("برای پوشه‌ی پشتیبان، دسترسی خواندن و نوشتن لازم است.");
+            else if (r.error) showToast("انتخاب پوشه ناموفق بود؛ لطفاً دوباره تلاش کنید.");
             return;
         }
         const r = await nmBkPickAutoTarget();
@@ -4814,7 +4886,7 @@ function NmBackupCard({ showToast }) {
         catch (e) { showToast("لغو بازیابی ناموفق بود."); }
     };
     const lb = meta.lastBackup;
-    const autoPath = caps.native ? "Download/" + NM_BK_NATIVE_DIR + " (آخرین ۸ فایل)" : meta.autoKind === "dir" ? meta.autoName : meta.autoKind === "file" ? meta.autoName + " (بازنویسی همین فایل)" : "حافظه‌ی داخلی برنامه";
+    const autoPath = caps.native ? (meta.autoKind === "native-picked" && meta.autoName ? meta.autoName + " (پوشه‌ی انتخاب‌شده)" : "Download/" + NM_BK_NATIVE_DIR + " (آخرین ۸ فایل)") : meta.autoKind === "dir" ? meta.autoName : meta.autoKind === "file" ? meta.autoName + " (بازنویسی همین فایل)" : "حافظه‌ی داخلی برنامه";
     const bigBtn = (icon, title, sub, onClick) => RE("button", { type: "button", onClick, disabled: busy, className: "flex-1 flex flex-col items-center justify-center gap-1 rounded-2xl py-5 px-2", style: { background: nmTint(9), border: "1.5px solid " + nmTint(45), opacity: busy ? 0.6 : 1 } },
         RE("span", { style: { fontSize: 34, lineHeight: 1 } }, icon),
         RE("span", { className: "text-[13px] font-bold mt-1", style: { color: "var(--text-primary)" } }, title),
@@ -4834,7 +4906,7 @@ function NmBackupCard({ showToast }) {
                 RE("div", { className: "flex items-center justify-between gap-2" },
                     RE("div", { className: "min-w-0" },
                         RE("div", { className: "text-[11px]", style: { color: "var(--text-muted)" } }, "پوشه‌ی ذخیره‌ی فایل پشتیبان (دستی):"),
-                        RE("div", { className: "text-[13px] font-semibold truncate", style: { color: "var(--accent-gold)" } }, caps.native ? "Download/" + NM_BK_NATIVE_DIR : caps.dir ? (meta.manualFolder || "هنوز انتخاب نشده") : (caps.save ? "محل ذخیره هنگام ایجاد فایل پرسیده می‌شود" : "پوشه‌ی دانلودهای گوشی"))),
+                        RE("div", { className: "text-[13px] font-semibold truncate", style: { color: "var(--accent-gold)" } }, caps.native ? (meta.manualFolder || meta.autoName && meta.autoKind === "native-picked" ? (meta.manualFolder || meta.autoName) + " (پوشه‌ی انتخاب‌شده)" : "Download/" + NM_BK_NATIVE_DIR) : caps.dir ? (meta.manualFolder || "هنوز انتخاب نشده") : (caps.save ? "محل ذخیره هنگام ایجاد فایل پرسیده می‌شود" : "پوشه‌ی دانلودهای گوشی"))),
                     (caps.dir || caps.native || caps.save) && RE("button", { type: "button", onClick: onPickManual, className: "shrink-0 px-3 py-2 rounded-xl text-[12px] font-medium", style: { background: nmTint(15), color: "var(--accent-gold)" } }, "انتخاب پوشه")),
                 caps.native && RE("p", { className: "text-[10px] leading-5 mt-2", style: { color: "var(--text-muted)" } }, "در برنامه‌ی نصبی، فایل پشتیبان در پوشه‌ی Download/" + NM_BK_NATIVE_DIR + " ذخیره می‌شود و با «Files» یا هر برنامه‌ی دیگر قابل دسترسی است. این فایل شامل همه‌ی داده‌های معاملاتی توست؛ آن را جای امنی نگه دار."),
                 !caps.native && !caps.dir && RE("p", { className: "text-[10px] leading-5 mt-2", style: { color: "var(--text-muted)" } }, "مرورگر فعلی شما انتخاب «پوشه‌ی دائمی» را پشتیبانی نمی‌کند" + (caps.save ? "؛ به‌جایش هر بار محل ذخیره‌ی فایل را خودتان انتخاب می‌کنید." : "؛ فایل در پوشه‌ی دانلودها ذخیره می‌شود و بعد می‌توانید آن را به هر پوشه‌ای منتقل کنید."))),
@@ -5297,24 +5369,59 @@ function NmEntryVsExtremesCard({ trades }) {
    کاربر در تنظیمات فیلد دلخواه (متنی/عددی/انتخابی) می‌سازد؛ این فیلدها خودشان را در فرم ثبت ورود
    و فرم ویرایش نشان می‌دهند و روی هر معامله در t.customFields[fieldId] ذخیره می‌شوند. */
 const NM_CF_KEY = "namello_custom_trade_fields_v1";
+const NM_CF_PROFILES_KEY = "namello_custom_trade_field_profiles_v1";
+const NM_CF_ENTRY_MODE_KEY = "namello_custom_trade_field_entry_mode_v1";
+const NM_CF_RESULT_MODE_KEY = "namello_custom_trade_field_result_mode_v1";
 const NM_CF_TYPES = [{ v: "text", l: "متنی" }, { v: "number", l: "عددی" }, { v: "select", l: "انتخابی (چند گزینه)" }, { v: "checkbox", l: "بله/خیر" }];
 async function nmCfLoad() { try { const r = await window.storage.get(NM_CF_KEY); const a = JSON.parse(r.value); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
 async function nmCfSave(defs) { await window.storage.set(NM_CF_KEY, JSON.stringify(defs)); try { window.dispatchEvent(new Event("namello-customfields-changed")); } catch (e) { } }
-function useCustomFieldDefs() {
+async function nmCfGetValue(key, fallback) { try { const r = await window.storage.get(key); return r && r.value !== undefined ? JSON.parse(r.value) : fallback; } catch (e) { return fallback; } }
+async function nmCfSetValue(key, value) { await window.storage.set(key, JSON.stringify(value)); try { window.dispatchEvent(new Event("namello-customfields-changed")); } catch (e) { } }
+async function nmCfSaveProfile(name) { const n = String(name || "").trim(); if (!n) return false; const profiles = await nmCfGetValue(NM_CF_PROFILES_KEY, {}); profiles[n] = await nmCfLoad(); await nmCfSetValue(NM_CF_PROFILES_KEY, profiles); return true; }
+async function nmCfApplyMode(kind, mode, profileName) {
+    const modeKey = kind === "result" ? NM_CF_RESULT_MODE_KEY : NM_CF_ENTRY_MODE_KEY;
+    if (!['namello', 'raw', 'custom'].includes(mode)) return false;
+    if (mode === "custom") {
+        const profiles = await nmCfGetValue(NM_CF_PROFILES_KEY, {});
+        if (!profileName || !profiles[profileName] || !Array.isArray(profiles[profileName])) return false;
+    }
+    // Each form stores its own mode/profile. Applying a profile no longer overwrites global
+    // definitions and therefore cannot unexpectedly change the other form's active setup.
+    await nmCfSetValue(modeKey, { mode, profileName: mode === "custom" ? profileName : "" });
+    try { window.dispatchEvent(new Event("namello-customfields-changed")); } catch (e) { }
+    return true;
+}
+function useCustomFieldDefs(kind) {
     const [defs, setDefs] = useState([]);
     useEffect(() => {
         let alive = true;
-        const load = () => nmCfLoad().then(d => { if (alive) setDefs(d); });
+        const load = async () => {
+            let next = await nmCfLoad();
+            if (kind !== "manager" && kind !== "all") {
+                const modeKey = kind === "result" ? NM_CF_RESULT_MODE_KEY : NM_CF_ENTRY_MODE_KEY;
+                const modeState = await nmCfGetValue(modeKey, { mode: "namello" });
+                if (modeState.mode === "custom" && modeState.profileName) {
+                    const profiles = await nmCfGetValue(NM_CF_PROFILES_KEY, {});
+                    if (Array.isArray(profiles[modeState.profileName])) next = profiles[modeState.profileName];
+                }
+            }
+            if (alive) setDefs(next);
+        };
         load();
         window.addEventListener("namello-customfields-changed", load);
         return () => { alive = false; window.removeEventListener("namello-customfields-changed", load); };
-    }, []);
+    }, [kind]);
     return defs;
 }
 function NmCustomFieldsManager() {
-    const defs = useCustomFieldDefs();
+    const defs = useCustomFieldDefs("manager");
     const [form, setForm] = useState({ label: "", type: "text", optionsText: "" });
     const [editId, setEditId] = useState(null);
+    const [profileName, setProfileName] = useState("");
+    const [profiles, setProfiles] = useState({});
+    const [entryMode, setEntryMode] = useState("namello");
+    const [resultMode, setResultMode] = useState("namello");
+    useEffect(() => { (async () => { setProfiles(await nmCfGetValue(NM_CF_PROFILES_KEY, {})); const a = await nmCfGetValue(NM_CF_ENTRY_MODE_KEY, {mode:"namello"}); const b = await nmCfGetValue(NM_CF_RESULT_MODE_KEY, {mode:"namello"}); setEntryMode(a.mode || "namello"); setResultMode(b.mode || "namello"); })(); }, []);
     const add = async () => {
         const label = form.label.trim(); if (!label) return;
         const opts = form.type === "select" ? form.optionsText.split(",").map(s => s.trim()).filter(Boolean) : undefined;
@@ -5326,8 +5433,31 @@ function NmCustomFieldsManager() {
     };
     const startEdit = (d) => { setEditId(d.id); setForm({ label: d.label, type: d.type, optionsText: (d.options || []).join(", ") }); };
     const remove = (id) => { nmCfSave(defs.filter(d => d.id !== id)); if (editId === id) { setEditId(null); setForm({ label: "", type: "text", optionsText: "" }); } };
-    return RE(NmCollapsible, { title: "فیلدهای سفارشی معامله", subtitle: "فیلد دلخواه بساز و بدون نیاز به کدنویسی به فرم ژورنال اضافه کن", icon: "🧩" },
-        RE("p", { className: "text-[11px] leading-6 mb-3", style: { color: "var(--text-secondary)" } }, "هر فیلدی که اینجا بسازید، در فرم «ثبت ورود» و «ویرایش معامله» زیر بخش «فیلدهای سفارشی» ظاهر می‌شود و مقدارش روی همان معامله ذخیره می‌شود."),
+    const saveProfile = async () => { const n = profileName.trim(); if (!n) { nmToast("نام پیکربندی را وارد کنید."); return; } await nmCfSaveProfile(n); setProfiles(await nmCfGetValue(NM_CF_PROFILES_KEY, {})); nmToast("پیکربندی «" + n + "» ذخیره شد."); };
+    const applyMode = async (kind, mode, chosenName) => { const selected = mode === "custom" ? (chosenName || profileName.trim() || Object.keys(profiles)[0] || "") : ""; const ok = await nmCfApplyMode(kind, mode, selected); if (!ok && mode === "custom") { nmToast("ابتدا یک پیکربندی سفارشی ذخیره کنید."); return; } if (kind === "entry") setEntryMode(mode); else setResultMode(mode); };
+    const modePanel = RE("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3" },
+        [["entry", "ثبت ورود", entryMode], ["result", "ثبت نتیجه معامله", resultMode]].map(([kind, label, mode]) => {
+            const buttons = [["namello", "Namello"], ["raw", "خام"], ["custom", "سفارشی"]].map(([m, title]) =>
+                RE("button", { key: m, type: "button", onClick: () => applyMode(kind, m), className: "flex-1 py-1.5 rounded-md text-[10px]", style: { background: mode === m ? nmTint(15) : "var(--bg-card)", color: mode === m ? "var(--accent-gold)" : "var(--text-secondary)", border: "1px solid " + (mode === m ? nmTint(40) : "var(--border-2)") } }, title));
+            return RE("div", { key: kind, className: "rounded-lg p-2", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
+                RE("div", { className: "text-[11px] font-semibold mb-2", style: { color: "var(--text-primary)" } }, label),
+                RE("div", { className: "flex gap-1" }, buttons));
+        }));
+    const profilePanel = RE("div", { className: "rounded-lg p-2 mb-3", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
+        RE("div", { className: "text-[11px] font-semibold mb-2", style: { color: "var(--text-primary)" } }, "ذخیره پیکربندی سفارشی"),
+        RE("div", { className: "flex gap-2" },
+            RE("input", { value: profileName, onChange: e => setProfileName(e.target.value), placeholder: "نام پیکربندی", className: "min-w-0 flex-1 rounded-lg px-3 py-2 text-[11px]", style: { background: "var(--bg-card)", color: "var(--text-primary)", border: "1px solid var(--border-2)" } }),
+            RE("button", { type: "button", onClick: saveProfile, className: "px-3 py-2 rounded-lg text-[11px]", style: { background: "var(--accent-gold)", color: "var(--bg-page)" } }, "ذخیره")),
+        Object.keys(profiles).length > 0 && RE("div", { className: "mt-2" },
+            RE("div", { className: "text-[10px] mb-1", style: { color: "var(--text-muted)" } }, "برای هر فرم، پیکربندی را جداگانه اعمال کنید:"),
+            Object.keys(profiles).map(name => RE("div", { key: name, className: "flex items-center gap-2 mb-1.5" },
+                RE("span", { className: "min-w-0 flex-1 text-[10px]", style: { color: "var(--text-secondary)" } }, name),
+                RE("button", { type: "button", onClick: () => { setProfileName(name); applyMode("entry", "custom", name); }, className: "px-2 py-1 rounded-md text-[10px]", style: { background: "var(--bg-card)", color: "var(--text-secondary)", border: "1px solid var(--border-2)" } }, "ثبت ورود"),
+                RE("button", { type: "button", onClick: () => { setProfileName(name); applyMode("result", "custom", name); }, className: "px-2 py-1 rounded-md text-[10px]", style: { background: "var(--bg-card)", color: "var(--text-secondary)", border: "1px solid var(--border-2)" } }, "نتیجه معامله")))));
+    return RE(NmCollapsible, { title: "فیلدهای سفارشی ژورنال", subtitle: "حالت‌ها و پیکربندی‌های فیلدهای ثبت معامله", icon: "🧩" },
+        RE("p", { className: "text-[11px] leading-6 mb-3", style: { color: "var(--text-secondary)" } }, "حالت خام فیلدهای سفارشی را از فرم پنهان می‌کند و اطلاعات قبلی را پاک نمی‌کند. پیکربندی‌ها برای استفاده‌ی دوباره ذخیره می‌شوند."),
+        modePanel,
+        profilePanel,
         defs.length > 0 && RE("div", { className: "mb-3" }, defs.map(d => RE("div", { key: d.id, className: "flex items-center justify-between gap-2 rounded-lg px-3 py-2 mb-1.5", style: { background: "var(--bg-card2)" } },
             RE("div", { className: "min-w-0" },
                 RE("span", { className: "text-[12px] font-medium", style: { color: "var(--text-primary)" } }, d.label),
@@ -5344,9 +5474,11 @@ function NmCustomFieldsManager() {
                 editId && RE("button", { type: "button", onClick: () => { setEditId(null); setForm({ label: "", type: "text", optionsText: "" }); }, className: "flex-1 py-2 rounded-lg text-[12px]", style: { background: "var(--bg-card)", color: "var(--text-secondary)" } }, "انصراف"),
                 RE("button", { type: "button", onClick: add, className: "flex-1 py-2 rounded-lg text-[12px] font-semibold", style: { background: "var(--accent-gold)", color: "var(--bg-page)" } }, editId ? "ذخیره تغییرات" : "➕ افزودن فیلد"))));
 }
-function NmCustomFieldsFormSection({ values, onChange }) {
-    const defs = useCustomFieldDefs();
-    if (!defs.length) return null;
+function NmCustomFieldsFormSection({ values, onChange, kind = "entry" }) {
+    const defs = useCustomFieldDefs(kind);
+    const [mode, setMode] = useState("namello");
+    useEffect(() => { let alive=true; const load=async()=>{const key=kind === "result" ? NM_CF_RESULT_MODE_KEY : NM_CF_ENTRY_MODE_KEY; const r=await nmCfGetValue(key,{mode:"namello"}); if(alive)setMode(r.mode||"namello");}; load(); window.addEventListener("namello-customfields-changed",load); return ()=>{alive=false;window.removeEventListener("namello-customfields-changed",load);}; }, [kind]);
+    if (mode === "raw" || !defs.length) return null;
     const v = values || {};
     const set = (id, val) => onChange({ ...v, [id]: val });
     return RE("div", { className: "rounded-xl p-3 mb-3", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
@@ -5359,7 +5491,7 @@ function NmCustomFieldsFormSection({ values, onChange }) {
             d.type === "select" && RE("div", { className: "flex flex-wrap gap-1.5" }, (d.options || []).map(opt => RE("button", { key: opt, type: "button", onClick: () => set(d.id, opt), className: "px-3 py-1.5 rounded-lg text-[12px]", style: { background: v[d.id] === opt ? nmTint(15) : "var(--bg-card)", color: v[d.id] === opt ? "var(--accent-gold)" : "var(--text-secondary)", border: "1px solid " + (v[d.id] === opt ? nmTint(40) : "var(--border-2)") } }, opt))))));
 }
 function NmCustomFieldsChips({ trade }) {
-    const defs = useCustomFieldDefs();
+    const defs = useCustomFieldDefs("all");
     const v = trade.customFields || {};
     const items = defs.filter(d => v[d.id] !== undefined && v[d.id] !== "" && v[d.id] !== false);
     if (!items.length) return null;
@@ -13698,7 +13830,7 @@ React.createElement(Field, { label: RE("span", { className: "flex items-center g
                     RE(ChartImageField, { label: "چارت تایم ورود - پایان (بعد از معامله)", value: editForm.chartImageAfter || "", onChange: v => onEditFieldChange("chartImageAfter", v) }),
                     RE(Field, { label: "ارزیابی صوتی چارت قبل از معامله" }, RE(VoiceNoteField, { label: "ضبط رویت صوتی از وضعیت چارت", value: editForm.voiceNoteBefore || "", onChange: v => onEditFieldChange("voiceNoteBefore", v) })),
                     RE(Field, { label: "ارزیابی صوتی چارت بعد از معامله" }, RE(VoiceNoteField, { label: "ضبط رویت صوتی از وضعیت چارت بعد از معامله", value: editForm.voiceNoteAfter || "", onChange: v => onEditFieldChange("voiceNoteAfter", v) }))),
-                                RE(NmCustomFieldsFormSection, { values: editForm.customFields, onChange: v => onEditFieldChange("customFields", v) }),
+                                RE(NmCustomFieldsFormSection, { values: editForm.customFields, onChange: v => onEditFieldChange("customFields", v), kind: "result" }),
                 React.createElement(Field, { label: "\u06CC\u0627\u062F\u062F\u0627\u0634\u062A" },
                     React.createElement("textarea", { rows: 2, value: editForm.note, onChange: e => onEditFieldChange("note", e.target.value), className: "w-full bg-transparent outline-none text-sm resize-none", style: { color: "var(--text-primary)" } })),
                 React.createElement("button", { onClick: saveEditTrade, className: "w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium mt-2 mb-2 nm-unified-export-btn", style: { background: "var(--accent-gold)", color: "var(--bg-page)" } },

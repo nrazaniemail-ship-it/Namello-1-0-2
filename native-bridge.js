@@ -37,6 +37,30 @@
   var CH_ALERT = 'namello-alerts';
   var CH_QUIET = 'namello-quiet';
   var SMALL_ICON = 'ic_stat_namello';
+  // Large notification artwork; configure-android copies these assets into drawable-nodpi.
+  function categoryIcon(title, body, extra) {
+    var meta = extra || {};
+    var data = meta.data || {};
+    // Explicit category metadata must win over words in a title/body. For example, an
+    // evaluation recommendation may mention a news event, but it should keep the evaluation logo.
+    var structured = [meta.kind, meta.category, data.kind, data.category, data.type];
+    for (var i = 0; i < structured.length; i++) {
+      var token = String(structured[i] == null ? '' : structured[i]).toLowerCase().replace(/[ _-]+/g, '');
+      if (/^(motivation|motivational|انگیزشی|library|کتابخانه)$/.test(token)) return 'nm_notif_motivation';
+      if (/^(news|economicnews|خبر|اخبار|خبرها)$/.test(token)) return 'nm_notif_news';
+      if (/^(session|sessions|event|events|نشست|نشستها|رویداد)$/.test(token)) return 'nm_notif_sessions';
+      if (/^(psychology|tradingpsychology|psych|روانشناسی|روانشناسی معاملهگری)$/.test(token)) return 'nm_notif_psychology';
+      if (/^(evaluation|advancedevaluation|marketbehavior|ارزیابی|ارزیابیرفتاربازار)$/.test(token)) return 'nm_notif_evaluation';
+    }
+    // Legacy callers without structured metadata are classified from visible text.
+    var hay = [title || '', body || '', meta.tag || ''].join(' ').toLowerCase();
+    if (/motivat|انگیز|کتابخانه|library/.test(hay)) return 'nm_notif_motivation';
+    if (/news|خبر|اقتصاد|تقویم اقتصادی/.test(hay)) return 'nm_notif_news';
+    if (/session|نشست|kill.?zone|silver.?bullet/.test(hay)) return 'nm_notif_sessions';
+    if (/psych|روانشناسی|روان‌شناسی|trading.?psych/.test(hay)) return 'nm_notif_psychology';
+    if (/evaluation|ارزیابی|market.?behavior|advanced.?evaluation|chart|چارت/.test(hay)) return 'nm_notif_evaluation';
+    return null;
+  }
   var PLAN_ID_BASE = 100000;          // ids [100000, 999999] are owned by the scheduler
   var PLAN_ID_LIMIT = 1000000;
   var HORIZON_MS = 36 * 3600 * 1000;  // how far ahead alarms are pre-scheduled
@@ -156,7 +180,7 @@
     var n = {
       id: immediateId(), title: title, body: body,
       channelId: options.silent ? CH_QUIET : CH_ALERT,
-      smallIcon: SMALL_ICON, extra: { tag: options.tag || '' }
+      smallIcon: SMALL_ICON, largeIcon: categoryIcon(title, body, options), extra: { tag: options.tag || '' }
     };
     if (body.length > 40) n.largeBody = body;
     return call('LocalNotifications', 'schedule', { notifications: [n] }).catch(function (e) {
@@ -377,6 +401,7 @@
           p.id = PLAN_ID_BASE + i;
           var n = {
             id: p.id, title: p.title, body: p.body, channelId: CH_ALERT, smallIcon: SMALL_ICON,
+            largeIcon: categoryIcon(p.title, p.body, { kind: p.kind }),
             schedule: { at: new Date(p.at), allowWhileIdle: true }, extra: { kind: p.kind }
           };
           if (p.body.length > 40) n.largeBody = p.body;

@@ -1,3 +1,23 @@
+## 1.0.61 (Version Code 60)
+- Android Back handling now has a bounded WebView callback timeout and guards against overlapping rapid presses, so a stalled JavaScript callback does not leave the system Back button unresponsive.
+
+## 1.0.60 (Version Code 59)
+- Android backup folder selection now verifies persisted read/write SAF permissions before saving the folder; permission/provider failures are reported separately from user cancellation.
+
+## 1.0.59 (Version Code 58)
+- Explicit notification kind/category metadata now takes priority over title/body keyword matching, preventing cross-category logo selection when notification text mentions another topic.
+
+## 1.0.54 (Version Code 53)
+- Notification artwork selection now checks structured category/kind metadata and common English/Persian labels before falling back to title/body text.
+
+## 1.0.53 (Version Code 52)
+- Android SAF backup folders now prune old automatic JSON backups and retain the newest configured number (default 8), just like the default Downloads destination.
+
+## 1.0.50 (Version Code 49)
+- Added named custom-field profiles and Namello/Raw/Custom mode controls; raw mode hides custom fields without deleting historical trade values.
+- Added category-specific large notification artwork mapping for Android (evaluation, psychology, sessions, news, motivation).
+- Kept Android folder-picker backup support and ordered Back handling from 1.0.49.
+
 ## 1.0.47 (versionCode 46)
 - رفع خطای Excel («Sheet name cannot contain : \\ / ? * [ ]»): نام شیت‌های دوزبانه ایمن شد (nmSafeSheetName).
 - رفع PDF در APK: تایمر روی WebView جداشده اجرا نمی‌شد → Handler اصلی؛ خطاها در صفحه نمایش داده می‌شوند.
@@ -198,3 +218,13 @@
 - Regime Persistence: اندازه‌گیری ماندگاری و طول اجرای رژیم‌های OHLC/MT5.
 - Change Detection: شناسایی تغییرات شدید در ویژگی‌های OHLC بین معاملات متوالی.
 - Rolling Regime Edge: مقایسه Edge رژیم‌ها در پنجره جاری و پنجره قبلی برای تشخیص بهبود/افت.
+
+
+## 1.0.52 — Android folder restore
+- Added listing of JSON backup files in the persisted Android Storage Access Framework folder.
+- Added restore flow that reads the selected backup file from that folder, validates it through the existing Namello backup parser, and then uses the existing merge/replace confirmation flow.
+- The backup card now displays the user-selected folder name rather than always showing the default Download folder.
+- This is source-level implementation; actual-device SAF testing is still required.
+
+## 1.0.55 (Version Code 54)
+- بازیابی پشتیبان اکنون در صورت خطای عملیات ذخیره/حذف، تلاش می‌کند داده‌های قبل از بازیابی را به‌صورت خودکار برگرداند. خطاهای بازیابی دیگر به‌صورت بی‌صدا نادیده گرفته نمی‌شوند.
