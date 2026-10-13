@@ -99,7 +99,7 @@
   auth.getRedirectResult().catch(err=>message(friendlyError(err),true));
   auth.onAuthStateChanged(async user=>{
    if(user){$('account').textContent='Firebase signed in as '+(user.email||user.displayName||'Firebase user')+(user.emailVerified?' · Email verified':' · Email not verified');$('account').classList.add('show');$('signout').classList.remove('hidden');$('submit').classList.add('hidden');$('google').classList.add('hidden');$('orDivider').classList.add('hidden');$('switchMode').classList.add('hidden');$('authForm').querySelectorAll('input').forEach(el=>el.disabled=true);$('forgotRow').classList.add('hidden');await exchangeFirebaseToken(user)}
-   else{$('account').classList.remove('show');$('signout').classList.add('hidden');$('submit').classList.remove('hidden');$('google').classList.remove('hidden');$('orDivider').classList.remove('hidden');$('switchMode').classList.remove('hidden');$('authForm').querySelectorAll('input').forEach(el=>el.disabled=false);$('forgotRow').classList.toggle('hidden',signup)}
+   else{namelloSessionToken=null;$('account').classList.remove('show');$('signout').classList.add('hidden');$('submit').classList.remove('hidden');$('google').classList.remove('hidden');$('orDivider').classList.remove('hidden');$('switchMode').classList.remove('hidden');$('authForm').querySelectorAll('input').forEach(el=>el.disabled=false);$('forgotRow').classList.toggle('hidden',signup)}
   },err=>message(friendlyError(err),true));
  }catch(err){message('Could not initialize Firebase: '+err.message,true)}
 })();
