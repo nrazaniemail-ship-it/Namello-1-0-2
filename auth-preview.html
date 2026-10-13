@@ -34,11 +34,12 @@
     <button class="secondary hidden" id="signout" type="button" style="margin-top:12px">Sign out</button>
     <div class="notice" id="notice" role="status" aria-live="polite"></div>
   </section>
-  <p class="foot">Firebase Authentication test page — not yet connected to Namello cloud sync.</p>
+  <p class="foot">Firebase + Namello backend authentication test page. The backend must be deployed and configured before cloud sync can work.</p>
 </main>
 <script>
 (function(){
- const $=id=>document.getElementById(id);let signup=false;let auth=null;
+ const $=id=>document.getElementById(id);let signup=false;let auth=null;let namelloSessionToken=null;
+ const API_BASE=String(window.NAMELLO_API_BASE||window.location.origin).replace(/\/+$/,'');
  const firebaseConfig={
   apiKey:"AIzaSyBEIuHNqQ2to7jzun93v1u8OGVUxXieHgc",
   authDomain:"namello-app-4.firebaseapp.com",
@@ -70,18 +71,34 @@
   return map[code]||('Authentication failed ('+(code||'unknown')+'). '+(e&&e.message?e.message:'Please try again.'));
  }
  function setBusy(b){$('submit').disabled=b;$('google').disabled=b;$('switchMode').disabled=b;$('submit').style.opacity=b?'.65':'1';$('google').style.opacity=b?'.65':'1'}
+ async function exchangeFirebaseToken(user){
+  namelloSessionToken=null;
+  try{
+   const idToken=await user.getIdToken();
+   const response=await fetch(API_BASE+'/v1/auth/firebase/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken})});
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok){
+    const messages={email_verification_required:'Please verify your email using the link Firebase sent, then sign in again.',email_not_verified:'This account email is not verified. Verify it before using cloud sync.',firebase_auth_disabled:'The Namello backend is not configured for Firebase authentication yet.',invalid_firebase_token:'Firebase token validation failed. Sign out and sign in again.'};
+    throw new Error(messages[data.error]||('Namello backend rejected sign-in ('+(data.error||response.status)+').'));
+   }
+   if(!data.token)throw new Error('Backend did not return a Namello session token.');
+   namelloSessionToken=data.token;
+   $('account').textContent='Signed in as '+(data.user?.email||user.email||user.displayName||'Firebase user')+' · Namello backend session active';
+   return true;
+  }catch(err){namelloSessionToken=null;message(err.message||'Could not connect to Namello backend.',true);return false}
+ }
  $('togglePassword').addEventListener('click',()=>{const p=$('password'),show=p.type==='password';p.type=show?'text':'password';$('togglePassword').textContent=show?'Hide':'Show';$('togglePassword').setAttribute('aria-label',show?'Hide password':'Show password')});
  $('switchMode').addEventListener('click',()=>{signup=!signup;$('modeNote').textContent=signup?'GET STARTED':'WELCOME BACK';$('heading').textContent=signup?'Create your Namello account':'Sign in to Namello';$('subtitle').textContent=signup?'Create an account to keep your trading journal organized.':'Pick up where you left off and keep your trading insights in sync.';$('submit').textContent=signup?'Create account':'Sign in';$('switchMode').textContent=signup?'I already have an account':'Create account';$('password').autocomplete=signup?'new-password':'current-password';$('forgotRow').style.display=signup?'none':'flex';clearMessage()});
  $('authForm').addEventListener('submit',async e=>{e.preventDefault();clearMessage();if(!auth){message('Firebase SDK could not load. Check your internet connection and reload.',true);return}setBusy(true);try{const email=$('email').value.trim(),password=$('password').value;if(signup){const result=await auth.createUserWithEmailAndPassword(email,password);try{await result.user.sendEmailVerification();message('Account created. A verification email was sent to '+email+'. Please check your inbox.')}catch(err){message('Account created, but verification email could not be sent: '+friendlyError(err),true)}}else{await auth.signInWithEmailAndPassword(email,password);message('Signed in successfully.')} }catch(err){message(friendlyError(err),true)}finally{setBusy(false)}});
  $('forgot').addEventListener('click',async e=>{e.preventDefault();clearMessage();if(!auth){message('Firebase SDK could not load. Check your internet connection.',true);return}const email=$('email').value.trim();if(!email){$('email').focus();message('Enter your email address first, then tap Forgot password.');return}try{await auth.sendPasswordResetEmail(email);message('If an account exists for '+email+', a password reset email has been sent.')}catch(err){message(friendlyError(err),true)}});
  $('google').addEventListener('click',async()=>{clearMessage();if(!auth){message('Firebase SDK could not load. Check your internet connection and reload.',true);return}setBusy(true);try{const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});await auth.signInWithRedirect(provider)}catch(err){message(friendlyError(err),true);setBusy(false)}});
- $('signout').addEventListener('click',async()=>{try{await auth.signOut();message('Signed out.')}catch(err){message(friendlyError(err),true)}});
+ $('signout').addEventListener('click',async()=>{clearMessage();try{if(namelloSessionToken)await fetch(API_BASE+'/v1/auth/logout',{method:'POST',headers:{'Authorization':'Bearer '+namelloSessionToken}}).catch(()=>{});namelloSessionToken=null;await auth.signOut();message('Signed out from Firebase and Namello.')}catch(err){message(friendlyError(err),true)}});
  try{
   if(!window.firebase||!firebase.initializeApp)throw new Error('Firebase SDK unavailable');
   firebase.initializeApp(firebaseConfig);auth=firebase.auth();auth.useDeviceLanguage();
   auth.getRedirectResult().catch(err=>message(friendlyError(err),true));
-  auth.onAuthStateChanged(user=>{
-   if(user){$('account').textContent='Signed in as '+(user.email||user.displayName||'Firebase user')+(user.emailVerified?' · Email verified':' · Email not verified');$('account').classList.add('show');$('signout').classList.remove('hidden');$('submit').classList.add('hidden');$('google').classList.add('hidden');$('orDivider').classList.add('hidden');$('switchMode').classList.add('hidden');$('authForm').querySelectorAll('input').forEach(el=>el.disabled=true);$('forgotRow').classList.add('hidden')}
+  auth.onAuthStateChanged(async user=>{
+   if(user){$('account').textContent='Firebase signed in as '+(user.email||user.displayName||'Firebase user')+(user.emailVerified?' · Email verified':' · Email not verified');$('account').classList.add('show');$('signout').classList.remove('hidden');$('submit').classList.add('hidden');$('google').classList.add('hidden');$('orDivider').classList.add('hidden');$('switchMode').classList.add('hidden');$('authForm').querySelectorAll('input').forEach(el=>el.disabled=true);$('forgotRow').classList.add('hidden');await exchangeFirebaseToken(user)}
    else{$('account').classList.remove('show');$('signout').classList.add('hidden');$('submit').classList.remove('hidden');$('google').classList.remove('hidden');$('orDivider').classList.remove('hidden');$('switchMode').classList.remove('hidden');$('authForm').querySelectorAll('input').forEach(el=>el.disabled=false);$('forgotRow').classList.toggle('hidden',signup)}
   },err=>message(friendlyError(err),true));
  }catch(err){message('Could not initialize Firebase: '+err.message,true)}
