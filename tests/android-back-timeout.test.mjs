@@ -18,3 +18,8 @@ test('Android Back avoids overlapping async decisions and retains double-press e
   assert.match(native, /برای خروج، دوباره دکمه‌ی بازگشت را بزنید/);
   assert.match(app, /window\.__nmNativeBack = \(\) =>/);
 });
+
+
+test('a Back press handled by a dialog resets the main-page double-Back exit timer', () => {
+  assert.match(native, /if \(result != null && result\.contains\("handled"\)\) \{[\s\S]*?lastBackPressAt = 0L;[\s\S]*?return;/);
+});
