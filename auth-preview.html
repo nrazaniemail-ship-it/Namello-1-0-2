@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10111b">
+<title>Namello · Sign in preview</title>
+<style>
+:root{color-scheme:dark;--bg:#10111b;--panel:#181a29;--line:#2d3045;--muted:#9a9db5;--text:#f7f7ff;--accent:#8171ff;--accent2:#5c8cff}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 15% 5%,#28234e 0,transparent 42%),radial-gradient(ellipse at 95% 90%,#142d4b 0,transparent 38%),var(--bg);font:15px/1.5 Inter,system-ui,-apple-system,sans-serif;color:var(--text);display:grid;place-items:center;padding:24px}
+.wrap{width:min(100%,440px)}.brand{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:26px;font-weight:800;font-size:25px;letter-spacing:.3px}.mark{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 8px 30px #6c64ff55;font-size:22px}
+.card{background:#181a29ed;border:1px solid var(--line);border-radius:24px;padding:clamp(22px,6vw,34px);box-shadow:0 24px 90px #0005;backdrop-filter:blur(16px)}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px}.top small{color:var(--muted)}.signup{border:0;background:transparent;color:#b9b0ff;font:inherit;font-weight:700;cursor:pointer}.eyebrow{font-size:12px;letter-spacing:2px;color:#a9a0ff;font-weight:800;text-transform:uppercase;margin:0 0 8px}h1{font-size:30px;letter-spacing:-.8px;margin:0 0 8px} .sub{margin:0 0 26px;color:var(--muted)}label{display:block;font-size:13px;font-weight:650;margin:16px 0 8px}.field{display:flex;align-items:center;background:#111320;border:1px solid #35384e;border-radius:12px;min-height:48px;transition:border .15s}.field:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px #8171ff20}input{width:100%;min-width:0;background:transparent;border:0;outline:0;color:var(--text);padding:13px 14px;font:inherit}input::placeholder{color:#6e728a}.reveal{border:0;background:transparent;color:#aeb1c8;padding:10px 13px;cursor:pointer}.row{display:flex;justify-content:flex-end;margin:12px 0 20px}.link{color:#b7adff;text-decoration:none;font-size:13px;font-weight:650}.primary{width:100%;border:0;border-radius:12px;padding:14px;background:linear-gradient(100deg,var(--accent),var(--accent2));color:white;font:inherit;font-weight:800;cursor:pointer;box-shadow:0 8px 24px #665cff38}.or{display:flex;align-items:center;gap:12px;color:#777b94;font-size:12px;margin:22px 0}.or:before,.or:after{content:"";height:1px;flex:1;background:var(--line)}.google{width:100%;display:flex;justify-content:center;align-items:center;gap:10px;border:1px solid #3a3d52;background:#202234;border-radius:12px;padding:12px;color:var(--text);font:inherit;font-weight:700;cursor:pointer}.google b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:white;color:#4285f4;font-size:15px}.foot{text-align:center;color:#777b94;font-size:12px;margin:20px 0 0}.notice{display:none;margin-top:14px;padding:10px 12px;border:1px solid #6a5933;background:#352d1d;border-radius:10px;color:#f4dca2;font-size:12px}.notice.show{display:block}@media(max-width:420px){body{padding:16px}.brand{margin-bottom:18px}.card{border-radius:20px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="brand"><span class="mark">N</span><span>Namello</span></div>
+  <section class="card" aria-labelledby="heading">
+    <div class="top"><small id="modeNote">WELCOME BACK</small><button class="signup" id="switchMode" type="button">Create account</button></div>
+    <p class="eyebrow">TRADING JOURNAL</p>
+    <h1 id="heading">Sign in to Namello</h1>
+    <p class="sub" id="subtitle">Pick up where you left off and keep your trading insights in sync.</p>
+    <form id="authForm">
+      <label for="email">Email address</label>
+      <div class="field"><input id="email" type="email" autocomplete="email" placeholder="you@example.com" required></div>
+      <label for="password">Password</label>
+      <div class="field"><input id="password" type="password" autocomplete="current-password" placeholder="Enter your password" minlength="8" required><button class="reveal" id="togglePassword" type="button" aria-label="Show password">Show</button></div>
+      <div class="row" id="forgotRow"><a class="link" href="#" id="forgot">Forgot password?</a></div>
+      <button class="primary" id="submit" type="submit">Sign in</button>
+    </form>
+    <div class="or">OR CONTINUE WITH</div>
+    <button class="google" id="google" type="button"><b>G</b> Continue with Google</button>
+    <div class="notice" id="notice" role="status"></div>
+  </section>
+  <p class="foot">Your trading journal, organized around you.</p>
+</main>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);let signup=false;
+ function message(s){$('notice').textContent=s;$('notice').classList.add('show')}
+ $('togglePassword').addEventListener('click',()=>{const p=$('password'),show=p.type==='password';p.type=show?'text':'password';$('togglePassword').textContent=show?'Hide':'Show';$('togglePassword').setAttribute('aria-label',show?'Hide password':'Show password')});
+ $('switchMode').addEventListener('click',()=>{signup=!signup;$('modeNote').textContent=signup?'GET STARTED':'WELCOME BACK';$('heading').textContent=signup?'Create your Namello account':'Sign in to Namello';$('subtitle').textContent=signup?'Create an account to keep your trading journal organized.':'Pick up where you left off and keep your trading insights in sync.';$('submit').textContent=signup?'Create account':'Sign in';$('switchMode').textContent=signup?'I already have an account':'Create account';$('password').autocomplete=signup?'new-password':'current-password';$('forgotRow').style.display=signup?'none':'flex';$('notice').classList.remove('show')});
+ $('authForm').addEventListener('submit',e=>{e.preventDefault();message('UI preview only — email/password authentication is not connected yet. No account was created or signed in.')});
+ $('google').addEventListener('click',()=>message('Google sign-in is not connected in this preview. The existing Namello Google authentication must be wired in during integration.'));
+ $('forgot').addEventListener('click',e=>{e.preventDefault();message('Password recovery needs a configured email/authentication provider. This preview does not send email.')});
+})();
+</script>
+</body>
+</html>
