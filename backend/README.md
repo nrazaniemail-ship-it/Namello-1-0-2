@@ -28,6 +28,8 @@ The backend uses Firebase Admin SDK Application Default Credentials. Prefer a ho
 
 After a user signs in through Firebase Web Auth, the client sends the Firebase ID token to `POST /v1/auth/firebase/verify` as JSON: `{ "idToken": "..." }`. The server validates the token with Firebase Admin SDK, checks the project and token validity/revocation, permits only Google or email/password providers, and requires a verified email before issuing a Namello sync session. The response contains the Namello session `token`; use that token as `Authorization: Bearer <token>` for the existing `/v1` endpoints.
 
+For the standalone `auth-preview.html`, the API base defaults to the same origin. If the backend is on another origin, set `window.NAMELLO_API_BASE` to its HTTPS base URL before the preview's Firebase script runs, and ensure that exact preview origin is included in `CORS_ORIGINS`.
+
 The client must never treat a Firebase login alone as a Namello backend session. Exchange the ID token server-side and handle `email_verification_required` by asking the user to verify their email and sign in again.
 
 ## Other modes
