@@ -1,4 +1,441 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Namello 1.0.4</title>
+<meta name="theme-color" content="#0B0E11" id="themeColorMeta" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icon-192.png" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/parastoo-font@latest/dist/font-face.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/samim-font@latest/dist/font-face.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@latest/dist/font-face.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/gandom-font@latest/dist/font-face.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/shabnam-font@latest/dist/font-face.css" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=Estedad:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  /* توکن‌های رنگ: پیش‌فرض تیره (:root)، و بازنویسیِ روشن زیرِ html[data-theme="light"]. چون تقریباً
+     همه‌جای اپ به‌جای این ۹ رنگِ پایه از همین متغیرها استفاده می‌کنه، با عوض‌شدنِ data-theme کل
+     اپ به‌صورت خودکار زمینه/متن‌ش عوض می‌شه — بدون نیاز به دست‌کاریِ تک‌تک کامپوننت‌ها. */
+  :root {
+    --bg-page: #0B0E11; --bg-card: #12161C; --bg-card2: #1A1F27;
+    --border-1: #1F242C; --border-2: #2D3540;
+    --text-primary: #E8EAED; --text-secondary: #A3A9B4; --text-muted: #828997;
+    --accent-gold: #D4A64A;
+    --app-font: 'Vazirmatn', sans-serif;
+  }
+  .nm-dashboard { color: var(--text-primary); }
+  /* استایل یکسان خروجی Excel و PDF در تمام لایه‌ها */
+  .nm-unified-export-btn {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-1) !important;
+    min-height: 44px;
+    transition: opacity .15s ease, transform .15s ease;
+  }
+  .nm-unified-export-btn:active { opacity: .8; transform: translateY(1px); }
 
+  .nm-dashboard input, .nm-dashboard select, .nm-dashboard textarea, .nm-dashboard button { color: var(--text-primary); }
+  .nm-dashboard option { color: var(--text-primary); background: var(--bg-card2); }
+  html[data-theme="light"] {
+    --bg-page: #F5F3EC; --bg-card: #FFFFFF; --bg-card2: #F1EEE4;
+    --border-1: #E4E0D3; --border-2: #D8D3C3;
+    --text-primary: #24282E; --text-secondary: #4C545F; --text-muted: #636976;
+    --accent-gold: #8A6419;
+  }
+  /* ---- تم‌های رنگی برنامه (تنظیمات ← تم لایه‌های برنامه) — فقط متغیرهای رنگی را عوض می‌کنند ---- */
+  html[data-app-theme="pureblack"]:not([data-theme="light"]) { --bg-page: #000000; --bg-card: #0B0B0E; --bg-card2: #16161B; --border-1: #1C1C22; --border-2: #2E2E38; --text-secondary: #A1A1AE; --text-muted: #818190; --accent-gold: #9266F7; }
+  html[data-app-theme="pureblack"][data-theme="light"] { --accent-gold: #7C3AED; }
+  html[data-app-theme="midnight"]:not([data-theme="light"]) { --bg-page: #070B1A; --bg-card: #0D1326; --bg-card2: #172041; --border-1: #1A2444; --border-2: #27345F; --text-secondary: #9FADCA; --text-muted: #7F8CA9; --accent-gold: #60A5FA; }
+  html[data-app-theme="midnight"][data-theme="light"] { --accent-gold: #1F5FEA; }
+  html[data-app-theme="emerald"]:not([data-theme="light"]) { --bg-page: #07130F; --bg-card: #0D2019; --bg-card2: #143026; --border-1: #16382C; --border-2: #1E4A3A; --text-secondary: #9CBEB0; --text-muted: #719E8C; --accent-gold: #10B981; }
+  html[data-app-theme="emerald"][data-theme="light"] { --accent-gold: #047A55; }
+  html[data-app-theme="royal"]:not([data-theme="light"]) { --bg-page: #0B0716; --bg-card: #140E26; --bg-card2: #1E1638; --border-1: #261B45; --border-2: #372A62; --text-secondary: #ABA0CA; --text-muted: #8C80AE; --accent-gold: #A78BFA; }
+  html[data-app-theme="royal"][data-theme="light"] { --accent-gold: #7C3AED; }
+  html[data-app-theme="graphite"]:not([data-theme="light"]) { --bg-page: #0A0A0C; --bg-card: #121215; --bg-card2: #1B1B20; --border-1: #202026; --border-2: #31313A; --text-secondary: #A0A6B2; --text-muted: #808795; --accent-gold: #E5E7EB; }
+  html[data-app-theme="graphite"][data-theme="light"] { --accent-gold: #374151; }
+  html[data-app-theme="sunset"]:not([data-theme="light"]) { --bg-page: #120A05; --bg-card: #1D120A; --bg-card2: #291A0F; --border-1: #2C1B10; --border-2: #472E1D; --text-secondary: #C2A58E; --text-muted: #9E836E; --accent-gold: #F97316; }
+  html[data-app-theme="sunset"][data-theme="light"] { --accent-gold: #B84509; }
+  html[data-app-theme="ruby"]:not([data-theme="light"]) { --bg-page: #14060A; --bg-card: #1F0B11; --bg-card2: #2C121A; --border-1: #34141D; --border-2: #52212F; --text-secondary: #C99AA5; --text-muted: #A67A84; --accent-gold: #F43F5E; }
+  html[data-app-theme="ruby"][data-theme="light"] { --accent-gold: #D01B43; }
+  /* ---- رنگ‌های معنایی و اصلاح کنتراست (v1.0.26) ----
+     ۱) توکن‌های معنایی: موفقیت/خطر/هشدار/اطلاع‌رسانی/تأکید دوم؛ در تم تیره شیدهای ۳۰۰–۴۰۰ و در تم روشن شیدهای ۷۰۰ (کنتراست ≥ 4.5:1 روی سفید و کرم).
+     ۲) رنگ‌های متنی که در کد با hex ثابت نوشته شده‌اند (مثلاً #34D399) روی زمینه‌ی روشن کنتراست ۱.۷–۲.۸ دارند؛ این قاعده‌ها فقط «رنگ متن» را
+        بسته به تم به شید خوانا می‌برند و رنگ پس‌زمینه‌ها/نشان‌ها (تینت‌های کم‌رنگ) را تغییر نمی‌دهند. */
+  :root { --c-success: #34D399; --c-danger: #F87171; --c-warning: #FBBF24; --c-info: #60A5FA; --c-accent2: #A78BFA; }
+  html[data-theme="light"] { --c-success: #047857; --c-danger: #B91C1C; --c-warning: #92400E; --c-info: #1D4ED8; --c-accent2: #6D28D9; }
+  html:not([data-theme="light"]) { --nm-clock-hour-text: #FFFFFF; }
+  html[data-theme="light"] { --nm-clock-hour-text: #111827; }
+  html[data-theme="light"] [style^="color: rgb(248, 113, 113)"], html[data-theme="light"] [style*="; color: rgb(248, 113, 113)"] { color: #B91C1C !important; }
+  html[data-theme="light"] [style^="color: rgb(239, 68, 68)"], html[data-theme="light"] [style*="; color: rgb(239, 68, 68)"] { color: #B91C1C !important; }
+  html[data-theme="light"] [style^="color: rgb(244, 63, 94)"], html[data-theme="light"] [style*="; color: rgb(244, 63, 94)"] { color: #BE123C !important; }
+  html[data-theme="light"] [style^="color: rgb(52, 211, 153)"], html[data-theme="light"] [style*="; color: rgb(52, 211, 153)"] { color: #047857 !important; }
+  html[data-theme="light"] [style^="color: rgb(16, 185, 129)"], html[data-theme="light"] [style*="; color: rgb(16, 185, 129)"] { color: #047857 !important; }
+  html[data-theme="light"] [style^="color: rgb(34, 197, 94)"], html[data-theme="light"] [style*="; color: rgb(34, 197, 94)"] { color: #15803D !important; }
+  html[data-theme="light"] [style^="color: rgb(74, 222, 128)"], html[data-theme="light"] [style*="; color: rgb(74, 222, 128)"] { color: #15803D !important; }
+  html[data-theme="light"] [style^="color: rgb(57, 255, 110)"], html[data-theme="light"] [style*="; color: rgb(57, 255, 110)"] { color: #15803D !important; }
+  html[data-theme="light"] [style^="color: rgb(20, 184, 166)"], html[data-theme="light"] [style*="; color: rgb(20, 184, 166)"] { color: #0F766E !important; }
+  html[data-theme="light"] [style^="color: rgb(96, 165, 250)"], html[data-theme="light"] [style*="; color: rgb(96, 165, 250)"] { color: #1D4ED8 !important; }
+  html[data-theme="light"] [style^="color: rgb(59, 130, 246)"], html[data-theme="light"] [style*="; color: rgb(59, 130, 246)"] { color: #1D4ED8 !important; }
+  html[data-theme="light"] [style^="color: rgb(6, 182, 212)"], html[data-theme="light"] [style*="; color: rgb(6, 182, 212)"] { color: #0E7490 !important; }
+  html[data-theme="light"] [style^="color: rgb(56, 189, 248)"], html[data-theme="light"] [style*="; color: rgb(56, 189, 248)"] { color: #0369A1 !important; }
+  html[data-theme="light"] [style^="color: rgb(245, 158, 11)"], html[data-theme="light"] [style*="; color: rgb(245, 158, 11)"] { color: #92400E !important; }
+  html[data-theme="light"] [style^="color: rgb(251, 191, 36)"], html[data-theme="light"] [style*="; color: rgb(251, 191, 36)"] { color: #92400E !important; }
+  html[data-theme="light"] [style^="color: rgb(250, 204, 21)"], html[data-theme="light"] [style*="; color: rgb(250, 204, 21)"] { color: #854D0E !important; }
+  html[data-theme="light"] [style^="color: rgb(252, 211, 77)"], html[data-theme="light"] [style*="; color: rgb(252, 211, 77)"] { color: #92400E !important; }
+  html[data-theme="light"] [style^="color: rgb(212, 166, 74)"], html[data-theme="light"] [style*="; color: rgb(212, 166, 74)"] { color: #8A6419 !important; }
+  html[data-theme="light"] [style^="color: rgb(251, 146, 60)"], html[data-theme="light"] [style*="; color: rgb(251, 146, 60)"] { color: #C2410C !important; }
+  html[data-theme="light"] [style^="color: rgb(249, 115, 22)"], html[data-theme="light"] [style*="; color: rgb(249, 115, 22)"] { color: #C2410C !important; }
+  html[data-theme="light"] [style^="color: rgb(253, 186, 116)"], html[data-theme="light"] [style*="; color: rgb(253, 186, 116)"] { color: #C2410C !important; }
+  html[data-theme="light"] [style^="color: rgb(167, 139, 250)"], html[data-theme="light"] [style*="; color: rgb(167, 139, 250)"] { color: #6D28D9 !important; }
+  html[data-theme="light"] [style^="color: rgb(139, 92, 246)"], html[data-theme="light"] [style*="; color: rgb(139, 92, 246)"] { color: #6D28D9 !important; }
+  html[data-theme="light"] [style^="color: rgb(168, 85, 247)"], html[data-theme="light"] [style*="; color: rgb(168, 85, 247)"] { color: #6D28D9 !important; }
+  html[data-theme="light"] [style^="color: rgb(107, 114, 128)"], html[data-theme="light"] [style*="; color: rgb(107, 114, 128)"] { color: var(--text-muted) !important; }
+  html:not([data-theme="light"]) [style^="color: rgb(139, 92, 246)"], html:not([data-theme="light"]) [style*="; color: rgb(139, 92, 246)"] { color: #A78BFA !important; }
+  html:not([data-theme="light"]) [style^="color: rgb(124, 58, 237)"], html:not([data-theme="light"]) [style*="; color: rgb(124, 58, 237)"] { color: #A78BFA !important; }
+  html:not([data-theme="light"]) [style^="color: rgb(168, 85, 247)"], html:not([data-theme="light"]) [style*="; color: rgb(168, 85, 247)"] { color: #C084FC !important; }
+  html:not([data-theme="light"]) [style^="color: rgb(59, 130, 246)"], html:not([data-theme="light"]) [style*="; color: rgb(59, 130, 246)"] { color: #60A5FA !important; }
+  html:not([data-theme="light"]) [style^="color: rgb(239, 68, 68)"], html:not([data-theme="light"]) [style*="; color: rgb(239, 68, 68)"] { color: #F87171 !important; }
+  html:not([data-theme="light"]) [style^="color: rgb(107, 114, 128)"], html:not([data-theme="light"]) [style*="; color: rgb(107, 114, 128)"] { color: var(--text-muted) !important; }
+  /* دکمه‌ی «ثبت نهایی» در ثبت نتیجه‌ی معامله: زمینه‌ی زرد کم‌رنگ (از استایل یکسانِ دکمه‌های خروجی بالاتر می‌ایستد) */
+  .nm-unified-export-btn.nm-final-save-btn { background: #FEF3C7 !important; color: #92400E !important; border: 1px solid #FDE68A !important; font-weight: 600; }
+  .nm-unified-export-btn.nm-final-save-btn:hover { background: #FDE68A !important; }
+  html, body { background: var(--bg-page); margin: 0; padding: 0; }
+  .nm-journal-custom-mode > :nth-child(n+3) { display: none !important; }
+  .nm-journal-custom-mode .nm-custom-journal-view { display: block !important; }
+  * { font-family: var(--app-font); box-sizing: border-box; }
+  #root { min-height: 100vh; }
+  #boot-error { display: none; direction: ltr; text-align: left; color: #F87171; background: #1A0B0B; padding: 16px; font-family: monospace; font-size: 12px; white-space: pre-wrap; word-break: break-all; line-height: 1.6; min-height: 100vh; }
+  #boot-status { color: var(--text-muted); font-family: monospace; font-size: 11px; padding: 16px; direction: ltr; text-align: left; }
+  .nm-nav-item { position: relative; transition: background .18s ease, color .18s ease, transform .18s ease; border-radius: 12px; margin: 3px 2px; }
+  .nm-nav-item.nm-nav-active { background: color-mix(in srgb, var(--accent-gold) 10%, transparent); box-shadow: none; border-color: transparent !important; }
+  .nm-nav-item.nm-nav-active::before { display:none !important; }
+  .nm-layer-icon { width: 28px; height: 28px; border-radius: 9px; display:flex; align-items:center; justify-content:center; background: color-mix(in srgb, var(--bg-card2) 82%, var(--accent-gold)); border:1px solid color-mix(in srgb, var(--border-2) 80%, var(--accent-gold)); box-shadow: 0 5px 14px #00000033; }
+  .nm-settings-stack > div:nth-child(3n+1) { background: color-mix(in srgb, var(--bg-card) 88%, #3B82F6 12%) !important; }
+  .nm-settings-stack > div:nth-child(3n+2) { background: color-mix(in srgb, var(--bg-card) 88%, #8B5CF6 12%) !important; }
+  .nm-settings-stack > div:nth-child(3n) { background: color-mix(in srgb, var(--bg-card) 90%, #34D399 10%) !important; }
+  .nm-settings-stack > .nm-profile-card { background: color-mix(in srgb, #60A5FA 5%, var(--bg-card)) !important; border: 1px solid color-mix(in srgb, #60A5FA 26%, var(--border-1)) !important; border-right: 4px solid #60A5FA !important; }
+  .nm-settings-stack > .nm-template-card { background: color-mix(in srgb, #A78BFA 5%, var(--bg-card)) !important; border: 1px solid color-mix(in srgb, #A78BFA 26%, var(--border-1)) !important; border-right: 4px solid #A78BFA !important; }
+  .nm-entry-modal .nm-entry-tone > .rounded-lg, .nm-entry-modal .nm-entry-tone .rounded-lg { border-color: color-mix(in srgb, #60A5FA 34%, var(--border-2)) !important; }
+  .nm-result-modal .nm-result-tone > .rounded-lg, .nm-result-modal .nm-result-tone .rounded-lg { border-color: color-mix(in srgb, #34D399 34%, var(--border-2)) !important; }
+  .nm-entry-modal .nm-entry-tone, .nm-result-modal .nm-result-tone { box-shadow: inset 0 2px 0 color-mix(in srgb, currentColor 18%, transparent); }
+  /* چیدمان استاندارد لایه خروجی کل */
+  .nm-export-main-box { background: color-mix(in srgb, var(--accent-gold) 5%, var(--bg-card)); border: 1px solid color-mix(in srgb, var(--accent-gold) 24%, var(--border-1)); border-radius: 18px; padding: 12px; }
+  .nm-export-main-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .nm-export-main-btn { min-height: 74px; }
+  .nm-export-dev { margin-top: 12px; }
+  /* همه‌ی کنترل‌های جمع/باز تنظیمات دقیقاً یک اندازه و رنگ */
+  .nm-settings-chevron { width: 28px; height: 28px; min-width: 28px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--accent-gold) 12%, var(--bg-card2)); border: 1px solid color-mix(in srgb, var(--accent-gold) 28%, var(--border-2)); color: var(--accent-gold) !important; }
+  .nm-settings-chevron svg { width: 14px !important; height: 14px !important; color: var(--accent-gold) !important; }
+  .nm-collapse-chevron { flex: 0 0 28px; }
+  .nm-collapse-chevron svg { display: block; }
+  .nm-header-dots { order: -1; width: 32px; height: 32px; min-width: 32px; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; line-height: 1; border: 1px solid color-mix(in srgb, var(--border-2) 90%, #fff 10%); border-radius: 9px; background: color-mix(in srgb, var(--bg-card2) 88%, transparent); padding: 0; cursor: pointer; transition: background .16s ease, border-color .16s ease, transform .16s ease; }
+  .nm-header-dots:hover { background: color-mix(in srgb, var(--accent-gold) 10%, var(--bg-card2)); border-color: color-mix(in srgb, var(--accent-gold) 38%, var(--border-2)); }
+  .nm-header-dots:active { transform: scale(.95); }
+  .nm-header-dots:focus-visible { outline: 2px solid var(--accent-gold); outline-offset: 2px; }
+  .nm-header-dot { width: 3px; height: 3px; border-radius: 999px; background: #fff; display: block; box-shadow: 0 0 2px rgba(255,255,255,.45); }
+  .nm-layer-heading { width: 100%; min-height: 42px; margin-bottom: 10px; padding: 5px 6px 5px 5px; display: flex; align-items: center; justify-content: space-between; gap: 10px; direction: ltr; border-radius: 13px; background: transparent; border: 1px solid transparent; }
+  .nm-layer-heading-main { min-width: 0; flex: 1; display: flex; align-items: center; gap: 9px; direction: rtl; }
+  .nm-layer-heading-icon { width: 30px; height: 30px; min-width: 30px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--bg-card2) 82%, var(--accent-gold) 18%); border: 1px solid color-mix(in srgb, var(--border-2) 75%, var(--accent-gold) 25%); }
+  .nm-layer-heading-title { min-width: 0; font-size: 13px; line-height: 1.35; font-weight: 700; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .nm-collapsible-row { width: 100%; display: flex; align-items: center; gap: 8px; direction: rtl; }
+  .nm-layer-heading > .nm-header-dots { order: 0; }
+  .nm-layer-heading > .nm-layer-heading-action { order: -1; display: inline-flex; align-items: center; flex-shrink: 0; }
+  .nm-layer-heading-settings { width: 32px; height: 32px; min-width: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 9px; padding: 0; cursor: pointer; background: color-mix(in srgb, var(--bg-card2) 88%, transparent); border: 1px solid color-mix(in srgb, var(--border-2) 90%, #fff 10%); }
+  .nm-collapsible-toggle { min-width: 0; flex: 1; display: flex; align-items: center; gap: 9px; direction: ltr; text-align: start; }
+  .nm-collapsible-copy { min-width: 0; flex: 1; direction: rtl; text-align: start; }
+  .nm-collapsible-chevron { order: 0; flex: 0 0 28px; }
+
+
+/* Namello 1.0.4 — light/dark session clock + custom journal form */
+input[type="time"]::-webkit-calendar-picker-indicator { width: 18px; height: 18px; opacity: .95; cursor: pointer; filter: none; }
+[data-theme="dark"] input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1) brightness(1.25); }
+[data-theme="light"] input[type="time"]::-webkit-calendar-picker-indicator { filter: brightness(.35) contrast(1.4); }
+.nm-journal-custom-mode .nm-journal-option-list > * { display: none !important; }
+.nm-journal-custom-mode .nm-custom-form-banner { position: sticky; top: 0; z-index: 3; }
+</style>
+</head>
+<body>
+<div id="boot-status">Loading Namello 1.0.4…</div>
+<div id="boot-error"></div>
+<div id="root"></div>
+<div id="runtime-error-banner" style="display:none; position:fixed; left:0; right:0; bottom:0; z-index:99999; background:#1A0B0B; color:#F87171; padding:10px 14px; font-family:monospace; font-size:11px; direction:ltr; text-align:left; border-top:1px solid #F8717155;"></div>
+
+<script>
+  // تا وقتی برنامه هنوز mount نشده، هر خطایی واقعاً کشنده‌ست (چون یعنی اصلاً بالا نیومده) و باید
+  // صفحه‌ی کامل خطا رو نشون بدیم. اما بعد از mount موفق، یک خطای بعدی (حتی اگه از دل یه فیچر فرعی
+  // باشه) نباید کل UIِ درحال‌کارِ کاربر رو پاک کنه — به‌جاش یک نوار کوچیک پایین صفحه نشون می‌دیم که
+  // می‌شه بستش، و کار با بقیه‌ی برنامه ادامه پیدا می‌کنه.
+  window.__namelloMounted = false;
+  // اعمال زودهنگام تم (قبل از رندر) تا هنگام باز شدن برنامه، لحظه‌ای رنگ پیش‌فرض دیده نشود.
+  (function () {
+    try {
+      var d = document.documentElement;
+      var m = localStorage.getItem('ns_namello_theme_mode_v1');
+      var t = localStorage.getItem('ns_namello_app_theme_v1');
+      if (m === 'light' || m === 'dark') d.setAttribute('data-theme', m);
+      if (t && t !== 'classic') d.setAttribute('data-app-theme', t);
+    } catch (e) {}
+  })();
+  function showBootError(title, detail) {
+    if (window.__namelloMounted) {
+      showRuntimeErrorBanner(title, detail);
+      return;
+    }
+    var el = document.getElementById('boot-error');
+    var status = document.getElementById('boot-status');
+    if (status) status.style.display = 'none';
+    if (!el) return;
+    el.style.display = 'block';
+    var looksLikeCorruptedLib = /react|xlsx|plotly|tailwind/i.test(String(detail || '')) && /is not a function|is not defined|Unexpected token/i.test(String(detail || ''));
+    var hint = looksLikeCorruptedLib
+      ? 'این نوع خطا معمولاً یعنی یکی از فایل‌های جاوااسکریپتِ برنامه (از cdn.jsdelivr.net) به‌طور کامل دانلود نشده — رایج‌ترین دلیلش اینترنت ناپایداره. لطفاً یه بار دکمه‌ی «تلاش مجدد» رو بزن؛ اگه دوباره تکرار شد، با وای‌فای امتحان کن.'
+      : '';
+    el.innerHTML = '';
+    var pre = document.createElement('div');
+    pre.textContent = '⚠ ' + title + '\n\n' + (detail || '') + (hint ? ('\n\n' + hint) : '') + '\n\n---\nPlease screenshot this and send it back.';
+    el.appendChild(pre);
+    var btn = document.createElement('button');
+    btn.textContent = 'تلاش مجدد (بارگذاری دوباره)';
+    btn.style.cssText = 'margin-top:16px; padding:10px 16px; border-radius:10px; background:#D4A64A; color:#0B0E11; border:none; font-family:inherit; font-size:12px; cursor:pointer;';
+    btn.onclick = function () { window.location.reload(); };
+    el.appendChild(btn);
+  }
+  var runtimeBannerTimer = null;
+  function showRuntimeErrorBanner(title, detail) {
+    var banner = document.getElementById('runtime-error-banner');
+    if (!banner) return;
+    banner.innerHTML = '';
+    var span = document.createElement('span');
+    span.textContent = '⚠ ' + title + ': ' + String(detail || '').slice(0, 160);
+    banner.appendChild(span);
+    var closeBtn = document.createElement('button');
+    closeBtn.textContent = '✕';
+    closeBtn.style.cssText = 'margin-inline-start:10px; background:none; border:none; color:#F87171; font-size:14px; cursor:pointer;';
+    closeBtn.onclick = function () { banner.style.display = 'none'; };
+    banner.appendChild(closeBtn);
+    banner.style.display = 'block';
+    console.error('[Namello runtime error, app still mounted]', title, detail);
+    if (runtimeBannerTimer) clearTimeout(runtimeBannerTimer);
+    runtimeBannerTimer = setTimeout(function () { banner.style.display = 'none'; }, 8000);
+  }
+  window.addEventListener('error', function (e) {
+    var msg = e.message || (e.error && (e.error.stack || e.error.message)) || 'Unknown error';
+    var src = e.filename ? (' at ' + e.filename + ':' + e.lineno + ':' + e.colno) : '';
+    showBootError('Script error', msg + src);
+  }, true);
+  window.addEventListener('unhandledrejection', function (e) {
+    showBootError('Unhandled promise rejection', (e.reason && (e.reason.stack || e.reason.message)) || String(e.reason));
+  });
+
+  /* ================= Namello Storage v2 =================
+     پیش‌تر همه‌ی داده (معاملات، عکس/صدای یادداشت‌ها، تنظیمات) در localStorage بود که سقفش حدود ۵ مگابایت است
+     و پر شدنش بی‌صدا باعث ذخیره‌نشدن می‌شد. حالا داده‌ها در IndexedDB نگه‌داری می‌شوند (ظرفیت صدها مگابایت)،
+     با مهاجرت خودکار و بازبینی‌شده از localStorage قدیمی. اگر IndexedDB در دسترس نبود، به همان رفتار قبلی برمی‌گردد.
+     چند کلیدِ کوچک (تم و پیکربندی رویدادها) عمداً در localStorage هم آینه می‌شوند، چون قبل از بالا آمدن React
+     (جلوگیری از پرش رنگ) و توسط widget.html به‌صورت همگام خوانده می‌شوند. */
+  (function () {
+    var PREFIX = 'ns_';
+    var MIRROR = { namello_theme_mode_v1: 1, namello_app_theme_v1: 1, namello_icon_theme_v1: 1, namello_session_config_v3: 1 };
+    var LS_ONLY = { namello_seen_version_code_v1: 1, namello_update_from_v1: 1 };   // مخصوص همین دستگاه؛ مهاجرت نمی‌شوند
+    var DB_NAME = 'namello_store', STORE = 'kv', META = '__meta__';
+    var backend = 'localStorage';
+    var lastWarn = 0;
+
+    function warn(msg) {
+      var now = Date.now();
+      if (now - lastWarn < 10000) return;
+      lastWarn = now;
+      try { window.dispatchEvent(new CustomEvent('namello-toast', { detail: msg })); } catch (e) {}
+    }
+    var FULL_MSG = 'ذخیره‌سازی ناموفق بود؛ فضای حافظه‌ی برنامه پر است. همین حالا از تنظیمات ← پشتیبان‌گیری فایل پشتیبان بگیرید.';
+
+    /* ---------- پیاده‌سازی قدیمی (localStorage) ---------- */
+    var ls = {
+      async get(key) { var raw = localStorage.getItem(PREFIX + key); if (raw === null) throw new Error('not found'); return { key: key, value: raw, shared: false }; },
+      async set(key, value) {
+        try { localStorage.setItem(PREFIX + key, value); } catch (e) { warn(FULL_MSG); throw e; }
+        return { key: key, value: value, shared: false };
+      },
+      async delete(key) { localStorage.removeItem(PREFIX + key); return { key: key, deleted: true, shared: false }; },
+      async list(prefix) {
+        var keys = [];
+        for (var i = 0; i < localStorage.length; i++) {
+          var k = localStorage.key(i);
+          if (k && k.indexOf(PREFIX + (prefix || '')) === 0 && !LS_ONLY[k.slice(3)]) keys.push(k.slice(3));
+        }
+        return { keys: keys, shared: false };
+      },
+    };
+
+    /* ---------- IndexedDB ---------- */
+    var db = null;
+    function openDb() {
+      return new Promise(function (resolve, reject) {
+        if (!window.indexedDB) { reject(new Error('no-idb')); return; }
+        var rq;
+        try { rq = indexedDB.open(DB_NAME, 1); } catch (e) { reject(e); return; }
+        rq.onupgradeneeded = function () { if (!rq.result.objectStoreNames.contains(STORE)) rq.result.createObjectStore(STORE); };
+        rq.onsuccess = function () { resolve(rq.result); };
+        rq.onerror = function () { reject(rq.error); };
+        rq.onblocked = function () { reject(new Error('idb-blocked')); };
+      });
+    }
+    function run(mode, fn) {
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction(STORE, mode), st = tx.objectStore(STORE), out;
+        try { out = fn(st); } catch (e) { reject(e); return; }
+        tx.oncomplete = function () { resolve(out && out.result !== undefined ? out.result : undefined); };
+        tx.onerror = function () { reject(tx.error); };
+        tx.onabort = function () { reject(tx.error || new Error('tx-aborted')); };
+      });
+    }
+    function setMirror(key, value) { if (MIRROR[key]) { try { localStorage.setItem(PREFIX + key, value); } catch (e) {} } }
+    var idb = {
+      async get(key) {
+        var v = await run('readonly', function (s) { return s.get(key); });
+        if (v === undefined) throw new Error('not found');
+        return { key: key, value: v, shared: false };
+      },
+      async set(key, value) {
+        try { await run('readwrite', function (s) { return s.put(String(value), key); }); }
+        catch (e) { warn(FULL_MSG); throw e; }
+        setMirror(key, String(value));
+        return { key: key, value: value, shared: false };
+      },
+      async delete(key) {
+        await run('readwrite', function (s) { return s.delete(key); });
+        if (MIRROR[key]) { try { localStorage.removeItem(PREFIX + key); } catch (e) {} }
+        return { key: key, deleted: true, shared: false };
+      },
+      async list(prefix) {
+        var all = await run('readonly', function (s) { return s.getAllKeys(); });
+        var p = prefix || '';
+        return { keys: (all || []).filter(function (k) { return k !== META && String(k).indexOf(p) === 0; }), shared: false };
+      },
+    };
+
+    /* ---------- مهاجرت localStorage → IndexedDB (با بازبینی مقدار به مقدار) ---------- */
+    async function migrate() {
+      var meta = await run('readonly', function (s) { return s.get(META); });
+      if (meta && meta.migrated) return meta;
+      var legacy = {}, n = 0;
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf(PREFIX) === 0 && !LS_ONLY[k.slice(3)]) { legacy[k.slice(3)] = localStorage.getItem(k); n++; }
+      }
+      if (n) {
+        await run('readwrite', function (s) { Object.keys(legacy).forEach(function (key) { s.put(legacy[key], key); }); });
+        // بازبینی: همه‌ی مقدارها باید عیناً برگردند، وگرنه هیچ‌چیز از localStorage پاک نمی‌شود
+        for (var key in legacy) {
+          var back = await run('readonly', function (s) { return s.get(key); });
+          if (back !== legacy[key]) throw new Error('verify-failed:' + key);
+        }
+        Object.keys(legacy).forEach(function (key) { if (!MIRROR[key]) { try { localStorage.removeItem(PREFIX + key); } catch (e) {} } });
+      }
+      meta = { migrated: true, at: new Date().toISOString(), count: n, schema: 1 };
+      await run('readwrite', function (s) { return s.put(meta, META); });
+      return meta;
+    }
+
+    var info = { backend: 'localStorage', migratedAt: null, migratedCount: 0, error: null };
+    var api = {
+      get: function (k) { return ready.then(function () { return (backend === 'idb' ? idb : ls).get(k); }); },
+      set: function (k, v) { return ready.then(function () { return (backend === 'idb' ? idb : ls).set(k, v); }); },
+      delete: function (k) { return ready.then(function () { return (backend === 'idb' ? idb : ls).delete(k); }); },
+      list: function (p) { return ready.then(function () { return (backend === 'idb' ? idb : ls).list(p); }); },
+      info: function () { return ready.then(function () { return info; }); },
+      /* حجم هر آیتم (بایتِ تقریبی)، مرتب از بزرگ به کوچک — برای صفحه‌ی «فضای ذخیره‌سازی» */
+      sizes: function () {
+        return ready.then(async function () {
+          var out = [];
+          if (backend === 'idb') {
+            await run('readonly', function (s) {
+              var rq = s.openCursor();
+              rq.onsuccess = function () { var c = rq.result; if (c) { if (c.key !== META) out.push({ key: c.key, size: String(c.value).length * 2 }); c.continue(); } };
+              return rq;
+            });
+          } else {
+            for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf(PREFIX) === 0 && !LS_ONLY[k.slice(3)]) out.push({ key: k.slice(3), size: (localStorage.getItem(k) || '').length * 2 }); }
+          }
+          out.sort(function (a, b) { return b.size - a.size; });
+          return out;
+        });
+      },
+      estimate: async function () {
+        var res = { usage: 0, quota: 0, persisted: null };
+        try { if (navigator.storage && navigator.storage.estimate) { var e = await navigator.storage.estimate(); res.usage = e.usage || 0; res.quota = e.quota || 0; } } catch (e) {}
+        try { if (navigator.storage && navigator.storage.persisted) res.persisted = await navigator.storage.persisted(); } catch (e) {}
+        if (backend !== 'idb') { var used = 0; (await api.sizes()).forEach(function (x) { used += x.size; }); res.usage = used; res.quota = 5 * 1024 * 1024; }
+        return res;
+      },
+      requestPersist: async function () { try { return !!(navigator.storage && navigator.storage.persist && await navigator.storage.persist()); } catch (e) { return false; } },
+    };
+
+    var ready = (async function () {
+      try {
+        db = await openDb();
+        await run('readwrite', function (s) { s.put('1', '__probe__'); });          // تست واقعی قابل‌نوشتن بودن
+        await run('readwrite', function (s) { s.delete('__probe__'); });
+        var meta = await migrate();
+        backend = 'idb'; info.backend = 'idb'; info.migratedAt = meta.at; info.migratedCount = meta.count;
+        // کلیدهای آینه‌شده باید در localStorage هم باشند (اگر پاک شده باشند دوباره ساخته می‌شوند)
+        var keys = (await idb.list('')).keys;
+        for (var i = 0; i < keys.length; i++) { if (MIRROR[keys[i]]) { var v = await run('readonly', function (s) { return s.get(keys[i]); }); if (v !== undefined) setMirror(keys[i], v); } }
+        try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+      } catch (e) {
+        backend = 'localStorage'; info.backend = 'localStorage'; info.error = String((e && e.message) || e);
+        try { console.warn('Namello: IndexedDB unavailable, using localStorage', e); } catch (e2) {}
+      }
+    })();
+    window.storageReady = ready;
+    window.storage = api;
+  })();
+</script>
+
+<!-- فقط داخل برنامه‌ی نصبی اندروید (Capacitor) فعال می‌شود؛ در مرورگر/PWA هیچ کاری نمی‌کند.
+     اعلان‌ها، آلارم پس‌زمینه، «باز کردن با…» و رنگ نوار سیستم را به‌جای WebView تأمین می‌کند. -->
+<script src="./native-bridge.js"></script>
+<script>
+  // ثبت Service Worker با مسیر و scope صریح، متناسب با نصب در زیرمسیرهایی مانند GitHub Pages.
+  // از getRegistration().update() استفاده نمی‌کنیم؛ رجیستری قدیمی با script ناموجود می‌تواند
+  // Promise ردشده و خطای Unhandled promise rejection ایجاد کند. register() رجیستری را همگام می‌کند.
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      var swUrl = new URL('./sw.js', window.location.href);
+      var swScope = new URL('./', window.location.href).pathname;
+      navigator.serviceWorker.register(swUrl.href, { scope: swScope }).catch(function (err) {
+        console.warn('Namello: service worker registration failed', err);
+      });
+    });
+  }
+</script>
+<script>
+;
+</script>
+<script>document.getElementById('boot-status').textContent = 'Loading libraries…';</script>
+<script>
+  // If a required CDN library hangs instead of firing onerror, never leave a blank screen.
+  window.__namelloBootWatchdog = setTimeout(function () {
+    if (!window.__namelloMounted && typeof React === 'undefined') {
+      showBootError('Namello هنوز اجرا نشده', 'کتابخانه اصلی React از شبکه/کش بارگذاری نشده است. یک بار تلاش مجدد را بزنید؛ در صورت تکرار، کش سایت را پاک و دوباره وارد شوید.');
+    }
+  }, 12000);
+</script>
+<script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js" onerror="showBootError('Failed to load React', 'cdn.jsdelivr.net may be blocked on this network.')"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js" onerror="showBootError('Failed to load ReactDOM', 'cdn.jsdelivr.net may be blocked on this network.')"></script>
+<script async src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" onerror="showBootError('Failed to load XLSX', 'cdn.jsdelivr.net may be blocked on this network.')"></script>
+<script async src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script async src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.32.0/plotly.min.js" onerror="showBootError('Failed to load Plotly', 'cdn.jsdelivr.net may be blocked on this network.')"></script>
+<script async src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4" onerror="showBootError('Failed to load Tailwind', 'cdn.jsdelivr.net may be blocked on this network.')"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+  document.getElementById('boot-status').textContent = 'Starting app…';
+  if (typeof React === 'undefined') showBootError('React did not load', 'window.React is undefined. Likely a network/CDN block.');
+  else if (typeof ReactDOM === 'undefined') showBootError('ReactDOM did not load', 'window.ReactDOM is undefined. Likely a network/CDN block.');
+</script>
+<script>
 const { useState, useEffect, useCallback, useMemo, useRef } = React;
 // Dashboard account-summary helper is intentionally global so every Dashboard layer
 // (including Statistical Analysis and Advanced Evaluation) can resolve it reliably.
@@ -367,7 +804,7 @@ const EN_UI_PHRASES = {
   "فعال‌سازی اعلان‌های آلارم نشست‌ها":"Enable Session Alarm Notifications","تنظیمات نشست‌ها":"Session Settings","اشتراک نشست‌ها":"Session Overlap","آلارم شروع":"Start Alarm","آلارم پایان":"End Alarm","تا پایان":"until end","تا شروع":"until start","بدون نشست":"No Session",
   "همین الان فعال هستند":"Active Right Now","در حال حاضر هیچ نشست یا کیل‌زونی فعال نیست":"No session or kill zone is currently active",
   "پروفایل":"Profile","داشبورد":"Dashboard","اخبار":"News","ژورنال":"Journal","سیستم‌ها":"Systems","استراتژی":"Strategy","مالی":"Finance","تحلیل":"Analysis","ارزیابی استیتمنت":"Statement Review","ارزیابی رفتار بازار":"Market Behavior Evaluation","اهداف معامله گری":"Trading Goals","اهداف معامله‌گری":"Trading Goals","اهداف زندگی":"Life Goals","شکر گزاری":"Gratitude","روانشناسی":"Psychology","خروجی کل":"Full Export",
-  "رنگ زمینه برنامه":"App Background","فونت برنامه":"App Font","زبان برنامه":"App Language","منبع ذخیره‌سازی و بکاپ":"Storage & Backup Source","امنیت، پشتیبان، ذخیره ابری و Namello Backend":"Security, Backup, Cloud Storage & Namello Backend","تغییر پوشه":"Change Folder","پشتیبان‌گیری خودکار":"Automatic Backup","حافظه‌ی داخلی برنامه":"App Internal Storage","ادغام با داده‌های فعلی":"Merge with Existing Data","جایگزینی کامل داده‌ها":"Replace All Data",
+  "رنگ زمینه برنامه":"App Background","فونت برنامه":"App Font","زبان برنامه":"App Language","منبع ذخیره‌سازی و بکاپ":"Storage & Backup Source","امنیت، پشتیبان، ذخیره ابری و Namello Backend":"Security, Backup, Cloud Storage & Namello Backend","انتخاب پوشه":"Select Folder","پشتیبان‌گیری خودکار":"Automatic Backup","حافظه‌ی داخلی برنامه":"App Internal Storage","ادغام با داده‌های فعلی":"Merge with Existing Data","جایگزینی کامل داده‌ها":"Replace All Data",
   "بخش":"Section","جمع/باز کردن":"Expand/Collapse","برای جمع/باز کردن این بخش کلیک کنید":"Click to expand/collapse this section","نسخه":"Version","نسخه‌ی برنامه":"App Version","نسخهٔ پایه و بازطراحی‌شده":"Base and redesigned release","آخرین تغییرات نسخه‌ی":"Latest changes in version","نسخه شما آخرین نسخه است":"Your app is up to date",
   "اپیزود قبلی":"Previous Episode","اپیزود بعدی":"Next Episode","پخش/توقف":"Play/Pause","پخش":"Play","توقف":"Pause","تغییر سرعت پخش":"Playback Speed","Loop خاموش":"Loop Off",
   "پخش صوتی":"Audio Playback","آپلود عکس":"Upload Image","آپلود فایل":"Upload File","آدرس":"Address","مسیر":"Path","ذخیره فایل":"Save File",
@@ -458,9 +895,14 @@ function nmExportBilingualText(value) {
 function nmExportBilingualAoa(aoa) {
   return (aoa || []).map(row => Array.isArray(row) ? row.map(nmExportBilingualText) : row);
 }
+/* نام شیت اکسل: حداکثر ۳۱ نویسه و بدون : \\ / ? * [ ] (نام‌های دوزبانه «فارسی / English» قبلاً به‌خاطر «/» خطا می‌دادند) */
+function nmSafeSheetName(name) {
+  let s = String(name == null ? "" : name).replace(/\s\/\s/g, " - ").replace(/[:\\\/?*\[\]]/g, "-").replace(/^'+|'+$/g, "").trim();
+  if (!s) s = "Sheet";
+  return s.slice(0, 31);
+}
 function nmExportBilingualSheetName(name) {
-  const n = nmExportBilingualText(name);
-  return String(n).slice(0, 31);
+  return nmSafeSheetName(nmExportBilingualText(name));
 }
 function nmPatchExportEngine() {
   if (window.__nmBilingualExportPatched || typeof XLSX === "undefined") return;
@@ -468,7 +910,16 @@ function nmPatchExportEngine() {
   const oldAoa = XLSX.utils.aoa_to_sheet;
   XLSX.utils.aoa_to_sheet = function(aoa, opts) { return oldAoa.call(this, nmExportBilingualAoa(aoa), opts); };
   const oldAppend = XLSX.utils.book_append_sheet;
-  XLSX.utils.book_append_sheet = function(wb, ws, name, roll) { return oldAppend.call(this, wb, ws, nmExportBilingualSheetName(name), roll); };
+  XLSX.utils.book_append_sheet = function(wb, ws, name, roll) {
+    let n = nmExportBilingualSheetName(name);
+    const used = (wb && wb.SheetNames) || [];
+    if (used.indexOf(n) >= 0) { // نام تکراری (بعد از کوتاه‌سازی) → شماره‌گذاری
+      let i = 2, c;
+      do { const suf = " (" + i + ")"; c = n.slice(0, 31 - suf.length) + suf; i++; } while (used.indexOf(c) >= 0);
+      n = c;
+    }
+    return oldAppend.call(this, wb, ws, n, roll);
+  };
 }
 
 
@@ -842,45 +1293,50 @@ function describeArc(cx, cy, r, a0, a1) {
     return `M ${p0.x} ${p0.y} A ${r} ${r} 0 ${large} 1 ${p1.x} ${p1.y}`;
 }
 function SessionClock({ minutesOfDay, seconds = 0, sessions, killzones, silverbullets, colors }) {
-    const size = 360, cx = size / 2, cy = size / 2;
+    const size = 380, cx = size / 2, cy = size / 2;
+    const clockLight = typeof document !== "undefined" && document.documentElement.getAttribute("data-theme") === "light";
+    const clockMinuteText = clockLight ? "#334155" : "#CBD5E1";
+    const clockMajorText = clockLight ? "#1F2937" : "#F8FAFC";
+    const clockSessionText = clockLight ? "#111827" : "#FFFFFF";
+    const clockSessionStroke = clockLight ? "#FFFFFF" : "#0B0E11";
     const sessionOverlaps = computeSessionOverlaps(sessions);
-    const ktRing = { r: 100, w: 13, items: killzones, textColor: "#14532D", fontSize: 8, showLabel: true };
-    const sbRing = { r: 78, w: 9, items: silverbullets, textColor: "#7C2D12", fontSize: 7, showLabel: false };
+    const ktRing = { r: 100, w: 15, items: killzones, textColor: "#14532D", fontSize: 9, showLabel: true };
+    const sbRing = { r: 78, w: 11, items: silverbullets, textColor: "#7C2D12", fontSize: 8, showLabel: false };
     const totalMinutes = minutesOfDay + (seconds / 60);
     const hourAngle = (totalMinutes / 1440) * 360;
     const minuteOfHour = totalMinutes % 60;
     const minuteAngle = (minuteOfHour / 60) * 360;
     const secondAngle = (seconds / 60) * 360;
-    const hourPt = polar(cx, cy, 150, hourAngle);
-    const minutePt = polar(cx, cy, 150, minuteAngle);
+    const hourPt = polar(cx, cy, 145, hourAngle);
+    const minutePt = polar(cx, cy, 145, minuteAngle);
     const secondPt = polar(cx, cy, 160, secondAngle);
     const hourTicks = Array.from({ length: 24 }, (_, i) => i);
     const minuteTicks = Array.from({ length: 60 }, (_, i) => i);
-    const sessR = 128, sessW = 19;
-    return (React.createElement("svg", { viewBox: `0 0 ${size} ${size}`, className: "w-full max-w-[300px] mx-auto select-none", style: { aspectRatio: "1 / 1" }, preserveAspectRatio: "xMidYMid meet" },
+    const sessR = 133, sessW = 28;
+    return (React.createElement("svg", { viewBox: `-24 -24 ${size + 48} ${size + 48}`, className: "w-full max-w-[380px] mx-auto select-none", style: { aspectRatio: "1 / 1" }, preserveAspectRatio: "xMidYMid meet" },
         React.createElement("defs", null,
             React.createElement("radialGradient", { id: "namelloClockFace", cx: "50%", cy: "50%", r: "65%" },
                 React.createElement("stop", { offset: "0%", stopColor: "#141922" }),
                 React.createElement("stop", { offset: "80%", stopColor: "#0D1015" }),
                 React.createElement("stop", { offset: "100%", stopColor: "#090B0E" }))),
-        React.createElement("circle", { cx: cx, cy: cy, r: 177, fill: "url(#namelloClockFace)" }),
-        React.createElement("circle", { cx: cx, cy: cy, r: 177, fill: "none", stroke: "var(--border-2)", strokeWidth: "1.5" }),
-        React.createElement("circle", { cx: cx, cy: cy, r: 176, fill: "none", stroke: "#1C2128", strokeWidth: "1" }),
+        React.createElement("circle", { cx: cx, cy: cy, r: 187, fill: "url(#namelloClockFace)" }),
+        React.createElement("circle", { cx: cx, cy: cy, r: 187, fill: "none", stroke: "var(--border-2)", strokeWidth: "1.5" }),
+        React.createElement("circle", { cx: cx, cy: cy, r: 186, fill: "none", stroke: "#1C2128", strokeWidth: "1" }),
         hourTicks.map(h => {
             const a = (h / 24) * 360;
             const major = h % 3 === 0;
-            const p1 = polar(cx, cy, major ? 159 : 161, a), p2 = polar(cx, cy, 168, a), lp = polar(cx, cy, 172, a);
+            const p1 = polar(cx, cy, major ? 170 : 172, a), p2 = polar(cx, cy, 179, a), lp = polar(cx, cy, 201, a);
             return (React.createElement("g", { key: h },
                 React.createElement("line", { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, stroke: major ? "#4A5260" : "#333A44", strokeWidth: major ? 1.5 : 1 }),
-                React.createElement("text", { x: lp.x, y: lp.y, fill: major ? "#9CA3AF" : "var(--text-muted)", fontSize: major ? 13 : 11, fontWeight: "700", fontFamily: "JetBrains Mono, monospace", textAnchor: "middle", dominantBaseline: "middle" }, pad2(h))));
+                React.createElement("text", { x: lp.x, y: lp.y, fill: "var(--nm-clock-hour-text)", fontSize: major ? 21 : 18, fontWeight: "800", fontFamily: "JetBrains Mono, monospace", textAnchor: "middle", dominantBaseline: "middle" }, pad2(h))));
         }),
         minuteTicks.map(m => {
             const a = (m / 60) * 360;
             const major = m % 5 === 0;
-            const p1 = polar(cx, cy, major ? 141 : 143, a), p2 = polar(cx, cy, 148, a), lp = polar(cx, cy, 153.5, a);
+            const p1 = polar(cx, cy, major ? 151 : 153, a), p2 = polar(cx, cy, 160, a), lp = polar(cx, cy, 166, a);
             return (React.createElement("g", { key: `m-${m}` },
                 React.createElement("line", { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, stroke: major ? "#5B6472" : "#333A44", strokeWidth: major ? 1.2 : 0.75 }),
-                major && React.createElement("text", { x: lp.x, y: lp.y, fill: "#5B6472", fontSize: "7", fontWeight: "600", fontFamily: "JetBrains Mono, monospace", textAnchor: "middle", dominantBaseline: "middle" }, m === 0 ? 60 : m)));
+                major && React.createElement("text", { x: lp.x, y: lp.y, fill: "#5B6472", fontSize: "10", fontWeight: "700", fontFamily: "JetBrains Mono, monospace", textAnchor: "middle", dominantBaseline: "middle" }, m === 0 ? 60 : m)));
         }),
         React.createElement("g", null,
             React.createElement("circle", { cx: cx, cy: cy, r: sessR, fill: "none", stroke: "var(--bg-card)", strokeWidth: sessW }),
@@ -902,12 +1358,12 @@ function SessionClock({ minutesOfDay, seconds = 0, sessions, killzones, silverbu
                     const pathId = `arc-sess-${ev.key}-${si}`;
                     const arcLen = ((seg[1] - seg[0]) / 360) * 2 * Math.PI * sessR;
                     const label = (ev.short || ev.name).toUpperCase();
-                    const canFit = arcLen > label.length * (9 * 0.62) + 6;
+                    const canFit = arcLen > label.length * (11 * 0.62) + 6;
                     if (!canFit)
                         return null;
                     return (React.createElement("g", { key: `label-${pathId}` },
                         React.createElement("path", { id: pathId, d: describeArc(cx, cy, sessR, seg[0], seg[1]), fill: "none", stroke: "none" }),
-                        React.createElement("text", { fontSize: 9, fontFamily: "Arial, Helvetica, sans-serif", fontWeight: "800", letterSpacing: "0.5", fill: "var(--bg-page)", stroke: "#F5F6F7", strokeWidth: 2.6, paintOrder: "stroke", opacity: ev.active ? 1 : 0.75 },
+                        React.createElement("text", { fontSize: 11, fontFamily: "Arial, Helvetica, sans-serif", fontWeight: "800", letterSpacing: "0.5", fill: clockSessionText, stroke: clockSessionStroke, strokeWidth: 2.6, paintOrder: "stroke", opacity: ev.active ? 1 : 0.75 },
                             React.createElement("textPath", { href: `#${pathId}`, startOffset: "50%", textAnchor: "middle" }, label))));
                 });
             })),
@@ -923,7 +1379,7 @@ function SessionClock({ minutesOfDay, seconds = 0, sessions, killzones, silverbu
                     const canFit = ring.showLabel && si === longestIdx && arcLen > label.length * (ring.fontSize * 0.62) + 6;
                     return (React.createElement("g", { key: pathId },
                         React.createElement("path", { id: pathId, d: describeArc(cx, cy, ring.r, seg[0], seg[1]), stroke: ev.color, strokeWidth: ring.w, fill: "none", strokeLinecap: "butt", opacity: ev.active ? 1 : 0.32, style: ev.active ? { filter: `drop-shadow(0 0 4px ${ev.color}aa)` } : undefined }),
-                        canFit && (React.createElement("text", { fontSize: ring.fontSize + 1, fontFamily: "Arial, Helvetica, sans-serif", fontWeight: "800", letterSpacing: "0.3", fill: "var(--bg-page)", stroke: "#F5F6F7", strokeWidth: 2.2, paintOrder: "stroke", opacity: ev.active ? 1 : 0.75 },
+                        canFit && (React.createElement("text", { fontSize: ring.fontSize + 1, fontFamily: "Arial, Helvetica, sans-serif", fontWeight: "800", letterSpacing: "0.3", fill: clockSessionText, stroke: clockSessionStroke, strokeWidth: 2.2, paintOrder: "stroke", opacity: ev.active ? 1 : 0.75 },
                             React.createElement("textPath", { href: `#${pathId}`, startOffset: "50%", textAnchor: "middle" }, label)))));
                 });
             })))),
@@ -1311,6 +1767,33 @@ function normalizeStatementRows(rows) {
 }
 function tableToRows(table) {
     return Array.from(table.querySelectorAll("tr")).map(tr => Array.from(tr.querySelectorAll("td,th")).map(td => td.textContent.trim()));
+}
+/* خواندن متن استیتمنت HTML/CSV با تشخیص کدگذاری: گزارش‌های MT5 معمولاً UTF-16 (با BOM) هستند و file.text() آن‌ها را
+   (که UTF-8 فرض می‌کند) خراب می‌کند → «هیچ معامله‌ای استخراج نشد». */
+function nmDecodeStatementText(buf) {
+    const u8 = new Uint8Array(buf);
+    let enc = "utf-8";
+    if (u8.length >= 2 && u8[0] === 0xFF && u8[1] === 0xFE)
+        enc = "utf-16le";
+    else if (u8.length >= 2 && u8[0] === 0xFE && u8[1] === 0xFF)
+        enc = "utf-16be";
+    else if (u8.length >= 4) {
+        let nul = 0;
+        const n = Math.min(u8.length, 400);
+        for (let i = 1; i < n; i += 2)
+            if (u8[i] === 0)
+                nul++;
+        if (nul > n / 4)
+            enc = "utf-16le";
+    }
+    let txt = new TextDecoder(enc).decode(u8);
+    if (enc === "utf-8" && (txt.match(/\uFFFD/g) || []).length > 3) {
+        try {
+            txt = new TextDecoder("windows-1256").decode(u8);
+        }
+        catch (e) { }
+    }
+    return txt;
 }
 function parseStatementHtml(htmlText) {
     const doc = new DOMParser().parseFromString(htmlText, "text/html");
@@ -1738,17 +2221,15 @@ const DEFAULT_ACC_SETTINGS = { startingBalance: 1000, baseLot: 0.01, baseLotRati
 // اختصاصیِ همان اپ (مثلاً چیزی شبیه tradingview://) را اینجا وارد کند تا اول آن امتحان شود.
 const DEFAULT_QUICK_LAUNCH_SETTINGS = {
     enabled: true,
-    mt5Enabled: true, mt5Package: "net.metaquotes.metatrader5", mt5Scheme: "", mt5Label: "متاتریدر ۵",
+    mt5Enabled: false, mt5Package: "net.metaquotes.metatrader5", mt5Scheme: "", mt5Label: "متاتریدر ۵",
     mt5PosXPercent: null, mt5PosYPercent: null,
-    tvEnabled: true, tvPackage: "com.tradingview.tradingviewapp", tvScheme: "", tvLabel: "تریدینگ‌ویو",
+    tvEnabled: false, tvPackage: "com.tradingview.tradingviewapp", tvScheme: "", tvLabel: "TradingView",
     tvPosXPercent: null, tvPosYPercent: null,
 };
-// دکمه‌ی شناور بازگشت سریع به Namello: چون یک PWA/وب‌اپ نمی‌تواند مثل یک اپ نیتیو روی صفحه‌ی
-// اپ‌های دیگر (MT5/تریدینگ‌ویو) آیکن شناور نشان بدهد (این کار نیازمند مجوز سیستمی
-// «نمایش روی سایر برنامه‌ها»ست که فقط به اپ‌های نصب‌شده‌ی اندروید داده می‌شود، نه به تب مرورگر)،
-// نزدیک‌ترین جایگزینِ واقعی و کارکردی که از دل مرورگر قابل‌اجراست، یک نوتیفیکیشن با دکمه‌ی
-// «بازکردن Namello» است که وقتی Namello به پس‌زمینه می‌رود نمایش داده می‌شود و با یک ضربه شما را
-// برمی‌گرداند (شبیه دکمه‌ی برگشت در نوار اعلان‌ها).
+// دکمه‌ی شناور بازگشت سریع به Namello: در APK یک دکمه‌ی شناور واقعی روی سایر برنامه‌هاست
+// (مجوز «نمایش روی سایر برنامه‌ها»؛ سرویس بومی FloatingReturnService؛ بدون نوتیفیکیشن دائمی؛ آیکونش
+// همان آیکون لانچر تم انتخابی/هفتگی است). یک PWA/وب‌اپ مجوز نمایش روی برنامه‌های دیگر ندارد؛ نزدیک‌ترین
+// جایگزین در مرورگر، نوتیفیکیشن «بازگشت به Namello» هنگام رفتن به پس‌زمینه است.
 const DEFAULT_NAMELLO_RETURN_SETTINGS = { enabled: false };
 // تنظیمات صفحه‌ی مینیمال ویجت (widget.html): چون ویجت واقعیِ صفحه‌ی اصلی اندروید فقط از طریق یک
 // اپ نیتیو (کاتلین/جاوا با AppWidgetProvider) ساخته می‌شود و از دل HTML/CSS/JS قابل‌ساخت نیست،
@@ -2300,7 +2781,7 @@ function ToggleGroup({ value, options, onChange, activeColor }) {
 }
 function ChipGroup({ value, options, onChange, mono, activeColor }) {
     const color = activeColor || "#60A5FA";
-    return (React.createElement("div", { className: "flex flex-wrap gap-1.5" }, options.map(opt => (React.createElement("button", { key: opt, type: "button", onClick: () => onChange(opt), className: "px-3 py-2 rounded-lg text-[12px] shrink-0" + (mono ? " mono" : ""), style: { background: value === opt ? `${color}22` : "var(--bg-card2)", color: value === opt ? color : "var(--text-muted)", fontFamily: mono ? "JetBrains Mono, monospace" : undefined } }, opt)))));
+    return (React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, options.map(opt => (React.createElement("button", { key: opt, type: "button", onClick: () => onChange(opt), className: "px-3 py-2 rounded-lg text-[12px] shrink-0" + (mono ? " mono" : ""), style: { background: value === opt ? `${color}22` : "var(--bg-card2)", color: value === opt ? color : "var(--text-muted)", fontFamily: mono ? "JetBrains Mono, monospace" : undefined } }, opt)))));
 }
 function progressColor(p) {
     const v = Number(p) || 0;
@@ -2507,7 +2988,7 @@ function NmPsychologyMetricsCard({trades}){
  );
 }
 
-function NmDashboardAIArm({ mode, trades }) {
+function NmDashboardAIArm({ mode, trades, recommendations = [] }) {
     const [expanded, setExpanded] = React.useState(false);
     const [refresh, setRefresh] = React.useState(0);
     const closed = (trades || []).filter(t => t && t.status === "closed");
@@ -2528,6 +3009,17 @@ function NmDashboardAIArm({ mode, trades }) {
       if (avgWin && avgLoss) findings.push(`میانگین برد ${avgWin.toFixed(2)} و میانگین باخت ${avgLoss.toFixed(2)} است.`);
       actions.push(winRate < 45 ? "گروه‌های معاملاتی را بر اساس سیستم، نشست و روند تفکیک کن؛ نرخ برد به‌تنهایی برای تصمیم کافی نیست." : "گروه‌های سودآور را با تعداد نمونه و میانگین سود/زیان مقایسه کن.");
       actions.push(enough ? "برای بررسی پایداری، نتیجه را در بازه‌های زمانی جداگانه و با هزینه‌های معامله مقایسه کن." : "نمونه هنوز محدود است؛ از نتیجه‌گیری قطعی و تغییر بزرگ در سیستم خودداری کن.");
+    } else if (mode === "all") {
+      const ratio = losses.length && avgLoss ? avgWin / Math.abs(avgLoss) : null;
+      const recent = nums.slice(-8);
+      const recentPnl = recent.reduce((a,b)=>a+b,0);
+      headline = total > 0 ? "برآیند کل داشبورد در نمونه فعلی مثبت است؛ تمرکز بعدی باید روی پایداری و کنترل ریسک باشد." : total < 0 ? "برآیند کل داشبورد در نمونه فعلی منفی است؛ علت زیان را در بخش‌های مختلف پیدا و قبل از افزایش ریسک اصلاح کن." : "برآیند کل داشبورد نزدیک به صفر است؛ برای نتیجه‌گیری قطعی نمونه بیشتری لازم است.";
+      findings.push(`کل نمونه: ${nums.length} معامله بسته‌شده؛ P&L ${total.toFixed(2)}؛ نرخ برد ${winRate.toFixed(1)}٪.`);
+      findings.push(ratio ? `نسبت میانگین برد به باخت ${ratio.toFixed(2)} است.` : "برای نسبت میانگین برد به باخت، باید هم برد و هم باخت در نمونه وجود داشته باشد.");
+      findings.push(`نتیجه ${recent.length} معامله اخیر: ${recentPnl.toFixed(2)}.`);
+      actions.push(recommendations?.[0] || (winRate < 45 ? "گروه‌های ضعیف را بر اساس سیستم، نشست و شرایط بازار جدا و بازبینی کن." : "گروه‌های سودآور را با نمونه کافی و ریسک ثابت مقایسه کن."));
+      actions.push(enough ? "قبل از هر تغییر در حجم، Drawdown، Expectancy و ثبات عملکرد را در چند زیرنمونه بررسی کن." : "نمونه هنوز محدود است؛ اندازه ریسک را ثابت نگه دار و از تغییر بزرگ در سیستم خودداری کن.");
+      actions.push(recentPnl < 0 ? "عملکرد اخیر ضعیف شده؛ قبل از معامله بعدی یک مرور کوتاه از Plan، روانشناسی و شرایط بازار انجام بده." : "عملکرد اخیر را با کیفیت اجرای Plan و رفتار معاملاتی تطبیق بده تا بهبود واقعی از شانس تفکیک شود.");
     } else if (mode === "advanced") {
       headline = total > 0 && winRate >= 45 ? "کیفیت نتیجه امیدوارکننده است؛ پایداری اجرا باید تأیید شود." : "اولویت فعلی، کنترل ریسک و پیدا کردن علت عملکرد نمونه است.";
       findings.push(`P&L: ${total.toFixed(2)}؛ نرخ برد: ${winRate.toFixed(1)}٪؛ معاملات بسته‌شده: ${nums.length}.`);
@@ -2542,6 +3034,13 @@ function NmDashboardAIArm({ mode, trades }) {
       actions.push(streak ? "قانون توقف موقت و بازبینی چک‌لیست را اجرا کن؛ برای جبران زیان حجم را افزایش نده." : "معاملات پس از باخت، تغییرات لات و موارد عدم پایبندی به برنامه را با یادداشت‌ها تطبیق بده.");
       actions.push("یک اقدام رفتاری قابل‌اندازه‌گیری برای چند معامله بعدی انتخاب و نتیجه را ثبت کن.");
     }
+    React.useEffect(() => {
+        if ((mode !== "advanced" && mode !== "psych") || !nums.length || !actions.length) return;
+        const category = mode === "advanced" ? "evaluation" : "psychology";
+        const recommendation = recommendations?.[0] || actions[0];
+        const dedupe = `${mode}|${nums.length}|${Math.round(total * 100) / 100}|${recommendation}`;
+        nmSendTextCategoryNotification(category, mode === "advanced" ? "توصیه ارزیابی پیشرفته Namello" : "توصیه روانشناسی ترید Namello", recommendation, dedupe);
+    }, [mode, nums.length, Math.round(total * 100) / 100, actions.join("|"), recommendations?.join("|")]);
     return React.createElement("section", { className:"rounded-2xl p-3 mb-3", style:{background:"color-mix(in srgb, #A78BFA 7%, var(--bg-card))",border:"1px solid color-mix(in srgb, #A78BFA 35%, var(--border-2))"} },
       React.createElement("button", {type:"button", onClick:()=>setExpanded(v=>!v), className:"w-full flex items-center justify-between", "aria-expanded":expanded},
         React.createElement("span", {className:"flex items-center gap-2 text-[12px] font-extrabold",style:{color:"var(--text-primary)"}}, "✨", "هوش مصنوعی", React.createElement("span",{className:"text-[9px] font-medium px-2 py-0.5 rounded-full",style:{background:"#A78BFA22",color:"#A78BFA"}}, mode === "stats" ? "تحلیل آماری" : mode === "advanced" ? "توصیه اجرایی" : "بینش رفتاری")),
@@ -2550,11 +3049,65 @@ function NmDashboardAIArm({ mode, trades }) {
         React.createElement("div",{className:"text-[11px] font-semibold leading-6 mb-2",style:{color:"var(--text-primary)"}},headline),
         React.createElement("div",{className:"text-[10px] font-bold mb-1",style:{color:"#A78BFA"}},"یافته‌ها"),
         findings.map((x,i)=>React.createElement("div",{key:"f"+i,className:"text-[10px] leading-6",style:{color:"var(--text-secondary)"}},"• ",x)),
-        React.createElement("div",{className:"text-[10px] font-bold mt-2 mb-1",style:{color:"#34D399"}}, mode === "psych" ? "اقدام پیشنهادی" : "توصیه‌ها"),
+        React.createElement("div",{className:"text-[10px] font-bold mt-2 mb-1",style:{color:"#34D399"}}, "توصیه‌ها"),
         actions.map((x,i)=>React.createElement("div",{key:"a"+i,className:"text-[10px] leading-6",style:{color:"var(--text-secondary)"}},"• ",x)),
         React.createElement("button",{type:"button",onClick:()=>setRefresh(v=>v+1),className:"mt-3 px-3 py-2 rounded-lg text-[10px] font-semibold",style:{background:"#A78BFA20",color:"#C4B5FD",border:"1px solid #A78BFA55"}},"به‌روزرسانی تحلیل"),
         React.createElement("div",{className:"text-[9px] leading-5 mt-2",style:{color:"var(--text-muted)"}},`تحلیل قاعده‌محور محلی بر اساس داده‌های فعلی · ${nums.length} معامله · نوبت تحلیل ${refresh+1}. این خروجی پیش‌بینی قطعی یا توصیه مالی تضمین‌شده نیست.`))
     );
+}
+
+function nmAdvancedRecommendations(trades) {
+    const closed = (trades || []).filter(t => t.status === "closed" && Number.isFinite(Number(t.pnl)));
+    if (closed.length < 5) return [];
+    const m = nmDashMetrics(closed, 0);
+    const rec = [];
+    const recent = closed.slice().sort((a,b)=>`${a.date||""}T${a.time||""}`.localeCompare(`${b.date||""}T${b.time||""}`)).slice(-10);
+    const recentWinRate = recent.length ? recent.filter(t => Number(t.pnl) > 0).length / recent.length * 100 : null;
+    if (m.winRate < 45) rec.push("نرخ برد پایین است؛ قبل از افزایش ریسک، کیفیت ستاپ‌های کم‌عملکرد را بازبینی کن.");
+    else if (m.winRate >= 60) rec.push("نرخ برد مناسب است؛ ریسک هر معامله را فقط در صورت ثبات سایر شاخص‌ها افزایش بده.");
+    if (m.expectancy !== null && m.expectancy < 0) rec.push("Expectancy منفی است؛ فعلاً اولویت با حذف الگوهای زیان‌ده و کاهش معاملات ضعیف باشد.");
+    else if (m.expectancy !== null && m.expectancy > 0) rec.push("Expectancy مثبت است؛ مزیت فعلی را با حفظ همان قواعد ورود و ریسک دنبال کن.");
+    if (m.pf > 0 && m.pf < 1) rec.push("Profit Factor زیر ۱ است؛ حجم معامله را افزایش نده و علت زیان تجمعی را بررسی کن.");
+    if (m.maxDD > 0 && Number(m.pnl) > 0 && m.maxDD > Math.abs(Number(m.pnl)) * 0.75) rec.push("افت سرمایه نسبتاً سنگین است؛ سقف ریسک و توالی ضررها را بازتنظیم کن.");
+    if (recentWinRate !== null && recent.length >= 6 && recentWinRate < 40) rec.push("عملکرد اخیر ضعیف شده؛ پیش از معامله بعدی یک بازبینی کوتاه از ستاپ و شرایط بازار انجام بده.");
+    if (recentWinRate !== null && recent.length >= 6 && recentWinRate >= 70) rec.push("عملکرد اخیر قوی است؛ از افزایش هیجانی حجم پس از چند برد پیاپی خودداری کن.");
+    const bySession = groupProfitability(closed, nmDashSession).filter(x=>x.name && x.name !== "-");
+    const bestSession = bySession.length ? bySession.slice().sort((a,b)=>b.value-a.value)[0] : null;
+    const worstSession = bySession.length ? bySession.slice().sort((a,b)=>a.value-b.value)[0] : null;
+    if (bestSession && bestSession.value > 0) rec.push(`نشست «${bestSession.name}» عملکرد بهتری دارد؛ تمرکز انتخابی روی همین بازه را بررسی کن.`);
+    if (worstSession && worstSession.value < 0 && (!bestSession || worstSession.name !== bestSession.name)) rec.push(`نشست «${worstSession.name}» زیان‌ده است؛ معاملات این بازه را جداگانه بازبینی و فیلتر کن.`);
+    const mistakes = {};
+    closed.forEach(t => (t.disciplineMistakes || t.review?.mistakes || []).forEach(k => mistakes[k] = (mistakes[k] || 0) + 1));
+    const topMistake = Object.entries(mistakes).sort((a,b)=>b[1]-a[1])[0];
+    if (topMistake) rec.push(`خطای «${topMistake[0]}» پرتکرارترین مورد ثبت‌شده است؛ برای آن یک قانون اجرایی مشخص تعریف کن.`);
+    return [...new Set(rec)].slice(0, 6);
+}
+function NmDashboardRecommendations({ title, recommendations, accent }) {
+    const items = Array.isArray(recommendations) ? recommendations.filter(Boolean).slice(0, 6) : [];
+    React.useEffect(() => {
+        const isAdvanced = title === "توصیه" && accent === "#F59E0B";
+        const isPsychology = title === "توصیه" && accent === "#14B8A6";
+        if ((!isAdvanced && !isPsychology) || !items.length) return;
+        const category = isAdvanced ? "evaluation" : "psychology";
+        const recommendation = items[0];
+        nmSendTextCategoryNotification(category, isAdvanced ? "توصیه ارزیابی پیشرفته Namello" : "توصیه روانشناسی ترید Namello", recommendation, `${category}|${recommendation}`);
+    }, [title, accent, items.join("|")]);
+    return React.createElement("section", { className: "rounded-xl p-3 mb-3", style: { background: `color-mix(in srgb, ${accent} 7%, var(--bg-card))`, border: `1px solid color-mix(in srgb, ${accent} 30%, var(--border-1))` } },
+        React.createElement("div", { className: "flex items-center gap-2 mb-2" },
+            React.createElement("span", { className: "text-[12px]" }, "💡"),
+            React.createElement("span", { className: "text-[12px] font-extrabold", style: { color: accent } }, title)),
+        items.length ? items.map((x, i) => React.createElement("div", { key: i, className: "rounded-lg px-2.5 py-2 mb-1.5 last:mb-0 text-[10px] leading-5", style: { background: "var(--bg-card2)", color: "var(--text-secondary)" } }, "• ", x))
+        : React.createElement("div", { className: "text-[10px] leading-5", style: { color: "var(--text-muted)" } }, "با داده فعلی هنوز توصیه مشخصی تولید نشده است."));
+}
+function nmPsychologyRecommendations(insights) {
+    if (!insights || insights.insufficient) return [];
+    const rec = [];
+    if (insights.weaknesses?.length) rec.push("مهم‌ترین الگوی ضعف را انتخاب کن و برای معاملات بعدی یک قانون رفتاری ساده و قابل‌سنجش تعریف کن.");
+    if (insights.threats?.length) rec.push("پیش از معامله بعدی تهدیدهای شناسایی‌شده را مرور کن و در صورت تکرار، حجم یا تعداد معاملات را محدود کن.");
+    if (insights.strengths?.length) rec.push("رفتارهای مثبت شناسایی‌شده را به چک‌لیست قبل و حین معامله منتقل کن تا تکرارپذیر شوند.");
+    if (insights.opportunities?.length) rec.push("فرصت شناسایی‌شده را در نمونه‌های بیشتری آزمایش کن و فقط پس از تأیید آماری آن را تقویت کن.");
+    if (insights.weaknesses?.[0]) rec.push("در چند معامله آینده فقط همین ضعف اصلی را پایش کن و نتیجه را ثبت کن.");
+    return [...new Set(rec)].slice(0, 5);
 }
 
 function PsychologyLayer({ journalTrades, statementTrades, source, setSource, psychOptions, activeAccount, statementImporting, statementImportError, onImportDashboardStatementFiles, onClearDashboardStatement, dashboardStatementTrades, baseAccounts, selectedBaseAccounts, onToggleBaseAccount, onSelectBaseType, onToggleAllBaseAccounts, accountTypeOf }) {
@@ -2562,6 +3115,7 @@ function PsychologyLayer({ journalTrades, statementTrades, source, setSource, ps
     const [showPsychBasePicker, setShowPsychBasePicker] = React.useState(false);
     const trades = source === "statement" ? statementTrades : journalTrades;
     const insights = useMemo(() => computePsychologyInsights(trades, psychOptions), [trades, psychOptions]);
+    const recommendations = useMemo(() => nmPsychologyRecommendations(insights), [insights]);
     const quads = [
         { key: "strengths", title: "نقاط قوت", color: "#34D399", items: insights.strengths },
         { key: "weaknesses", title: "نقاط ضعف", color: "#F87171", items: insights.weaknesses },
@@ -2614,8 +3168,8 @@ function PsychologyLayer({ journalTrades, statementTrades, source, setSource, ps
         showPsychology && React.createElement("div", { className: "p-3" },
             React.createElement("div", { className: "text-[9px] leading-5 mb-3 px-1", style: { color: "var(--text-muted)" } }, "منبع داده‌ای روانشناسی: ", source === "statement" ? "ارزیابی استیتمنت" : "معاملات ژورنال"),
             sourcePanel,
-            RE(NmDashboardAIArm, { mode:"psych", trades }),
-            results
+            results,
+            RE(NmDashboardRecommendations, { title:"توصیه", recommendations, accent:"#14B8A6" }),
         )
     );
 }
@@ -2977,15 +3531,41 @@ const JournalEditToggle = ({ editMode, onToggle }) => RE("button", { type: "butt
    Version Code = عدد صحیحِ افزایشی؛ با «هر» آپدیت یکی زیاد می‌شود (حتی PATCH).
    هنگام انتشار نسخه‌ی جدید فقط همین سه ثابت + فایل version.json را به‌روز کن. */
 const NM_APP_NAME = "Namello";
-const NM_VERSION_NAME = "1.0.61";
-const NM_VERSION_CODE = 60;
+const NM_VERSION_NAME = "1.0.4";
+const NM_VERSION_CODE = 71;
 const NM_VERSION_LABEL = NM_APP_NAME + " " + NM_VERSION_NAME;
-const NM_VERSION_027_NOTE = "نسخه 1.0.27: اصلاحات محدود لایه ژورنال شامل چک‌لیست، گزینه‌های آیتم‌های ثبت ورود، هم‌راستایی با روند ورود و نام‌گذاری مدیریت معامله.";
-const NM_VERSION_DATE = "یکدست‌سازی نسخه و کش آفلاین";
+const NM_VERSION_029_NOTE = "نسخه 1.0.29: یکدست‌سازی شماره نسخه، کد نسخه و کش آفلاین در بسته PWA؛ قابلیت‌های هوش مصنوعی نسخه قبل حفظ شده‌اند.";
+const NM_VERSION_DATE = "انتشار نسخه 1.0.4 — 2026-10-13";
 const NM_CHANGELOG = [
+    "نسخه 1.0.4: آیکون‌های نوتیفیکیشن‌های متنی به مسیر صحیح assets متصل شدند و خطای Script error ناشی از assetهای گمشده رفع شد؛ ساعت‌های ساعت‌شمار نشست‌ها کمی کوچک‌تر و در تم تیره سفید و در تم روشن تیره و خوانا شدند؛ تحلیل هوش مصنوعی به یک بخش مستقل پس از نمای پرتفوی و چندحسابی منتقل شد و از تحلیل آماری، ارزیابی پیشرفته و روانشناسی ترید حذف شد؛ کارت «توصیه» منبع مستقیم اعلان‌های ارزیابی پیشرفته و روانشناسی است؛ انتخاب فرم سفارشی ژورنال اکنون واقعاً ظاهر ثبت ورود و ثبت نتیجه را تغییر می‌دهد و فیلدهای سفارشی نتیجه نیز ذخیره می‌شوند.",
+    "نسخه 1.0.3: ساعت نشست‌ها بزرگ‌تر و قطورتر شد و ارقام ساعت به داخل صفحه منتقل شدند تا با دقیقه‌ها تداخل نداشته باشند؛ فعال‌سازی پیکربندی فیلدهای سفارشی واضح‌تر شد؛ عنوان توصیه‌ها در هر دو بخش یکسان شد. نوتیفیکیشن اخبار ۳۰ ثانیه پیش از رویداد، پنج آیکون دسته‌بندی و کلیدهای مستقل اعلان‌ها برای وب و APK حفظ و بررسی شدند.",
+    "نسخه 1.0.2: ثبت Service Worker با مسیر و scope صریح انجام می‌شود؛ فراخوانی دستی update روی رجیستری قدیمی حذف شد تا خطای Unhandled promise rejection رخ ندهد.",
+    "نسخه 1.0.1: نسخه‌بندی برنامه همگام‌سازی شد؛ اصلاحات موجود مربوط به پشتیبان اندروید، دکمه بازگشت، پروفایل‌های فیلد سفارشی، اعلان‌ها و آیکون‌های هفتگی حفظ شدند. آزمون‌های خودکار و typecheck اجرا شدند؛ آزمایش APK روی دستگاه واقعی جداگانه لازم است.",
+    "نسخه 1.0.0: بسته‌ی یکپارچه با آخرین تغییرات موجود در شاخه‌ی توسعه؛ Version Code اندروید برای جلوگیری از downgrade روی 67 نگه داشته شده است.",
+    "نسخه 1.0.67: اگر دکمه بازگشت هنگام بازبودن پنجره یا زیرصفحه مصرف شود، شمارنده خروج با دو بار فشردن در صفحه اصلی صفر می‌شود؛ این کار مانع خروج ناخواسته پس از یک مکث کوتاه می‌شود.",
+    "نسخه 1.0.66: اعتبارسنجی مستقل payload در لایه‌ی اجرای بازیابی اضافه شد؛ فایل نامعتبر یا فاقد کلیدهای Namello پیش از snapshot و هرگونه تغییر رد می‌شود.",
+    "نسخه 1.0.65: اگر ذخیره‌ی snapshot پیش از بازیابی شکست بخورد، عملیات پیش از هر تغییری متوقف می‌شود تا ریسک از دست‌رفتن داده‌ها کاهش یابد.",
+    "نسخه 1.0.64: اعتبارسنجی پشتیبان پیش از بازیابی سخت‌گیرانه‌تر شد؛ فایل‌های نامرتبط یا پشتیبان‌های ساختاریِ خالی رد می‌شوند تا بازیابی جایگزین باعث پاک‌شدن ناخواسته‌ی داده‌ها نشود.",
+    "نسخه 1.0.63: هنگام تغییر پوشه پشتیبان، مجوز پایدار پوشه‌ی قبلی آزاد می‌شود تا دسترسی‌های SAF بلااستفاده انباشته نشوند؛ انتخاب دوباره‌ی همان پوشه آسیبی به مجوز فعلی نمی‌زند.",
+    "نسخه 1.0.62: وضعیت پوشه پشتیبان انتخاب‌شده اکنون با مجوزهای پایدار واقعی اندروید تطبیق داده می‌شود؛ اگر دسترسی لغو شده باشد، برنامه دیگر پوشه‌ی منقضی را معتبر اعلام نمی‌کند و می‌تواند به مسیر پشتیبان پیش‌فرض برگردد.",
+    "نسخه 1.0.61: مدیریت دکمه بازگشت اندروید مقاوم‌تر شد؛ اگر WebView پاسخ جاوااسکریپت را به‌موقع برنگرداند، مسیر جایگزین فعال می‌شود و فشردن‌های سریع هم‌زمان پردازش نمی‌شوند.",
+    "نسخه 1.0.60: انتخاب پوشه پشتیبان اندروید فقط پس از تأیید دسترسی پایدار خواندن و نوشتن پذیرفته می‌شود؛ خطای مجوز از لغو انتخاب جدا شده است.",
+    "نسخه 1.0.59: انتخاب لوگوی اعلان ابتدا به دسته‌بندی صریح kind/category تکیه می‌کند؛ متن عنوان یا پیام دیگر نمی‌تواند دسته‌ی مشخص‌شده را ناخواسته تحت‌الشعاع قرار دهد.",
     "نسخه 1.0.58: پاک‌سازی پشتیبان‌های قدیمی در پوشه انتخابی اندروید اکنون بر اساس زمان آخرین تغییر واقعی فایل انجام می‌شود، نه ترتیب الفبایی نام فایل‌ها.",
-    "نسخه 1.0.33: رفع خطای TypeScript در ماژول رمزنگاری (نیاز به ساخت APK در GitHub Actions) و بازنویسی workflow ساخت APK با نسخه‌گذاری خودکار از version.json.",
-    "نسخه 1.0.33: بدون تغییر در رفتار و رابط کاربری برنامه؛ فقط پایدارسازی فرایند ساخت.",
+    "نسخه 1.0.57: فهرست بازیابی پشتیبان در پوشه‌ی اندروید بر اساس زمان آخرین تغییر مرتب می‌شود؛ نام پوشه از سند ریشه‌ی SAF خوانده می‌شود تا در ارائه‌دهنده‌های مختلف اندروید دقیق‌تر باشد.",
+    "نسخه 1.0.56: ذخیره‌ی پشتیبان در پوشه‌ی انتخاب‌شده ایمن‌تر شد؛ فایل ناقص پس از شکست نوشتن حذف می‌شود. پاسخ انتخاب پوشه با JSON quote ایمن شده و callback پس از پایان مهلت انتظار پاک می‌شود.",
+    "نسخه 1.0.55: بازیابی پشتیبان امن‌تر شد؛ در صورت خطای حذف یا ذخیره هنگام بازیابی، برنامه تلاش می‌کند Snapshot قبل از بازیابی را خودکار برگرداند و خطا را پنهان نمی‌کند.",
+    "نسخه 1.0.54: انتخاب لوگوی اعلان‌های اندروید علاوه بر عنوان و متن، فراداده‌ی ساختاریافته‌ی دسته را هم بررسی می‌کند تا اعلان‌های با عنوان عمومی نیز لوگوی مناسب‌تری بگیرند.",
+    "نسخه 1.0.53: نگه‌داری فایل‌های پشتیبان خودکار در پوشه‌ی انتخاب‌شده‌ی اندروید محدود شد؛ پس از ذخیره، فایل‌های قدیمی‌تر همان پیشوند پاک می‌شوند و جدیدترین فایل‌ها حفظ می‌شوند.",
+    "نسخه 1.0.52: بازیابی مستقیم فایل JSON از پوشه‌ی انتخاب‌شده‌ی اندروید اضافه شد؛ فهرست فایل‌های پشتیبان از SAF خوانده می‌شود و فایل انتخابی پیش از اعمال، مانند مسیر معمول بررسی اعتبار می‌شود. نمایش مسیر دستی نیز نام پوشه‌ی انتخاب‌شده را نشان می‌دهد.",
+    "نسخه 1.0.51: حالت و پیکربندی سفارشی ثبت ورود و ثبت نتیجه معامله اکنون جداگانه ذخیره و اعمال می‌شوند؛ انتخاب یک پیکربندی برای یک فرم، تنظیمات فرم دیگر را بازنویسی نمی‌کند.",
+    "نسخه 1.0.50: ذخیره‌ی پیکربندی‌های فیلد سفارشی، حالت‌های Namello/خام/سفارشی، و اتصال لوگوهای دسته‌بندی به آیکون بزرگ اعلان‌های اندروید؛ انتخاب پوشه‌ی پشتیبان و مدیریت دکمه‌ی Back نیز حفظ شده‌اند.",
+    "نسخه 1.0.48: اصلاحات پشتیبان‌گیری، جایگاه و پیش‌فرض دکمه‌های شناور، نام TradingView و رفتار دکمه‌ی برگشت.",
+    "نسخه 1.0.47: خروجی Excel در همه‌ی بخش‌ها درست شد (نام شیت‌های دوزبانه با «/» خطا می‌دادند) و خروجی PDF در APK پنجره‌ی چاپ اندروید را باز می‌کند.",
+    "نسخه 1.0.47: پشتیبان خودکار هفتگی در APK فایل واقعی در Download/Namello-Backups می‌سازد (آخرین ۸ فایل) و یادآوری پشتیبان اضافه شد.",
+    "نسخه 1.0.47: قفل برنامه با PIN و اثر انگشت/چهره/قفل گوشی، با زمان قفل‌شدن و گزینه‌ی پنهان‌کردن در برنامه‌های اخیر.",
+    "نسخه 1.0.47: ماشین‌حساب ریسک و سقف ضرر روزانه (تعداد معامله و ضرر متوالی) با نوار هشدار و اعلان در بخش مدیریت مالی.",
+    "نسخه 1.0.47: تصاویر آیکون هفتگی با تصاویر جدید جایگزین شد.",
 ];
 function nmMigrateTradeSchemaV2(list) {
     if (!Array.isArray(list)) return [];
@@ -3054,13 +3634,27 @@ function nmApplyAppTheme(themeKey, mode) {
     const meta = document.getElementById("themeColorMeta");
     if (meta) meta.setAttribute("content", mode === "light" ? "#F5F3EC" : th.page);
 }
+const NM_ICON_WEEK = [
+    { key: "sat", label: "شنبه", theme: "Analysis", file: "icon-day-sat.jpg" },
+    { key: "sun", label: "یکشنبه", theme: "Planning", file: "icon-day-sun.jpg" },
+    { key: "mon", label: "دوشنبه", theme: "Market Awakening", file: "icon-day-mon.jpg" },
+    { key: "tue", label: "سه‌شنبه", theme: "Momentum", file: "icon-day-tue.jpg" },
+    { key: "wed", label: "چهارشنبه", theme: "Balance", file: "icon-day-wed.jpg" },
+    { key: "thu", label: "پنجشنبه", theme: "Volatility", file: "icon-day-thu.jpg" },
+    { key: "fri", label: "جمعه", theme: "Review", file: "icon-day-fri.jpg" },
+];
+function nmWeekdayKey(d) { return ["sun", "mon", "tue", "wed", "thu", "fri", "sat"][(d || new Date()).getDay()]; }
+function nmWeekIcon(key) { return (NM_ICON_WEEK.find(x => x.key === key) || NM_ICON_WEEK[0]).file; }
 function nmIconThemeInfo(key) { return NM_ICON_THEMES.find(t => t.key === key) || NM_ICON_THEMES[0]; }
-function nmApplyIconTheme(key) {
+function nmApplyIconTheme(key, weeklyDayKey) {
     const it = nmIconThemeInfo(key);
+    // تم هفتگی: لوگو/favicon تصویر همان روز هفته می‌شود و مانیفست پیش‌فرض می‌ماند
+    const icon = weeklyDayKey ? nmWeekIcon(weeklyDayKey) : it.icon192;
+    const manifest = weeklyDayKey ? "manifest.json" : it.manifest;
     const set = (sel, href) => { const el = document.querySelector(sel); if (el) el.setAttribute("href", href); };
-    set('link[rel="manifest"]', it.manifest);
-    set('link[rel="icon"]', it.icon192);
-    set('link[rel="apple-touch-icon"]', it.icon192);
+    set('link[rel="manifest"]', manifest);
+    set('link[rel="icon"]', icon);
+    set('link[rel="apple-touch-icon"]', icon);
     // به کروم اطلاع می‌دهد که مانیفست عوض شده تا زودتر (نه لزوماً فوری) بررسی و آیکون صفحه‌ی اصلی را به‌روز کند.
     try { if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) navigator.serviceWorker.getRegistration().then(r => r && r.update()); } catch (e) { }
 }
@@ -3076,7 +3670,7 @@ const NM_HELP_GUIDES = {
   "مدیریت مالی": {icon:"💰", purpose:"برای مدیریت موجودی، ریسک، سود/زیان و ارزیابی مالی حساب‌هاست.", steps:["منبع ارزیابی مالی را انتخاب کن.","حساب‌های مبنا را مشخص کن.","P&L، Drawdown و روند موجودی را بررسی کن.","برای تصمیم‌های ریسکی از داده‌های چند معامله استفاده کن."], terms:[["Balance","موجودی حساب پس از معاملات ثبت‌شده"],["Equity","ارزش لحظه‌ای حساب با احتساب معاملات باز"],["Risk","مقدار سرمایه‌ای که در صورت فعال‌شدن حد ضرر در معرض زیان است"]], tips:["سود اسمی بدون توجه به ریسک و Drawdown معیار کاملی برای کیفیت عملکرد نیست."]},
   "سیستم‌های معاملاتی": {icon:"🧩", purpose:"کتابخانه‌ای برای تعریف و مقایسه سیستم‌های معاملاتی و شرایط اجرای آن‌هاست.", steps:["سیستم را با نام مشخص بساز.","قواعد ورود، مدیریت و خروج را در شرح آن ثبت کن.","معاملات را به سیستم مربوط نسبت بده.","در گزارش‌ها عملکرد هر سیستم را جداگانه مقایسه کن."], terms:[["Trading System","مجموعه قواعد تکرارپذیر برای تصمیم‌گیری معاملاتی"],["Setup","الگوی شرایطی که پیش‌نیاز ورود را تشکیل می‌دهد"]], tips:["نام سیستم‌ها را ثابت و بدون مترادف‌های متعدد نگه دار تا آمار تفکیکی دقیق بماند."]},
   "استراتژی معاملاتی و مالی": {icon:"📋", purpose:"لایه تعریف قواعد اجرایی معامله و سیاست‌های مالی و ریسک است.", steps:["اهداف و محدودیت ریسک را تعیین کن.","قواعد ورود و خروج را مکتوب کن.","قواعد را در معاملات اجرا و نتیجه را ثبت کن.","با داده ژورنال، قواعد را بازبینی کن؛ نه با یک معامله منفرد."], terms:[["Risk/Reward","نسبت مقدار سود هدف به ریسک معامله"],["Position Sizing","تعیین حجم معامله بر اساس ریسک و فاصله حد ضرر"]], tips:["استراتژی خوب باید قابل توضیح، قابل تکرار و قابل اندازه‌گیری باشد."]},
-  "خروجی کل": {icon:"📤", purpose:"برای استخراج داده‌ها و گزارش‌های قابل استفاده در Excel، PDF و ابزارهای تحلیلی است.", steps:["حساب و دامنه داده را بررسی کن.","نوع خروجی را انتخاب کن.","گزارش PDF را برای مطالعه و Excel/CSV را برای تحلیل انتخاب کن.","فایل خروجی را پس از ساخت بررسی کن."], terms:[["PDF","گزارش خواندنی و قابل ارائه"],["Excel","خروجی جدولی برای تحلیل و پردازش"],["CSV","قالب متنی جدولی سازگار با بسیاری از بروکرها و ابزارها"]], tips:["برای تحلیل عددی و پردازش مجدد، Excel/CSV مناسب‌تر از PDF است."]},
+  "خروجی کل": {icon:"📤", purpose:"برای استخراج داده‌ها و گزارش‌های قابل استفاده در Excel، PDF و ابزارهای تحلیلی است.", steps:["حساب و دامنه داده را بررسی کن.","نوع خروجی را انتخاب کن.","گزارش PDF را برای مطالعه و Excel/CSV را برای تحلیل انتخاب کن.","فایل خروجی را پس از ساخت بررسی کن."], terms:[["PDF","گزارش خواندنی و قابل ارائه"],["Excel","خروجی جدولی برای تحلیل و پردازش"],["CSV","قالب متنی جدولی سازگار با بسیاری از بروکرها و ابزارها"]], tips:["برای تحلیل عددی و پردازش مجدد، Excel/CSV مناسب‌تر از PDF است.","در برنامه‌ی نصبی اندروید، Excel/CSV در پوشه‌ی Download ذخیره می‌شود و برای PDF باید در پنجره‌ی چاپ اندروید گزینه‌ی «ذخیره به‌صورت PDF» را بزنی."]},
   "کتابخانه": {icon:"📚", purpose:"محل نگهداری کتاب‌ها، پادکست‌ها، کتاب‌های صوتی و پیام‌های انگیزشی است.", steps:["هر بخش را با سربرگ خودش باز کن.","برای محتوای متنی/صوتی موردنظر مورد جدید اضافه کن.","برای فایل‌های رسانه‌ای نام واضح و قابل جست‌وجو ثبت کن.","پیام‌های انگیزشی و اعلان‌ها را در بخش مربوط مدیریت کن."], terms:[["Lazy Loading","بارگذاری رسانه فقط هنگام نیاز برای کاهش مصرف منابع"],["Podcast","محتوای صوتی اپیزودیک"]], tips:["فایل‌های رسانه‌ای حجیم را فقط در صورت نیاز باز کن تا عملکرد برنامه بهتر بماند."]},
   "تنظیمات": {icon:"⚙️", purpose:"مرکز شخصی‌سازی، حساب‌ها، ذخیره‌سازی، امنیت، زبان، اتصال‌ها و تنظیمات برنامه است.", steps:["تنظیمات را بر اساس بخش‌های مستقل باز کن.","تغییرات حساس مثل ذخیره‌سازی و Sync را قبل از تأیید بررسی کن.","پشتیبان‌گیری منظم داشته باش.","پس از تغییر زبان، بخش‌های اصلی و خروجی‌ها را بررسی کن."], terms:[["Sync","همگام‌سازی داده بین نسخه‌های ذخیره‌شده یا دستگاه‌ها"],["Backup","نسخه پشتیبان برای بازیابی داده‌ها"],["Import","واردکردن داده از منبع خارجی"]], tips:["قبل از عملیات Replace All Data همیشه یک Backup تازه بگیر."]},
   "درباره برنامه": {icon:"ℹ️", purpose:"اطلاعات نسخه، تغییرات، راهنماهای محصول و بخش‌های توضیحی Namello را در اختیار می‌گذارد.", steps:["سربرگ بروزرسانی را برای نسخه فعلی باز کن.","تغییرات نسخه را مطالعه کن.","بخش‌های توضیحی را برای شناخت قابلیت‌ها باز کن.","برای هر قابلیت از دکمه راهنما استفاده کن."], terms:[["Version","نسخه منتشرشده برنامه"],["Changelog","فهرست تغییرات یک نسخه"]], tips:["در زمان عیب‌یابی، نسخه و Version Code را همراه گزارش مشکل نگه دار."]},
@@ -3089,7 +3683,7 @@ const NM_HELP_GUIDES = {
   "امنیت، پشتیبان، ذخیره ابری و Namello Backend": {icon:"🔐", purpose:"مدیریت امنیت داده، Backup، فضای ابری و اتصال چنددستگاهی است.", steps:["منبع ذخیره‌سازی را مشخص کن.","Backup دستی/خودکار را تنظیم کن.","اتصال ابری را فقط در صورت نیاز فعال کن.","Sync status و آخرین Backup را کنترل کن."], terms:[["Encryption","رمزنگاری داده برای کاهش دسترسی غیرمجاز"],["Backup","نسخه قابل بازیابی داده"],["Sync","همگام‌سازی نسخه‌ها"],["Conflict Resolution","حل اختلاف بین نسخه‌های داده"]], tips:["کلید یا اطلاعات حساس را در متن آزاد یا فایل CSV قرار نده."]},
   "MT5 · دریافت خودکار OHLC و MFE/MAE": {icon:"📈", purpose:"دریافت OHLC و محاسبه شاخص‌های MFE/MAE برای تحلیل معامله است.", steps:["اتصال Bridge را برقرار کن.","نماد و تایم‌فریم را کنترل کن.","دریافت داده را اجرا کن.","MFE/MAE را کنار نتیجه معامله تفسیر کن."], terms:[["Bridge","واسط انتقال داده بین Namello و MT5"],["OHLC","چهار مقدار اصلی هر کندل"],["MFE/MAE","بیشترین حرکت مطلوب/نامطلوب در طول معامله"]], tips:["اختلاف timezone یا Symbol mapping می‌تواند داده را جابه‌جا کند؛ قبل از تحلیل، زمان و نماد را کنترل کن."]},
   "خروجی خام برای توسعه‌دهندگان": {icon:"🧑‍💻", purpose:"داده خام و ساختاریافته برای توسعه، Excel، Python و ابزارهای خارجی فراهم می‌کند.", steps:["نوع داده را انتخاب کن.","خروجی JSON/CSV را ذخیره کن.","ساختار فیلدها را قبل از پردازش بررسی کن.","در ابزار خارجی نسخه Schema را نیز ثبت کن."], terms:[["JSON","قالب ساختاریافته داده"],["Schema","ساختار و قرارداد فیلدهای داده"],["Raw Export","خروجی کم‌تغییر برای پردازش فنی"]], tips:["برای مهاجرت یا تحلیل خودکار، از تغییر نام فیلدها بدون ثبت Mapping خودداری کن."]},
-  "پشتیبان‌گیری و بازیابی داده‌ها": {icon:"💾", purpose:"ساخت و بازیابی نسخه پشتیبان داده‌های برنامه است.", steps:["Backup را در محل امن ذخیره کن.","برای Restore فایل صحیح را انتخاب کن.","قبل از Replace All Data یک نسخه فعلی نگه دار.","بعد از Restore حساب‌ها و چند معامله نمونه را بررسی کن."], terms:[["Backup","نسخه پشتیبان"],["Restore","بازیابی از نسخه پشتیبان"],["Replace","جایگزینی کامل داده موجود"]], tips:["حداقل یک Backup مستقل از دستگاه اصلی نگه دار."]},
+  "پشتیبان‌گیری و بازیابی داده‌ها": {icon:"💾", purpose:"ساخت و بازیابی نسخه پشتیبان داده‌های برنامه است.", steps:["Backup را در محل امن ذخیره کن.","برای Restore فایل صحیح را انتخاب کن.","قبل از Replace All Data یک نسخه فعلی نگه دار.","بعد از Restore حساب‌ها و چند معامله نمونه را بررسی کن."], terms:[["Backup","نسخه پشتیبان"],["Restore","بازیابی از نسخه پشتیبان"],["Replace","جایگزینی کامل داده موجود"]], tips:["در برنامه‌ی نصبی اندروید، پشتیبان در Download/Namello-Backups ذخیره می‌شود و «پشتیبان خودکار هفتگی» (با پیشنهاد در اولین اجرا) فایل‌های جدید می‌سازد و آخرین ۸ فایل را نگه می‌دارد.","حداقل یک Backup مستقل از دستگاه اصلی نگه دار."]},
   "فیلدهای سفارشی معامله": {icon:"🧩", purpose:"افزودن فیلدهای اختصاصی به فرم معامله بدون تغییر هسته ژورنال است.", steps:["نام و نوع فیلد را تعریف کن.","فیلد را به فرم اضافه کن.","در معاملات مقدار آن را ثبت کن.","در خروجی‌ها وجود فیلد را بررسی کن."], terms:[["Custom Field","فیلد اختصاصی کاربر"],["Schema","ساختار تعریف‌شده فیلدها"]], tips:["نام فیلد را ثابت نگه دار تا گزارش‌های گذشته و آینده سازگار بمانند."]},
   "ارزیابی سقف/کف قیمت": {icon:"🎯", purpose:"پایش تکرار سقف‌ها و کف‌های قیمتی در بازه‌های روزانه و هفتگی است.", steps:["بازه و داده بازار را بررسی کن.","تکرار سقف/کف را مشاهده کن.","آن را با ساختار کلی بازار مقایسه کن.","از آن به‌عنوان داده کمکی استفاده کن."], terms:[["High","سقف قیمت"],["Low","کف قیمت"],["Frequency","تعداد تکرار در بازه"]], tips:["تکرار سقف/کف به‌تنهایی جهت آینده را تضمین نمی‌کند."]},
   "ترتیب لایه‌ها": {icon:"↕️", purpose:"ترتیب نمایش لایه‌های اصلی برنامه را شخصی‌سازی می‌کند.", steps:["لایه را انتخاب کن.","با فلش بالا/پایین جای آن را تغییر بده.","ترتیب ذخیره می‌شود.","در صورت نیاز به ترتیب اصلی بازگردان."], terms:[["Layer","یکی از بخش‌های اصلی برنامه"],["Navigation Order","ترتیب نمایش لایه‌ها"]], tips:["ترتیب را بر اساس گردش‌کار روزانه تنظیم کن تا دسترسی سریع‌تر شود."]},
@@ -3097,11 +3691,14 @@ const NM_HELP_GUIDES = {
   "بروزرسانی برنامه": {icon:"🔄", purpose:"نسخه نصب‌شده را بررسی و در صورت وجود نسخه جدید به‌روزرسانی می‌کند.", steps:["Version و Version Code را بررسی کن.","بررسی نسخه جدید را اجرا کن.","تغییرات نسخه جدید را مطالعه کن.","در زمان نصب، صفحه را نبند."], terms:[["Version Code","شماره عددی برای مقایسه نسخه‌ها"],["Changelog","فهرست تغییرات نسخه"],["Update","ارتقای نسخه نصب‌شده"]], tips:["قبل از بروزرسانی‌های مهم Backup تازه داشته باش."]},
   "فضای ذخیره‌سازی": {icon:"🗄️", purpose:"نمایش و مدیریت وضعیت فضای ذخیره‌سازی و مهاجرت داده‌هاست.", steps:["حجم مصرفی را بررسی کن.","وضعیت ذخیره پایدار را کنترل کن.","قبل از تغییر منبع، Backup بگیر.","پس از مهاجرت چند رکورد را بررسی کن."], terms:[["Storage","محل نگهداری داده"],["Migration","انتقال ساختاریافته داده از یک منبع به منبع دیگر"]], tips:["در عملیات مهاجرت، تا پایان موفقیت‌آمیز بودن فرآیند داده اصلی را حذف نکن."]},
   "تم لایه‌های برنامه": {icon:"🎨", purpose:"ظاهر کلی و تم رنگی رابط برنامه را تغییر می‌دهد.", steps:["تم را انتخاب کن.","پیش‌نمایش را بررسی کن.","تنظیمات را ذخیره/حفظ کن."], terms:[["Theme","مجموعه رنگ و ظاهر رابط کاربری"]], tips:["تم انتخابی روی خوانایی نمودارها و متن‌ها اثر می‌گذارد."]},
-  "تم آیکون برنامه": {icon:"🖼️", purpose:"آیکون و هویت بصری نسخه نصب‌شده برنامه را انتخاب می‌کند.", steps:["سبک آیکون را انتخاب کن.","در صورت نصب PWA، ممکن است برای نمایش فوری آیکون نیاز به نصب مجدد میانبر باشد."], terms:[["PWA","Progressive Web App"],["Icon Theme","پوسته آیکون برنامه"]], tips:["تغییر آیکون لزوماً آیکون میانبر قدیمی را همان لحظه عوض نمی‌کند."]},
+  "تم آیکون برنامه": {icon:"🖼️", purpose:"آیکون و لوگوی برنامه را تعیین می‌کند: یک تم ثابت، یا آیکونی که هر روز مطابق روز هفته عوض می‌شود.", steps:["برای آیکون ثابت، یکی از تم‌ها را در «تم آیکون سفارشی ثابت» انتخاب کن.","برای آیکون روزانه، «تم آیکون متغیر هفتگی» را روشن کن؛ هر روز تصویر همان روز هفته نمایش داده می‌شود.","با روشن بودن تم هفتگی، تم‌های ثابت اعمال نمی‌شوند؛ برای برگشت به آیکون ثابت، تم هفتگی را خاموش کن."], terms:[["Fixed Icon Theme","تم آیکون سفارشی ثابت"],["Weekly Icon Theme","تم آیکون متغیر هفتگی؛ هر روز یک تصویر"],["Launcher Icon","آیکون برنامه روی صفحه‌ی اصلی گوشی"],["PWA","Progressive Web App"]], tips:["در APK آیکون لانچر گوشی هم تغییر می‌کند؛ بعضی لانچرها چند ثانیه دیرتر به‌روز می‌شوند.","در PWA فقط لوگوی داخل برنامه تغییر می‌کند و آیکون میانبر را مرورگر مدیریت می‌کند.","دکمه‌ی شناور بازگشت به Namello هم از همین آیکون استفاده می‌کند."]},
+  "قفل برنامه": {icon:"🔒", purpose:"با PIN و (در APK) اثر انگشت/چهره/قفل گوشی از دیده‌شدن ژورنال، حساب‌ها و معاملات توسط دیگران جلوگیری می‌کند.", steps:["قفل برنامه را روشن کن و PIN ۴ یا ۶ رقمی را دو بار وارد کن.","در APK می‌توانی باز کردن با اثر انگشت/چهره/قفل گوشی را هم فعال کنی.","زمان قفل‌شدن بعد از رفتن به پس‌زمینه را انتخاب کن (پیشنهاد: ۱ دقیقه).","پشتیبان‌گیری منظم را فراموش نکن؛ اگر PIN را گم کنی ممکن است فقط پاک‌کردن داده‌ی برنامه راه داشته باشد."], terms:[["PIN","رمز عددی کوتاه"],["بیومتریک","اثر انگشت/چهره"],["FLAG_SECURE","پنهان‌کردن برنامه در Recents و جلوگیری از اسکرین‌شات"]], tips:["این قفل دروازه‌ی حریم خصوصی است؛ داده‌ها را رمزنگاری نمی‌کند و فایل‌های پشتیبان را قفل نمی‌کند.","بعد از ۵ PIN اشتباه، قفل موقت با تأخیر فزاینده اعمال می‌شود.","PIN فقط روی همین دستگاه (به‌صورت هش‌شده) ذخیره می‌شود و داخل پشتیبان‌ها نیست."]},
+  "ماشین‌حساب ریسک و سقف ضرر روزانه": {icon:"🛡️", purpose:"حجم معامله را از روی درصد ریسک و حد ضرر حساب می‌کند و با سقف ضرر روزانه از تیلت و زیاده‌روی جلوگیری می‌کند.", steps:["نوع ابزار، درصد ریسک، حد ضرر و ارزش هر واحد را وارد کن تا حجم (لات) نمایش داده شود.","سقف ضرر روزانه (درصد یا دلار)، حداکثر تعداد معامله و حداکثر ضرر متوالی را تنظیم و محافظ را روشن کن.","هنگام نزدیک‌شدن یا رسیدن به سقف، نوار هشدار بالای صفحه و اعلان نشان داده می‌شود."], terms:[["Risk %","درصد موجودی که در یک معامله به‌خطر می‌اندازی"],["R:R","نسبت سود احتمالی به ریسک"],["Daily Loss Cap","سقف ضرر مجاز در یک روز"]], tips:["حجم همیشه رو به پایین گرد می‌شود تا ریسک واقعی از ریسک انتخابی بیشتر نشود.","ارزش پیپ طلا و فارکس JPY تقریبی است؛ مقدار دقیق را از بروکر بگیر.","فقط معاملات بسته‌شده‌ی حساب فعال ژورنال (به وقت نیویورک) شمرده می‌شود و هشدار جلوی ثبت معامله را نمی‌گیرد."]},
+  "Navigation bar": {icon:"📱", purpose:"تعیین می‌کند نوار لایه‌های پایین صفحه با نوار ناوبری اندروید (دکمه‌های برگشت/خانه/اخیر یا خط ژست) تداخل داشته باشد یا از آن جدا بنشیند.", steps:["«جدایش» (پیش‌فرض) را انتخاب کن تا نوار لایه‌ها بالاتر از نوار ناوبری گوشی قرار بگیرد.","اگر صفحه‌ی تمام‌صفحه می‌خواهی، «تداخل» را انتخاب کن.","تغییر بلافاصله اعمال می‌شود."], terms:[["Navigation bar","نوار پایین سیستم اندروید"],["تداخل","صفحه زیر نوار ناوبری ادامه دارد"],["جدایش","صفحه بالاتر از نوار ناوبری تمام می‌شود"]], tips:["این گزینه فقط در برنامه‌ی نصبی اندروید اثر دارد.","اگر در «تداخل» دکمه‌های پایین صفحه با نوار سیستم قاطی شدند، به «جدایش» برگرد."]},
   "بروزرسانی": {icon:"🔄", purpose:"نسخه جاری و تغییرات نسخه فعلی را معرفی می‌کند.", steps:["نسخه و Version Code را بخوان.","تغییرات همین نسخه را مرور کن.","برای جزئیات قابلیت‌ها از راهنمای همان بخش استفاده کن."], terms:[["Changelog","فهرست تغییرات نسخه"]], tips:["در صورت گزارش مشکل، شماره نسخه را ذکر کن."]}
 };
 
-const NM_HELP_PLAYBOOKS = {"داشبورد عملکرد":{"before":["ابتدا بازه زمانی، منبع داده و حساب‌های مبنا را مشخص کن؛ اگر این سه مورد تغییر کنند، نتیجه آمار هم تغییر می‌کند.","قبل از نتیجه‌گیری بررسی کن تعداد معاملات برای مقایسه کافی باشد و داده تکراری یا ناقص نداشته باشی."],"workflow":["۱) منبع داده را انتخاب کن؛ ژورنال برای داده‌های ثبت‌شده و Statement برای داده‌های واردشده مناسب است.","۲) حساب‌ها، بازه زمانی و فیلترهای موردنظر را تنظیم کن.","۳) ابتدا P&L، Equity/Balance و Drawdown را ببین؛ بعد Win Rate، Expectancy و تحلیل‌های تفکیکی را بررسی کن.","۴) عملکرد را به تفکیک نماد، سیستم، نشست، جهت و شرایط بازار مقایسه کن تا علت نتیجه روشن‌تر شود."],"mistakes":["فقط با Win Rate درباره خوب یا بد بودن عملکرد قضاوت نکن؛ میانگین برد، میانگین باخت و R نیز مهم‌اند.","نتیجه یک یا چند معامله را به‌عنوان Edge قطعی تفسیر نکن.","حساب‌ها یا ارزهای متفاوت را بدون توجه به واحد پول و اندازه حساب با هم مقایسه نکن."],"read":["P&L مثبت با Drawdown بالا لزوماً به معنی عملکرد باکیفیت نیست.","Expectancy مثبت در کنار نمونه آماری کافی، نشانه بهتری برای بررسی یک سیستم است؛ نه تضمین آینده."]},"نشست‌ها":{"before":["منطقه زمانی و ساعت دستگاه را بررسی کن؛ زمان Kill Zone و Session مستقیماً به زمان وابسته است.","مشخص کن فقط می‌خواهی زمان‌ها را مشاهده کنی یا برای آن‌ها آلارم هم لازم داری."],"workflow":["۱) نشست‌های موردنظر را فعال یا غیرفعال کن.","۲) زمان شروع/پایان Kill Zone و Silver Bullet را بررسی کن و با ساعت بازار خودت تطبیق بده.","۳) در صورت نیاز آلارم را فقط برای پنجره‌های واقعاً مورد استفاده فعال کن.","۴) هم‌پوشانی نشست‌ها را به‌عنوان زمینه نقدشوندگی بررسی کن و سپس ساختار قیمت و ستاپ را ارزیابی کن."],"mistakes":["از Session یا Kill Zone به‌تنهایی سیگنال ورود نساز.","تفاوت DST و منطقه زمانی را نادیده نگیر.","آلارم‌های زیاد فعال نکن؛ فقط زمان‌هایی را نگه دار که بخشی از پلن معاملاتی تو هستند."],"read":["Session زمان فعالیت/نقدشوندگی را توصیف می‌کند، نه جهت قطعی قیمت.","هم‌پوشانی زمانی زمانی ارزشمندتر است که با ساختار بازار، سطح و ستاپ هم‌جهت باشد."]},"ژورنال":{"before":["قبل از ثبت معامله، حساب، نماد، جهت، حجم و زمان را آماده داشته باش.","اطلاعات «قبل از معامله» را تا حد امکان پیش از دیدن نتیجه ثبت کن تا بازبینی کمتر دچار hindsight شود."],"workflow":["۱) حساب و معامله را ایجاد/انتخاب کن.","۲) قبل از ورود، Setup، دلیل ورود، سطوح راهنما، ریسک، Stop و هدف را ثبت کن.","۳) در طول معامله مدیریت، تغییرات و مشاهدات مهم را ثبت کن.","۴) بعد از بسته‌شدن، نتیجه، R، MFE/MAE، خطاهای اجرایی و ارزیابی روانشناسی را تکمیل کن.","۵) در مرور دوره‌ای، معاملات مشابه را گروه‌بندی و الگوهای تکرارشونده را استخراج کن."],"mistakes":["فقط نتیجه مالی را ثبت نکن؛ «چرا وارد شدم؟» و «آیا طبق پلن عمل کردم؟» را هم ثبت کن.","بعد از برد، کیفیت تصمیم را با نتیجه یکی ندان؛ یک تصمیم بد می‌تواند برنده شود.","فیلدهای مهم را با نام‌های متغیر و مترادف‌های متعدد ثبت نکن."],"read":["R برای مقایسه معاملات مستقل از اندازه حساب مفید است.","MFE/MAE نشان می‌دهد معامله در طول مسیر چه ظرفیتی برای سود/زیان داشته، نه اینکه الزاماً خروج بهتر یا بدتر بوده است."]},"ارزیابی رفتار بازار":{"before":["بازه و تایم‌فریم ارزیابی را با معامله هماهنگ کن.","مشاهده بازار را قبل از نتیجه معامله ثبت کن تا نتیجه، مشاهده را تحریف نکند."],"workflow":["۱) روند، رنج، نوسان و جهت غالب را مشخص کن.","۲) ساختار سقف/کف و رفتار قیمت اطراف سطوح مهم را ثبت کن.","۳) رفتار قبل از ورود و بعد از ورود را جداگانه یادداشت کن.","۴) در تحلیل‌های بعدی نتایج را بر اساس شرایط بازار گروه‌بندی کن."],"mistakes":["هر حرکت سریع را Trend و هر توقف را Range فرض نکن؛ ساختار چند کندل/تایم‌فریم را ببین.","شرایط بازار را با نتیجه معامله قاطی نکن.","از یک نمونه کوچک برای ساختن قانون قطعی استفاده نکن."],"read":["هدف این بخش توصیف شرایط واقعی بازار است؛ پیش‌بینی قطعی نیست.","اگر یک Setup فقط در یک رژیم بازار خوب عمل می‌کند، آن محدودیت را در سیستم ثبت کن."]},"تقویم معاملاتی":{"before":["تقویم و منطقه زمانی مورد استفاده را مشخص کن.","برای مقایسه، بازه‌های زمانی مشابه را انتخاب کن؛ مثلاً چند هفته یا چند ماه، نه فقط یک روز."],"workflow":["۱) تقویم را انتخاب و روز موردنظر را باز کن.","۲) معاملات، رویدادها و عملکرد همان روز را مرور کن.","۳) روزهای مشابه را با هم مقایسه کن.","۴) الگوهای تکرارشونده را برای برنامه‌ریزی آینده یادداشت کن."],"mistakes":["یک روز غیرعادی را نماینده کل عملکرد فرض نکن.","تاریخ شمسی و میلادی را هنگام خروجی یا اشتراک گزارش اشتباه نکن.","اثر اخبار یا تعطیلات را بدون ثبت زمینه از آمار حذف نکن."],"read":["تقویم برای کشف الگوهای زمانی مناسب است؛ علت‌سنجی نیاز به داده و بررسی بیشتر دارد."]},"مدیریت مالی":{"before":["منبع ارزیابی مالی و حساب‌های مبنا را مشخص کن.","واحد پول، موجودی شروع و بازه زمانی را برای مقایسه بررسی کن."],"workflow":["۱) منبع مالی را انتخاب کن.","۲) حساب‌ها و بازه را مشخص کن.","۳) Balance/Equity، P&L، Drawdown و روند سرمایه را بررسی کن.","۴) ریسک هر معامله و ریسک تجمعی را کنار بازده ببین.","۵) تغییرات مهم را با داده ژورنال تطبیق بده."],"mistakes":["فقط سود دلاری را مقایسه نکن؛ درصد بازده و Drawdown را هم ببین.","Equity و Balance را یکی فرض نکن.","ریسک معامله را بدون توجه به Stop و حجم واقعی محاسبه نکن."],"read":["بازده مناسب همراه با Drawdown کنترل‌شده معمولاً تصویر کامل‌تری از کیفیت مدیریت مالی می‌دهد."]},"سیستم‌های معاملاتی":{"before":["برای هر سیستم یک نام ثابت، کوتاه و یکتا انتخاب کن.","قواعد را قبل از نسبت‌دادن معاملات به سیستم مشخص کن."],"workflow":["۱) سیستم را تعریف و قواعد ورود، مدیریت و خروج را ثبت کن.","۲) شرایط معتبر/نامعتبر بودن Setup را مشخص کن.","۳) معاملات را با همان نام سیستم برچسب‌گذاری کن.","۴) پس از نمونه کافی، Win Rate، Expectancy، R و Drawdown هر سیستم را مقایسه کن."],"mistakes":["قواعد سیستم را وسط دوره بدون ثبت نسخه تغییر نده.","معاملات خارج از قواعد را برای بالا بردن آمار داخل سیستم نگذار.","نام‌های مشابه برای یک سیستم نساز."],"read":["سیستم خوب باید قابل تکرار و قابل اندازه‌گیری باشد.","مقایسه سیستم‌ها باید با نمونه‌های قابل‌مقایسه و شرایط بازار مشابه انجام شود."]},"استراتژی معاملاتی و مالی":{"before":["حد ریسک، سقف زیان، هدف و محدودیت‌های اجرایی را قبل از معامله مشخص کن.","قواعد را به شکل قابل بررسی بنویس، نه عبارت‌های مبهمی مثل «بازار خوب بود»."],"workflow":["۱) هدف و محدودیت ریسک را تعیین کن.","۲) شرایط ورود، ابطال Setup، Stop، هدف و مدیریت را مکتوب کن.","۳) Position Sizing را بر اساس ریسک و فاصله Stop تعیین کن.","۴) پس از هر دوره، نتایج واقعی را با قواعد مقایسه کن.","۵) تغییرات استراتژی را نسخه‌بندی و دلیل تغییر را ثبت کن."],"mistakes":["استراتژی را بعد از چند باخت صرفاً برای جبران زیان عوض نکن.","ریسک را برای رسیدن سریع‌تر به هدف افزایش نده.","قواعدی که قابل اندازه‌گیری نیستند را معیار آماری قرار نده."],"read":["استراتژی باید قبل از اجرا قابل توضیح باشد و بعد از اجرا قابل ارزیابی.","تغییرات مهم را با داده کافی و دوره آزمون مشخص بررسی کن."]},"خروجی کل":{"before":["قبل از خروجی، فیلتر حساب، بازه زمانی و دامنه داده را بررسی کن.","اگر هدف تحلیل عددی است، Excel/CSV را ترجیح بده؛ اگر هدف ارائه و مطالعه است، PDF مناسب‌تر است."],"workflow":["۱) دامنه داده و حساب‌های موردنظر را کنترل کن.","۲) فرمت خروجی را انتخاب کن.","۳) خروجی را بساز و فایل را ذخیره کن.","۴) چند ردیف و جمع‌های کلیدی را با برنامه تطبیق بده.","۵) قبل از ارسال، داده حساس یا اطلاعاتی که نباید منتشر شود را بررسی کن."],"mistakes":["فیلتر فعال را بدون توجه به خروجی نهایی رها نکن.","PDF را جایگزین داده خام برای تحلیل نکن.","فایل خروجی را بدون کنترل چند رکورد اول و آخر منتشر نکن."],"read":["Excel/CSV برای پردازش مجدد مناسب‌ترند؛ PDF برای خواندن و ارائه."]},"کتابخانه":{"before":["بخش درست را انتخاب کن: کتاب، پادکست، کتاب صوتی یا محتوای انگیزشی.","برای هر مورد عنوان، نویسنده/سازنده و توضیح کوتاه و قابل جست‌وجو ثبت کن."],"workflow":["۱) دسته محتوای موردنظر را باز کن.","۲) مورد جدید را با عنوان واضح اضافه کن.","۳) فایل یا رسانه را در صورت نیاز متصل کن و اطلاعات آن را بررسی کن.","۴) برای محتوای صوتی، پخش را آزمایش کن و از نام فایل‌های مبهم پرهیز کن.","۵) موارد قدیمی یا تکراری را دوره‌ای مرتب کن."],"mistakes":["رسانه‌های حجیم غیرضروری را همزمان بارگذاری نکن.","یک محتوا را با چند نام متفاوت ثبت نکن.","کتابخانه را با داده معاملاتی و یادداشت‌های عملیاتی قاطی نکن."],"read":["هدف کتابخانه دسترسی سریع و منظم به منابع است؛ ساختار نام‌گذاری خوب، جست‌وجو و استفاده روزمره را بهتر می‌کند."]},"تنظیمات":{"before":["قبل از تغییرات حساس، Backup تازه بگیر.","اگر تنظیمی روی Sync، Storage یا داده‌های موجود اثر می‌گذارد، متن هشدار را کامل بخوان."],"workflow":["۱) بخش تنظیمات مرتبط را باز کن.","۲) مقدار فعلی را یادداشت کن، مخصوصاً قبل از تغییرات حساس.","۳) تغییر را اعمال و نتیجه را در همان بخش بررسی کن.","۴) اگر Sync/Storage تغییر کرده، وضعیت همگام‌سازی و داده‌های نمونه را کنترل کن.","۵) برای تغییرات بزرگ، Backup و Restore آزمایشی را در صورت امکان بررسی کن."],"mistakes":["گزینه Replace/Reset را بدون Backup اجرا نکن.","تنظیمات حساب‌های مختلف را با هم اشتباه نکن.","بعد از تغییر زبان یا تم، عملکرد داده‌ها را با ظاهر اشتباه نگیری."],"read":["تنظیمات زیرساخت برنامه را کنترل می‌کند؛ تغییرات داده‌ای را همیشه با احتیاط و قابل‌بازگشت انجام بده."]},"درباره برنامه":{"before":["برای بررسی نسخه، شماره Version و Version Code را از همین بخش یا بروزرسانی کنترل کن."],"workflow":["۱) اطلاعات نسخه و وضعیت فعلی برنامه را مرور کن.","۲) Changelog را برای تغییرات اخیر بخوان.","۳) هنگام گزارش خطا، نسخه، دستگاه/مرورگر و شرح مرحله‌ای مشکل را ثبت کن."],"mistakes":["شماره نسخه را با Version Code اشتباه نکن.","برای تشخیص مشکل فقط به پیام خطا اکتفا نکن؛ مراحل بازتولید را هم ثبت کن."],"read":["این بخش مرجع شناسایی نسخه و اطلاعات محصول است و برای عیب‌یابی، گزارش نسخه دقیق بسیار مهم است."]},"متریک‌های روانشناسی رفتاری":{"before":["اطلاعات نتیجه، حجم معامله و ترتیب زمانی معاملات باید تا حد ممکن کامل باشد.","این متریک‌ها ابزار خودارزیابی هستند، نه تشخیص پزشکی یا روان‌شناختی."],"workflow":["۱) معاملات را با نتیجه و حجم واقعی ثبت کن.","۲) Streak و تغییر Lot Size را در توالی زمانی بررسی کن.","۳) نشانه‌های Tilt-like، Revenge Risk و رفتار پس از زیان را با یادداشت معامله تطبیق بده.","۴) الگوهای تکرارشونده را به یک اقدام مشخص در پلن تبدیل کن؛ مثلاً توقف بعد از چند باخت."],"mistakes":["یک شاخص را به‌تنهایی برچسب قطعی رفتاری تلقی نکن.","افزایش حجم بعد از برد را خودکاراً Revenge Trading ندان؛ زمینه مهم است.","از این متریک‌ها برای سرزنش خود استفاده نکن؛ هدف اصلاح فرآیند است."],"read":["اگر یک الگوی رفتاری بارها در شرایط مشابه تکرار شود، ارزش آن برای بازطراحی فرآیند بیشتر می‌شود."]},"قالب‌های استاندارد CSV بروکرها":{"before":["قالب نزدیک به خروجی بروکر را انتخاب کن.","هدر، جداکننده، اعشار، تاریخ/ساعت و timezone فایل را قبل از Import بررسی کن."],"workflow":["۱) CSV را با یک ردیف Header معتبر آماده کن.","۲) ستون‌های Ticket/Time/Symbol/Side/Volume/Price/P&L را در صورت وجود بررسی کن.","۳) Import را اجرا کن و mapping تشخیص‌داده‌شده را کنترل کن.","۴) تعداد رکورد، چند معامله نمونه و جمع P&L را با فایل اصلی تطبیق بده.","۵) فقط پس از تأیید، داده را وارد فرآیند Sync کن."],"mistakes":["ردیف‌های Header را حذف یا چندردیفی نکن.","اعشار و فرمت تاریخ را با Excel به‌صورت ناخواسته تغییر نده.","بدون بررسی mapping، Import انبوه انجام نده."],"read":["موفقیت Import یعنی داده درست تفسیر شده، نه صرفاً اینکه فایل بدون خطا خوانده شده باشد."]},"نمای پرتفوی و چندحسابی":{"before":["حساب‌ها، ارز پایه و بازه زمانی را هم‌تراز کن.","مشخص کن مقایسه تو بر اساس P&L، درصد بازده، ریسک یا کیفیت اجراست."],"workflow":["۱) حساب‌های موردنظر را انتخاب کن.","۲) عملکرد کل و هر حساب را جدا ببین.","۳) P&L، Win Rate، Drawdown و سهم هر حساب را مقایسه کن.","۴) اختلاف اندازه حساب و ارز پایه را هنگام تفسیر لحاظ کن."],"mistakes":["P&L حساب بزرگ را مستقیماً با P&L حساب کوچک مقایسه نکن.","تعداد معاملات متفاوت را نادیده نگیر.","یک حساب ضعیف را با تجمیع کل پنهان نکن."],"read":["نمای تجمیعی برای تصویر کل خوب است؛ برای علت‌یابی همیشه به سطح حساب برگرد."]},"Prop Firm":{"before":["قوانین واقعی شرکت را از قرارداد/داشبورد رسمی همان شرکت بردار.","Daily Loss، Maximum Loss، Profit Target و هر محدودیت زمانی را دقیق ثبت کن."],"workflow":["۱) سرمایه شروع و محدودیت‌های واقعی را وارد کن.","۲) حد زیان روزانه و کل را تنظیم کن.","۳) Profit Target و حداقل روزهای لازم را ثبت کن.","۴) قبل از معامله Status و فاصله تا محدودیت‌ها را بررسی کن.","۵) تغییر قوانین شرکت را به‌روزرسانی و تاریخ آن را ثبت کن."],"mistakes":["مقادیر پیش‌فرض برنامه را قانون رسمی شرکت فرض نکن.","Daily Loss و Maximum Loss را یکی ندان.","برای نزدیک‌شدن به Target، ریسک را ناگهانی افزایش نده."],"read":["این بخش ابزار پایش است؛ معیار نهایی همیشه قوانین جاری همان شرکت است."]},"Trade Replay":{"before":["داده OHLC، نماد، تایم‌فریم و timezone را بررسی کن.","اگر هدف بررسی کیفیت تصمیم است، نتیجه معامله را قبل از Replay تا حد امکان پنهان نگه دار."],"workflow":["۱) داده OHLC را وارد کن.","۲) نماد و تایم‌فریم را کنترل کن.","۳) کندل‌ها را مرحله‌به‌مرحله جلو ببر و قبل از هر بخش سناریوی تصمیم را ثبت کن.","۴) Entry، Stop، Target و مدیریت را با مسیر واقعی قیمت مقایسه کن.","۵) MFE/MAE و خروج را برای بررسی مدیریت معامله تحلیل کن."],"mistakes":["Replay را با شبیه‌سازی دقیق تیک و اسلیپیج یکی ندان.","بعد از دیدن آینده، تصمیم گذشته را به‌عنوان تصمیم واقعی قضاوت نکن.","داده ناقص یا timezone اشتباه را تحلیل نکن."],"read":["Replay برای آموزش و تحلیل فرآیند تصمیم‌گیری عالی است، اما نتیجه آن تضمین‌کننده عملکرد زنده نیست."]},"همگام‌سازی با ژورنال":{"before":["قبل از Sync، Backup بگیر و وضعیت آخرین Sync را ببین.","منبع معتبر برای هر نوع داده را مشخص کن؛ مثلاً Statement برای Fill واقعی و Journal برای یادداشت/ارزیابی."],"workflow":["۱) Statement/MT5 را وارد یا Sync کن.","۲) موارد Match، Open، Missing و Conflict را جداگانه بررسی کن.","۳) برای موارد قابل بستن، تطبیق حجم/زمان/نماد/قیمت را کنترل کن.","۴) Conflict را با انتخاب نسخه معتبر یا Merge حل کن.","۵) بعد از Sync تعداد معاملات و چند رکورد نمونه را دوباره بررسی کن."],"mistakes":["بدون Backup عملیات Merge/Replace انجام نده.","تفاوت timezone یا ticket را با Conflict واقعی اشتباه نگیر.","یک رکورد مشکوک را به‌صورت انبوه تأیید نکن."],"read":["هدف Sync جلوگیری از دوباره‌کاری و از دست رفتن داده است؛ «همگام شد» باید با بررسی نتیجه تأیید شود."]},"امنیت، پشتیبان، ذخیره ابری و Namello Backend":{"before":["بدان کدام داده محلی و کدام داده ابری است.","قبل از اتصال حساب یا تغییر Storage، Backup مستقل داشته باش."],"workflow":["۱) منبع Storage و وضعیت اتصال را بررسی کن.","۲) Backup را بساز و زمان آخرین نسخه موفق را ثبت کن.","۳) Cloud/Backend را فقط در صورت نیاز فعال کن.","۴) وضعیت Sync و Conflict را کنترل کن.","۵) اطلاعات ورود و کلیدهای حساس را خارج از متن‌های قابل Export نگه دار."],"mistakes":["Backup را روی همان محل آسیب‌پذیر به‌عنوان تنها نسخه نگه ندار.","اعتبار Sync را فقط از تغییر ظاهری یک صفحه نتیجه نگیر.","کلیدها و رمزها را در CSV/JSON قابل اشتراک قرار نده."],"read":["امنیت خوب یعنی داده قابل بازیابی، اتصال قابل کنترل و حداقل افشای اطلاعات حساس."]},"MT5 · دریافت خودکار OHLC و MFE/MAE":{"before":["Bridge، نماد، تایم‌فریم و timezone را بررسی کن.","مطمئن شو Symbol Mapping بین MT5 و Namello درست است."],"workflow":["۱) اتصال Bridge را برقرار کن.","۲) نماد و تایم‌فریم موردنیاز را انتخاب کن.","۳) دریافت OHLC را اجرا و چند کندل را کنترل کن.","۴) معامله مرتبط را برای محاسبه MFE/MAE تطبیق بده.","۵) خروجی را با داده مرجع MT5 مقایسه کن."],"mistakes":["timezone اشتباه می‌تواند کندل و MFE/MAE را جابه‌جا کند.","Symbol با نام متفاوت را بدون mapping درست تحلیل نکن.","داده ناقص را با صفر یا مقدار خالی به‌عنوان واقعیت فرض نکن."],"read":["MFE/MAE زمانی ارزش تحلیلی دارد که داده قیمت و زمان معامله صحیح و هم‌تراز باشد."]},"خروجی خام برای توسعه‌دهندگان":{"before":["هدف خروجی و Schema موردنیاز ابزار مقصد را مشخص کن.","قبل از اشتراک، فیلدهای حساس و داده‌های شخصی را بررسی کن."],"workflow":["۱) نوع داده و فرمت JSON/CSV را انتخاب کن.","۲) خروجی را بساز و Schema/Version را کنار آن ثبت کن.","۳) چند رکورد را از نظر نوع داده و نام فیلد بررسی کن.","۴) در Python/Excel/ابزار مقصد، mapping را ثابت نگه دار."],"mistakes":["نام فیلدها را بدون ثبت mapping تغییر نده.","Raw Export را بدون حذف اطلاعات حساس به دیگران ارسال نکن.","داده خام را بدون بررسی timezone و units پردازش نکن."],"read":["خروجی خام باید قابل بازتولید و قابل فهم برای ابزار مقصد باشد؛ Schema بخشی از خود داده فنی است."]},"پشتیبان‌گیری و بازیابی داده‌ها":{"before":["مقصد Backup را امن و جدا از نسخه اصلی انتخاب کن.","قبل از Restore مشخص کن که عملیات Merge است یا Replace."],"workflow":["۱) Backup بساز و تاریخ/نسخه آن را مشخص کن.","۲) برای Restore فایل را از نظر منبع و زمان بررسی کن.","۳) قبل از Replace از داده فعلی نسخه پشتیبان بگیر.","۴) Restore را اجرا کن.","۵) حساب‌ها، تنظیمات و چند معامله قدیمی/جدید را بررسی کن."],"mistakes":["آخرین Backup را بدون بررسی سالم بودن فایل قابل اتکا ندان.","Replace را با Restore انتخابی اشتباه نکن.","بعد از Restore بدون کنترل داده، Sync یا Import انبوه انجام نده."],"read":["Backup زمانی مفید است که هم وجود داشته باشد و هم بتوانی واقعاً از آن Restore کنی."]},"فیلدهای سفارشی معامله":{"before":["قبل از ساخت فیلد مشخص کن چه سؤال تحلیلی قرار است پاسخ داده شود.","نام و نوع فیلد را طوری انتخاب کن که در آینده هم معنی آن روشن بماند."],"workflow":["۱) فیلد را با نام ثابت تعریف کن.","۲) نوع داده مناسب را انتخاب کن.","۳) در چند معامله آزمایشی مقداردهی کن.","۴) نمایش و خروجی فیلد را بررسی کن.","۵) پس از تثبیت، نام/معنای فیلد را تغییر نده مگر با ثبت Migration."],"mistakes":["برای یک مفهوم چند فیلد هم‌معنی نساز.","فیلد عددی را با متن‌های مختلف پر نکن.","فیلدی که هیچ تصمیمی را بهتر نمی‌کند فقط برای جمع‌کردن داده نساز."],"read":["هر فیلد سفارشی باید یک سؤال تحلیلی مشخص داشته باشد؛ اگر پاسخ آن در تصمیم‌گیری استفاده نمی‌شود، احتمالاً فیلد اضافه است."]},"ارزیابی سقف/کف قیمت":{"before":["بازه زمانی و تایم‌فریم بررسی را مشخص کن.","تعداد تکرار را در کنار ساختار بازار ببین."],"workflow":["۱) داده و بازه را انتخاب کن.","۲) تکرار High/Low را مشاهده کن.","۳) آن را با روند، رنج و سطوح مهم مقایسه کن.","۴) اگر الگوی تکرارشونده‌ای پیدا شد، آن را به‌عنوان فرضیه وارد ژورنال کن و بعداً آزمون کن."],"mistakes":["تکرار سقف/کف را به‌عنوان تضمین برگشت قیمت ندان.","تعداد تکرار را بدون توجه به طول بازه مقایسه نکن.","از نمونه کوچک قانون قطعی نساز."],"read":["این معیار بیشتر برای ساخت فرضیه و زمینه‌سازی مفید است تا پیش‌بینی قطعی جهت قیمت."]},"ترتیب لایه‌ها":{"before":["لایه‌هایی را که در گردش‌کار روزانه بیشتر استفاده می‌کنی شناسایی کن."],"workflow":["۱) ترتیب فعلی را بررسی کن.","۲) لایه‌ها را با کنترل‌های بالا/پایین جابه‌جا کن.","۳) ترتیب جدید را بررسی و ذخیره کن.","۴) اگر نتیجه مناسب نبود، ترتیب پیش‌فرض را برگردان."],"mistakes":["لایه‌های کم‌استفاده را صرفاً به‌خاطر نام یا ظاهر در ابتدای فهرست نگذار."],"read":["ترتیب خوب باید تعداد لمس/کلیک برای رسیدن به کارهای روزمره را کم کند."]},"چیدمان نمایش منوی لایه‌ها":{"before":["اندازه صفحه و تعداد لایه‌ها را در نظر بگیر."],"workflow":["۱) حالت افقی یا عمودی را انتخاب کن.","۲) منوی لایه‌ها را روی دستگاه واقعی بررسی کن.","۳) خوانایی عنوان‌ها و دسترسی به لایه‌های پرکاربرد را بسنج.","۴) در صورت نیاز حالت دیگر را امتحان کن."],"mistakes":["تنها بر اساس ظاهر یک دستگاه تصمیم نگیر؛ روی اندازه صفحه واقعی خودت تست کن."],"read":["هدف این تنظیم، کوتاه‌کردن مسیر ناوبری و حفظ خوانایی است."]},"بروزرسانی برنامه":{"before":["Version، Version Code و وضعیت Backup را بررسی کن.","در صورت تغییر بزرگ، Changelog را قبل از نصب بخوان."],"workflow":["۱) نسخه فعلی را یادداشت کن.","۲) بررسی نسخه جدید را اجرا کن.","۳) Changelog و تغییرات مهم را مرور کن.","۴) Backup تازه داشته باش.","۵) بروزرسانی را اجرا و پس از آن بخش‌های اصلی، داده‌ها و Sync را بررسی کن."],"mistakes":["بدون Backup بروزرسانی مهم را انجام نده.","فقط تغییر ظاهری را نشانه سلامت کامل نسخه جدید ندان.","Version Name را با Version Code یکی ندان."],"read":["بعد از بروزرسانی، یک Smoke Test کوتاه از ژورنال، داشبورد، خروجی و Sync انجام بده."]},"فضای ذخیره‌سازی":{"before":["بفهم داده فعلی کجا ذخیره می‌شود و مقصد جدید چیست.","قبل از Migration یا تغییر Storage، Backup مستقل بساز."],"workflow":["۱) مصرف و وضعیت Storage را بررسی کن.","۲) مقصد جدید را انتخاب/آماده کن.","۳) Migration را اجرا کن.","۴) تعداد رکورد و چند داده نمونه را با منبع مقایسه کن.","۵) تا تأیید کامل، داده منبع را حذف نکن."],"mistakes":["Storage را در میانه Migration پاک نکن.","موفقیت پیام Migration را بدون بررسی داده‌ها نپذیر."],"read":["مهاجرت موفق یعنی داده قابل خواندن و قابل استفاده باقی مانده، نه فقط انتقال فایل."]},"تم لایه‌های برنامه":{"before":["تمی را انتخاب کن که خوانایی متن، نمودار و وضعیت‌های هشدار را حفظ کند."],"workflow":["۱) تم را انتخاب کن.","۲) سربرگ‌ها، کارت‌ها، نمودارها و متن کم‌رنگ را بررسی کن.","۳) روی دستگاه اصلی خودت چند بخش را باز کن.","۴) اگر خوانایی کم بود، تم دیگری انتخاب کن."],"mistakes":["صرفاً زیبایی را بر خوانایی مقدم نکن.","رنگ یک شاخص را با معنی رنگی آن در تم دیگر اشتباه نگیر."],"read":["تم خوب باید در استفاده طولانی خستگی کمتر و تشخیص وضعیت‌ها را سریع‌تر کند."]},"تم آیکون برنامه":{"before":["اگر PWA نصب شده، بدان تغییر آیکون داخل برنامه الزاماً میانبر قبلی را فوراً تغییر نمی‌دهد."],"workflow":["۱) تم آیکون را انتخاب کن.","۲) نمایش آیکون داخل برنامه را بررسی کن.","۳) اگر میانبر Home قدیمی است، آن را طبق روش نصب دستگاه Refresh/Re-add کن."],"mistakes":["تغییر آیکون داخلی را با تغییر فایل APK یا میانبر سیستم یکی ندان."],"read":["هدف این تنظیم هویت بصری برنامه است؛ رفتار میانبر به سیستم‌عامل و روش نصب وابسته است."]},"بروزرسانی":{"before":["شماره نسخه و Version Code را کنترل کن."],"workflow":["۱) نسخه فعلی را بخوان.","۲) Changelog را مرور کن.","۳) برای هر قابلیت جدید، راهنمای همان قابلیت را باز کن."],"mistakes":["نسخه را هنگام گزارش خطا ناقص یا تقریبی اعلام نکن."],"read":["این بخش مرجع سریع وضعیت نسخه و تغییرات جاری است."]}};
+const NM_HELP_PLAYBOOKS = {"داشبورد عملکرد":{"before":["ابتدا بازه زمانی، منبع داده و حساب‌های مبنا را مشخص کن؛ اگر این سه مورد تغییر کنند، نتیجه آمار هم تغییر می‌کند.","قبل از نتیجه‌گیری بررسی کن تعداد معاملات برای مقایسه کافی باشد و داده تکراری یا ناقص نداشته باشی."],"workflow":["۱) منبع داده را انتخاب کن؛ ژورنال برای داده‌های ثبت‌شده و Statement برای داده‌های واردشده مناسب است.","۲) حساب‌ها، بازه زمانی و فیلترهای موردنظر را تنظیم کن.","۳) ابتدا P&L، Equity/Balance و Drawdown را ببین؛ بعد Win Rate، Expectancy و تحلیل‌های تفکیکی را بررسی کن.","۴) عملکرد را به تفکیک نماد، سیستم، نشست، جهت و شرایط بازار مقایسه کن تا علت نتیجه روشن‌تر شود."],"mistakes":["فقط با Win Rate درباره خوب یا بد بودن عملکرد قضاوت نکن؛ میانگین برد، میانگین باخت و R نیز مهم‌اند.","نتیجه یک یا چند معامله را به‌عنوان Edge قطعی تفسیر نکن.","حساب‌ها یا ارزهای متفاوت را بدون توجه به واحد پول و اندازه حساب با هم مقایسه نکن."],"read":["P&L مثبت با Drawdown بالا لزوماً به معنی عملکرد باکیفیت نیست.","Expectancy مثبت در کنار نمونه آماری کافی، نشانه بهتری برای بررسی یک سیستم است؛ نه تضمین آینده."]},"نشست‌ها":{"before":["منطقه زمانی و ساعت دستگاه را بررسی کن؛ زمان Kill Zone و Session مستقیماً به زمان وابسته است.","مشخص کن فقط می‌خواهی زمان‌ها را مشاهده کنی یا برای آن‌ها آلارم هم لازم داری."],"workflow":["۱) نشست‌های موردنظر را فعال یا غیرفعال کن.","۲) زمان شروع/پایان Kill Zone و Silver Bullet را بررسی کن و با ساعت بازار خودت تطبیق بده.","۳) در صورت نیاز آلارم را فقط برای پنجره‌های واقعاً مورد استفاده فعال کن.","۴) هم‌پوشانی نشست‌ها را به‌عنوان زمینه نقدشوندگی بررسی کن و سپس ساختار قیمت و ستاپ را ارزیابی کن."],"mistakes":["از Session یا Kill Zone به‌تنهایی سیگنال ورود نساز.","تفاوت DST و منطقه زمانی را نادیده نگیر.","آلارم‌های زیاد فعال نکن؛ فقط زمان‌هایی را نگه دار که بخشی از پلن معاملاتی تو هستند."],"read":["Session زمان فعالیت/نقدشوندگی را توصیف می‌کند، نه جهت قطعی قیمت.","هم‌پوشانی زمانی زمانی ارزشمندتر است که با ساختار بازار، سطح و ستاپ هم‌جهت باشد."]},"ژورنال":{"before":["قبل از ثبت معامله، حساب، نماد، جهت، حجم و زمان را آماده داشته باش.","اطلاعات «قبل از معامله» را تا حد امکان پیش از دیدن نتیجه ثبت کن تا بازبینی کمتر دچار hindsight شود."],"workflow":["۱) حساب و معامله را ایجاد/انتخاب کن.","۲) قبل از ورود، Setup، دلیل ورود، سطوح راهنما، ریسک، Stop و هدف را ثبت کن.","۳) در طول معامله مدیریت، تغییرات و مشاهدات مهم را ثبت کن.","۴) بعد از بسته‌شدن، نتیجه، R، MFE/MAE، خطاهای اجرایی و ارزیابی روانشناسی را تکمیل کن.","۵) در مرور دوره‌ای، معاملات مشابه را گروه‌بندی و الگوهای تکرارشونده را استخراج کن."],"mistakes":["فقط نتیجه مالی را ثبت نکن؛ «چرا وارد شدم؟» و «آیا طبق پلن عمل کردم؟» را هم ثبت کن.","بعد از برد، کیفیت تصمیم را با نتیجه یکی ندان؛ یک تصمیم بد می‌تواند برنده شود.","فیلدهای مهم را با نام‌های متغیر و مترادف‌های متعدد ثبت نکن."],"read":["R برای مقایسه معاملات مستقل از اندازه حساب مفید است.","MFE/MAE نشان می‌دهد معامله در طول مسیر چه ظرفیتی برای سود/زیان داشته، نه اینکه الزاماً خروج بهتر یا بدتر بوده است."]},"ارزیابی رفتار بازار":{"before":["بازه و تایم‌فریم ارزیابی را با معامله هماهنگ کن.","مشاهده بازار را قبل از نتیجه معامله ثبت کن تا نتیجه، مشاهده را تحریف نکند."],"workflow":["۱) روند، رنج، نوسان و جهت غالب را مشخص کن.","۲) ساختار سقف/کف و رفتار قیمت اطراف سطوح مهم را ثبت کن.","۳) رفتار قبل از ورود و بعد از ورود را جداگانه یادداشت کن.","۴) در تحلیل‌های بعدی نتایج را بر اساس شرایط بازار گروه‌بندی کن."],"mistakes":["هر حرکت سریع را Trend و هر توقف را Range فرض نکن؛ ساختار چند کندل/تایم‌فریم را ببین.","شرایط بازار را با نتیجه معامله قاطی نکن.","از یک نمونه کوچک برای ساختن قانون قطعی استفاده نکن."],"read":["هدف این بخش توصیف شرایط واقعی بازار است؛ پیش‌بینی قطعی نیست.","اگر یک Setup فقط در یک رژیم بازار خوب عمل می‌کند، آن محدودیت را در سیستم ثبت کن."]},"تقویم معاملاتی":{"before":["تقویم و منطقه زمانی مورد استفاده را مشخص کن.","برای مقایسه، بازه‌های زمانی مشابه را انتخاب کن؛ مثلاً چند هفته یا چند ماه، نه فقط یک روز."],"workflow":["۱) تقویم را انتخاب و روز موردنظر را باز کن.","۲) معاملات، رویدادها و عملکرد همان روز را مرور کن.","۳) روزهای مشابه را با هم مقایسه کن.","۴) الگوهای تکرارشونده را برای برنامه‌ریزی آینده یادداشت کن."],"mistakes":["یک روز غیرعادی را نماینده کل عملکرد فرض نکن.","تاریخ شمسی و میلادی را هنگام خروجی یا اشتراک گزارش اشتباه نکن.","اثر اخبار یا تعطیلات را بدون ثبت زمینه از آمار حذف نکن."],"read":["تقویم برای کشف الگوهای زمانی مناسب است؛ علت‌سنجی نیاز به داده و بررسی بیشتر دارد."]},"مدیریت مالی":{"before":["منبع ارزیابی مالی و حساب‌های مبنا را مشخص کن.","واحد پول، موجودی شروع و بازه زمانی را برای مقایسه بررسی کن."],"workflow":["۱) منبع مالی را انتخاب کن.","۲) حساب‌ها و بازه را مشخص کن.","۳) Balance/Equity، P&L، Drawdown و روند سرمایه را بررسی کن.","۴) ریسک هر معامله و ریسک تجمعی را کنار بازده ببین.","۵) تغییرات مهم را با داده ژورنال تطبیق بده."],"mistakes":["فقط سود دلاری را مقایسه نکن؛ درصد بازده و Drawdown را هم ببین.","Equity و Balance را یکی فرض نکن.","ریسک معامله را بدون توجه به Stop و حجم واقعی محاسبه نکن."],"read":["بازده مناسب همراه با Drawdown کنترل‌شده معمولاً تصویر کامل‌تری از کیفیت مدیریت مالی می‌دهد."]},"سیستم‌های معاملاتی":{"before":["برای هر سیستم یک نام ثابت، کوتاه و یکتا انتخاب کن.","قواعد را قبل از نسبت‌دادن معاملات به سیستم مشخص کن."],"workflow":["۱) سیستم را تعریف و قواعد ورود، مدیریت و خروج را ثبت کن.","۲) شرایط معتبر/نامعتبر بودن Setup را مشخص کن.","۳) معاملات را با همان نام سیستم برچسب‌گذاری کن.","۴) پس از نمونه کافی، Win Rate، Expectancy، R و Drawdown هر سیستم را مقایسه کن."],"mistakes":["قواعد سیستم را وسط دوره بدون ثبت نسخه تغییر نده.","معاملات خارج از قواعد را برای بالا بردن آمار داخل سیستم نگذار.","نام‌های مشابه برای یک سیستم نساز."],"read":["سیستم خوب باید قابل تکرار و قابل اندازه‌گیری باشد.","مقایسه سیستم‌ها باید با نمونه‌های قابل‌مقایسه و شرایط بازار مشابه انجام شود."]},"استراتژی معاملاتی و مالی":{"before":["حد ریسک، سقف زیان، هدف و محدودیت‌های اجرایی را قبل از معامله مشخص کن.","قواعد را به شکل قابل بررسی بنویس، نه عبارت‌های مبهمی مثل «بازار خوب بود»."],"workflow":["۱) هدف و محدودیت ریسک را تعیین کن.","۲) شرایط ورود، ابطال Setup، Stop، هدف و مدیریت را مکتوب کن.","۳) Position Sizing را بر اساس ریسک و فاصله Stop تعیین کن.","۴) پس از هر دوره، نتایج واقعی را با قواعد مقایسه کن.","۵) تغییرات استراتژی را نسخه‌بندی و دلیل تغییر را ثبت کن."],"mistakes":["استراتژی را بعد از چند باخت صرفاً برای جبران زیان عوض نکن.","ریسک را برای رسیدن سریع‌تر به هدف افزایش نده.","قواعدی که قابل اندازه‌گیری نیستند را معیار آماری قرار نده."],"read":["استراتژی باید قبل از اجرا قابل توضیح باشد و بعد از اجرا قابل ارزیابی.","تغییرات مهم را با داده کافی و دوره آزمون مشخص بررسی کن."]},"خروجی کل":{"before":["قبل از خروجی، فیلتر حساب، بازه زمانی و دامنه داده را بررسی کن.","اگر هدف تحلیل عددی است، Excel/CSV را ترجیح بده؛ اگر هدف ارائه و مطالعه است، PDF مناسب‌تر است."],"workflow":["۱) دامنه داده و حساب‌های موردنظر را کنترل کن.","۲) فرمت خروجی را انتخاب کن.","۳) خروجی را بساز و فایل را ذخیره کن (در برنامه‌ی نصبی اندروید: Excel/CSV در پوشه‌ی Download ذخیره می‌شود؛ برای PDF در پنجره‌ی چاپ، «ذخیره به‌صورت PDF» را بزن).","۴) چند ردیف و جمع‌های کلیدی را با برنامه تطبیق بده.","۵) قبل از ارسال، داده حساس یا اطلاعاتی که نباید منتشر شود را بررسی کن."],"mistakes":["فیلتر فعال را بدون توجه به خروجی نهایی رها نکن.","PDF را جایگزین داده خام برای تحلیل نکن.","فایل خروجی را بدون کنترل چند رکورد اول و آخر منتشر نکن."],"read":["Excel/CSV برای پردازش مجدد مناسب‌ترند؛ PDF برای خواندن و ارائه."]},"کتابخانه":{"before":["بخش درست را انتخاب کن: کتاب، پادکست، کتاب صوتی یا محتوای انگیزشی.","برای هر مورد عنوان، نویسنده/سازنده و توضیح کوتاه و قابل جست‌وجو ثبت کن."],"workflow":["۱) دسته محتوای موردنظر را باز کن.","۲) مورد جدید را با عنوان واضح اضافه کن.","۳) فایل یا رسانه را در صورت نیاز متصل کن و اطلاعات آن را بررسی کن.","۴) برای محتوای صوتی، پخش را آزمایش کن و از نام فایل‌های مبهم پرهیز کن.","۵) موارد قدیمی یا تکراری را دوره‌ای مرتب کن."],"mistakes":["رسانه‌های حجیم غیرضروری را همزمان بارگذاری نکن.","یک محتوا را با چند نام متفاوت ثبت نکن.","کتابخانه را با داده معاملاتی و یادداشت‌های عملیاتی قاطی نکن."],"read":["هدف کتابخانه دسترسی سریع و منظم به منابع است؛ ساختار نام‌گذاری خوب، جست‌وجو و استفاده روزمره را بهتر می‌کند."]},"تنظیمات":{"before":["قبل از تغییرات حساس، Backup تازه بگیر.","اگر تنظیمی روی Sync، Storage یا داده‌های موجود اثر می‌گذارد، متن هشدار را کامل بخوان."],"workflow":["۱) بخش تنظیمات مرتبط را باز کن.","۲) مقدار فعلی را یادداشت کن، مخصوصاً قبل از تغییرات حساس.","۳) تغییر را اعمال و نتیجه را در همان بخش بررسی کن.","۴) اگر Sync/Storage تغییر کرده، وضعیت همگام‌سازی و داده‌های نمونه را کنترل کن.","۵) برای تغییرات بزرگ، Backup و Restore آزمایشی را در صورت امکان بررسی کن."],"mistakes":["گزینه Replace/Reset را بدون Backup اجرا نکن.","تنظیمات حساب‌های مختلف را با هم اشتباه نکن.","بعد از تغییر زبان یا تم، عملکرد داده‌ها را با ظاهر اشتباه نگیری."],"read":["تنظیمات زیرساخت برنامه را کنترل می‌کند؛ تغییرات داده‌ای را همیشه با احتیاط و قابل‌بازگشت انجام بده."]},"درباره برنامه":{"before":["برای بررسی نسخه، شماره Version و Version Code را از همین بخش یا بروزرسانی کنترل کن."],"workflow":["۱) اطلاعات نسخه و وضعیت فعلی برنامه را مرور کن.","۲) Changelog را برای تغییرات اخیر بخوان.","۳) هنگام گزارش خطا، نسخه، دستگاه/مرورگر و شرح مرحله‌ای مشکل را ثبت کن."],"mistakes":["شماره نسخه را با Version Code اشتباه نکن.","برای تشخیص مشکل فقط به پیام خطا اکتفا نکن؛ مراحل بازتولید را هم ثبت کن."],"read":["این بخش مرجع شناسایی نسخه و اطلاعات محصول است و برای عیب‌یابی، گزارش نسخه دقیق بسیار مهم است."]},"متریک‌های روانشناسی رفتاری":{"before":["اطلاعات نتیجه، حجم معامله و ترتیب زمانی معاملات باید تا حد ممکن کامل باشد.","این متریک‌ها ابزار خودارزیابی هستند، نه تشخیص پزشکی یا روان‌شناختی."],"workflow":["۱) معاملات را با نتیجه و حجم واقعی ثبت کن.","۲) Streak و تغییر Lot Size را در توالی زمانی بررسی کن.","۳) نشانه‌های Tilt-like، Revenge Risk و رفتار پس از زیان را با یادداشت معامله تطبیق بده.","۴) الگوهای تکرارشونده را به یک اقدام مشخص در پلن تبدیل کن؛ مثلاً توقف بعد از چند باخت."],"mistakes":["یک شاخص را به‌تنهایی برچسب قطعی رفتاری تلقی نکن.","افزایش حجم بعد از برد را خودکاراً Revenge Trading ندان؛ زمینه مهم است.","از این متریک‌ها برای سرزنش خود استفاده نکن؛ هدف اصلاح فرآیند است."],"read":["اگر یک الگوی رفتاری بارها در شرایط مشابه تکرار شود، ارزش آن برای بازطراحی فرآیند بیشتر می‌شود."]},"قالب‌های استاندارد CSV بروکرها":{"before":["قالب نزدیک به خروجی بروکر را انتخاب کن.","هدر، جداکننده، اعشار، تاریخ/ساعت و timezone فایل را قبل از Import بررسی کن."],"workflow":["۱) CSV را با یک ردیف Header معتبر آماده کن.","۲) ستون‌های Ticket/Time/Symbol/Side/Volume/Price/P&L را در صورت وجود بررسی کن.","۳) Import را اجرا کن و mapping تشخیص‌داده‌شده را کنترل کن.","۴) تعداد رکورد، چند معامله نمونه و جمع P&L را با فایل اصلی تطبیق بده.","۵) فقط پس از تأیید، داده را وارد فرآیند Sync کن."],"mistakes":["ردیف‌های Header را حذف یا چندردیفی نکن.","اعشار و فرمت تاریخ را با Excel به‌صورت ناخواسته تغییر نده.","بدون بررسی mapping، Import انبوه انجام نده."],"read":["موفقیت Import یعنی داده درست تفسیر شده، نه صرفاً اینکه فایل بدون خطا خوانده شده باشد."]},"نمای پرتفوی و چندحسابی":{"before":["حساب‌ها، ارز پایه و بازه زمانی را هم‌تراز کن.","مشخص کن مقایسه تو بر اساس P&L، درصد بازده، ریسک یا کیفیت اجراست."],"workflow":["۱) حساب‌های موردنظر را انتخاب کن.","۲) عملکرد کل و هر حساب را جدا ببین.","۳) P&L، Win Rate، Drawdown و سهم هر حساب را مقایسه کن.","۴) اختلاف اندازه حساب و ارز پایه را هنگام تفسیر لحاظ کن."],"mistakes":["P&L حساب بزرگ را مستقیماً با P&L حساب کوچک مقایسه نکن.","تعداد معاملات متفاوت را نادیده نگیر.","یک حساب ضعیف را با تجمیع کل پنهان نکن."],"read":["نمای تجمیعی برای تصویر کل خوب است؛ برای علت‌یابی همیشه به سطح حساب برگرد."]},"Prop Firm":{"before":["قوانین واقعی شرکت را از قرارداد/داشبورد رسمی همان شرکت بردار.","Daily Loss، Maximum Loss، Profit Target و هر محدودیت زمانی را دقیق ثبت کن."],"workflow":["۱) سرمایه شروع و محدودیت‌های واقعی را وارد کن.","۲) حد زیان روزانه و کل را تنظیم کن.","۳) Profit Target و حداقل روزهای لازم را ثبت کن.","۴) قبل از معامله Status و فاصله تا محدودیت‌ها را بررسی کن.","۵) تغییر قوانین شرکت را به‌روزرسانی و تاریخ آن را ثبت کن."],"mistakes":["مقادیر پیش‌فرض برنامه را قانون رسمی شرکت فرض نکن.","Daily Loss و Maximum Loss را یکی ندان.","برای نزدیک‌شدن به Target، ریسک را ناگهانی افزایش نده."],"read":["این بخش ابزار پایش است؛ معیار نهایی همیشه قوانین جاری همان شرکت است."]},"Trade Replay":{"before":["داده OHLC، نماد، تایم‌فریم و timezone را بررسی کن.","اگر هدف بررسی کیفیت تصمیم است، نتیجه معامله را قبل از Replay تا حد امکان پنهان نگه دار."],"workflow":["۱) داده OHLC را وارد کن.","۲) نماد و تایم‌فریم را کنترل کن.","۳) کندل‌ها را مرحله‌به‌مرحله جلو ببر و قبل از هر بخش سناریوی تصمیم را ثبت کن.","۴) Entry، Stop، Target و مدیریت را با مسیر واقعی قیمت مقایسه کن.","۵) MFE/MAE و خروج را برای بررسی مدیریت معامله تحلیل کن."],"mistakes":["Replay را با شبیه‌سازی دقیق تیک و اسلیپیج یکی ندان.","بعد از دیدن آینده، تصمیم گذشته را به‌عنوان تصمیم واقعی قضاوت نکن.","داده ناقص یا timezone اشتباه را تحلیل نکن."],"read":["Replay برای آموزش و تحلیل فرآیند تصمیم‌گیری عالی است، اما نتیجه آن تضمین‌کننده عملکرد زنده نیست."]},"همگام‌سازی با ژورنال":{"before":["قبل از Sync، Backup بگیر و وضعیت آخرین Sync را ببین.","منبع معتبر برای هر نوع داده را مشخص کن؛ مثلاً Statement برای Fill واقعی و Journal برای یادداشت/ارزیابی."],"workflow":["۱) Statement/MT5 را وارد یا Sync کن.","۲) موارد Match، Open، Missing و Conflict را جداگانه بررسی کن.","۳) برای موارد قابل بستن، تطبیق حجم/زمان/نماد/قیمت را کنترل کن.","۴) Conflict را با انتخاب نسخه معتبر یا Merge حل کن.","۵) بعد از Sync تعداد معاملات و چند رکورد نمونه را دوباره بررسی کن."],"mistakes":["بدون Backup عملیات Merge/Replace انجام نده.","تفاوت timezone یا ticket را با Conflict واقعی اشتباه نگیر.","یک رکورد مشکوک را به‌صورت انبوه تأیید نکن."],"read":["هدف Sync جلوگیری از دوباره‌کاری و از دست رفتن داده است؛ «همگام شد» باید با بررسی نتیجه تأیید شود."]},"امنیت، پشتیبان، ذخیره ابری و Namello Backend":{"before":["بدان کدام داده محلی و کدام داده ابری است.","قبل از اتصال حساب یا تغییر Storage، Backup مستقل داشته باش."],"workflow":["۱) منبع Storage و وضعیت اتصال را بررسی کن.","۲) Backup را بساز و زمان آخرین نسخه موفق را ثبت کن.","۳) Cloud/Backend را فقط در صورت نیاز فعال کن.","۴) وضعیت Sync و Conflict را کنترل کن.","۵) اطلاعات ورود و کلیدهای حساس را خارج از متن‌های قابل Export نگه دار."],"mistakes":["Backup را روی همان محل آسیب‌پذیر به‌عنوان تنها نسخه نگه ندار.","اعتبار Sync را فقط از تغییر ظاهری یک صفحه نتیجه نگیر.","کلیدها و رمزها را در CSV/JSON قابل اشتراک قرار نده."],"read":["امنیت خوب یعنی داده قابل بازیابی، اتصال قابل کنترل و حداقل افشای اطلاعات حساس."]},"MT5 · دریافت خودکار OHLC و MFE/MAE":{"before":["Bridge، نماد، تایم‌فریم و timezone را بررسی کن.","مطمئن شو Symbol Mapping بین MT5 و Namello درست است."],"workflow":["۱) اتصال Bridge را برقرار کن.","۲) نماد و تایم‌فریم موردنیاز را انتخاب کن.","۳) دریافت OHLC را اجرا و چند کندل را کنترل کن.","۴) معامله مرتبط را برای محاسبه MFE/MAE تطبیق بده.","۵) خروجی را با داده مرجع MT5 مقایسه کن."],"mistakes":["timezone اشتباه می‌تواند کندل و MFE/MAE را جابه‌جا کند.","Symbol با نام متفاوت را بدون mapping درست تحلیل نکن.","داده ناقص را با صفر یا مقدار خالی به‌عنوان واقعیت فرض نکن."],"read":["MFE/MAE زمانی ارزش تحلیلی دارد که داده قیمت و زمان معامله صحیح و هم‌تراز باشد."]},"خروجی خام برای توسعه‌دهندگان":{"before":["هدف خروجی و Schema موردنیاز ابزار مقصد را مشخص کن.","قبل از اشتراک، فیلدهای حساس و داده‌های شخصی را بررسی کن."],"workflow":["۱) نوع داده و فرمت JSON/CSV را انتخاب کن.","۲) خروجی را بساز و Schema/Version را کنار آن ثبت کن.","۳) چند رکورد را از نظر نوع داده و نام فیلد بررسی کن.","۴) در Python/Excel/ابزار مقصد، mapping را ثابت نگه دار."],"mistakes":["نام فیلدها را بدون ثبت mapping تغییر نده.","Raw Export را بدون حذف اطلاعات حساس به دیگران ارسال نکن.","داده خام را بدون بررسی timezone و units پردازش نکن."],"read":["خروجی خام باید قابل بازتولید و قابل فهم برای ابزار مقصد باشد؛ Schema بخشی از خود داده فنی است."]},"پشتیبان‌گیری و بازیابی داده‌ها":{"before":["مقصد Backup را امن و جدا از نسخه اصلی انتخاب کن.","قبل از Restore مشخص کن که عملیات Merge است یا Replace."],"workflow":["۱) Backup بساز و تاریخ/نسخه آن را مشخص کن.","۲) برای Restore فایل را از نظر منبع و زمان بررسی کن.","۳) قبل از Replace از داده فعلی نسخه پشتیبان بگیر.","۴) Restore را اجرا کن.","۵) حساب‌ها، تنظیمات و چند معامله قدیمی/جدید را بررسی کن."],"mistakes":["آخرین Backup را بدون بررسی سالم بودن فایل قابل اتکا ندان.","Replace را با Restore انتخابی اشتباه نکن.","بعد از Restore بدون کنترل داده، Sync یا Import انبوه انجام نده."],"read":["Backup زمانی مفید است که هم وجود داشته باشد و هم بتوانی واقعاً از آن Restore کنی."]},"فیلدهای سفارشی معامله":{"before":["قبل از ساخت فیلد مشخص کن چه سؤال تحلیلی قرار است پاسخ داده شود.","نام و نوع فیلد را طوری انتخاب کن که در آینده هم معنی آن روشن بماند."],"workflow":["۱) فیلد را با نام ثابت تعریف کن.","۲) نوع داده مناسب را انتخاب کن.","۳) در چند معامله آزمایشی مقداردهی کن.","۴) نمایش و خروجی فیلد را بررسی کن.","۵) پس از تثبیت، نام/معنای فیلد را تغییر نده مگر با ثبت Migration."],"mistakes":["برای یک مفهوم چند فیلد هم‌معنی نساز.","فیلد عددی را با متن‌های مختلف پر نکن.","فیلدی که هیچ تصمیمی را بهتر نمی‌کند فقط برای جمع‌کردن داده نساز."],"read":["هر فیلد سفارشی باید یک سؤال تحلیلی مشخص داشته باشد؛ اگر پاسخ آن در تصمیم‌گیری استفاده نمی‌شود، احتمالاً فیلد اضافه است."]},"ارزیابی سقف/کف قیمت":{"before":["بازه زمانی و تایم‌فریم بررسی را مشخص کن.","تعداد تکرار را در کنار ساختار بازار ببین."],"workflow":["۱) داده و بازه را انتخاب کن.","۲) تکرار High/Low را مشاهده کن.","۳) آن را با روند، رنج و سطوح مهم مقایسه کن.","۴) اگر الگوی تکرارشونده‌ای پیدا شد، آن را به‌عنوان فرضیه وارد ژورنال کن و بعداً آزمون کن."],"mistakes":["تکرار سقف/کف را به‌عنوان تضمین برگشت قیمت ندان.","تعداد تکرار را بدون توجه به طول بازه مقایسه نکن.","از نمونه کوچک قانون قطعی نساز."],"read":["این معیار بیشتر برای ساخت فرضیه و زمینه‌سازی مفید است تا پیش‌بینی قطعی جهت قیمت."]},"ترتیب لایه‌ها":{"before":["لایه‌هایی را که در گردش‌کار روزانه بیشتر استفاده می‌کنی شناسایی کن."],"workflow":["۱) ترتیب فعلی را بررسی کن.","۲) لایه‌ها را با کنترل‌های بالا/پایین جابه‌جا کن.","۳) ترتیب جدید را بررسی و ذخیره کن.","۴) اگر نتیجه مناسب نبود، ترتیب پیش‌فرض را برگردان."],"mistakes":["لایه‌های کم‌استفاده را صرفاً به‌خاطر نام یا ظاهر در ابتدای فهرست نگذار."],"read":["ترتیب خوب باید تعداد لمس/کلیک برای رسیدن به کارهای روزمره را کم کند."]},"چیدمان نمایش منوی لایه‌ها":{"before":["اندازه صفحه و تعداد لایه‌ها را در نظر بگیر."],"workflow":["۱) حالت افقی یا عمودی را انتخاب کن.","۲) منوی لایه‌ها را روی دستگاه واقعی بررسی کن.","۳) خوانایی عنوان‌ها و دسترسی به لایه‌های پرکاربرد را بسنج.","۴) در صورت نیاز حالت دیگر را امتحان کن."],"mistakes":["تنها بر اساس ظاهر یک دستگاه تصمیم نگیر؛ روی اندازه صفحه واقعی خودت تست کن."],"read":["هدف این تنظیم، کوتاه‌کردن مسیر ناوبری و حفظ خوانایی است."]},"بروزرسانی برنامه":{"before":["Version، Version Code و وضعیت Backup را بررسی کن.","در صورت تغییر بزرگ، Changelog را قبل از نصب بخوان."],"workflow":["۱) نسخه فعلی را یادداشت کن.","۲) بررسی نسخه جدید را اجرا کن.","۳) Changelog و تغییرات مهم را مرور کن.","۴) Backup تازه داشته باش.","۵) بروزرسانی را اجرا و پس از آن بخش‌های اصلی، داده‌ها و Sync را بررسی کن."],"mistakes":["بدون Backup بروزرسانی مهم را انجام نده.","فقط تغییر ظاهری را نشانه سلامت کامل نسخه جدید ندان.","Version Name را با Version Code یکی ندان."],"read":["بعد از بروزرسانی، یک Smoke Test کوتاه از ژورنال، داشبورد، خروجی و Sync انجام بده."]},"فضای ذخیره‌سازی":{"before":["بفهم داده فعلی کجا ذخیره می‌شود و مقصد جدید چیست.","قبل از Migration یا تغییر Storage، Backup مستقل بساز."],"workflow":["۱) مصرف و وضعیت Storage را بررسی کن.","۲) مقصد جدید را انتخاب/آماده کن.","۳) Migration را اجرا کن.","۴) تعداد رکورد و چند داده نمونه را با منبع مقایسه کن.","۵) تا تأیید کامل، داده منبع را حذف نکن."],"mistakes":["Storage را در میانه Migration پاک نکن.","موفقیت پیام Migration را بدون بررسی داده‌ها نپذیر."],"read":["مهاجرت موفق یعنی داده قابل خواندن و قابل استفاده باقی مانده، نه فقط انتقال فایل."]},"تم لایه‌های برنامه":{"before":["تمی را انتخاب کن که خوانایی متن، نمودار و وضعیت‌های هشدار را حفظ کند."],"workflow":["۱) تم را انتخاب کن.","۲) سربرگ‌ها، کارت‌ها، نمودارها و متن کم‌رنگ را بررسی کن.","۳) روی دستگاه اصلی خودت چند بخش را باز کن.","۴) اگر خوانایی کم بود، تم دیگری انتخاب کن."],"mistakes":["صرفاً زیبایی را بر خوانایی مقدم نکن.","رنگ یک شاخص را با معنی رنگی آن در تم دیگر اشتباه نگیر."],"read":["تم خوب باید در استفاده طولانی خستگی کمتر و تشخیص وضعیت‌ها را سریع‌تر کند."]},"دکمه شناور بازگشت به Namello":{"before":["مجوز «نمایش روی سایر برنامه‌ها» را فقط برای Namello بده.","این دکمه فقط در برنامه‌ی نصبی اندروید روی برنامه‌های دیگر دیده می‌شود؛ در PWA فقط نوتیفیکیشن بازگشت دارد."],"workflow":["۱) گزینه را روشن کن و مجوز را بده.","۲) برگرد و گزینه را دوباره روشن کن.","۳) به MT5 یا TradingView برو و دکمه را به جای دلخواه بکش.","۴) با یک ضربه روی دکمه به Namello برگرد."],"mistakes":["اگر دکمه ظاهر نشد، فکر نکن برنامه خراب است؛ اول مجوز نمایش روی سایر برنامه‌ها را بررسی کن.","منتظر نوتیفیکیشن بالای صفحه نباش؛ در APK این دکمه عمداً بدون اعلان کار می‌کند."],"read":["آیکون دکمه همان آیکون «تم آیکون برنامه» است؛ با تغییر تم یا تغییر روز (تم هفتگی) خودش به‌روز می‌شود."]},"تم آیکون برنامه":{"before":["تم ثابت و تم هفتگی هم‌زمان اعمال نمی‌شوند؛ تا وقتی تم هفتگی روشن است، تم ثابت نادیده گرفته می‌شود.","در PWA تغییر آیکون داخل برنامه الزاماً میانبر قبلی صفحه‌ی اصلی را فوراً عوض نمی‌کند."],"workflow":["۱) برای آیکون ثابت، یک تم از «تم آیکون سفارشی ثابت» را انتخاب کن.","۲) برای آیکون روزانه، «تم آیکون متغیر هفتگی» را روشن کن.","۳) نمایش آیکون داخل برنامه و (در APK) لانچر گوشی را بررسی کن؛ برخی لانچرها چند ثانیه دیرتر به‌روز می‌شوند.","۴) در PWA اگر میانبر قدیمی است، آن را حذف و دوباره اضافه کن."],"mistakes":["تغییر آیکون داخلی را با تغییر فایل APK یا میانبر سیستم یکی ندان.","اگر تم هفتگی روشن است و تم ثابت اثر نمی‌کند، مشکلی نیست؛ تم هفتگی را خاموش کن."],"read":["تم هفتگی هر روز مطابق روز هفته‌ی گوشی (نیمه‌شب) آیکون را عوض می‌کند؛ تم ثابت همیشه یک آیکون دارد."]},"قفل برنامه":{"before":["یک پشتیبان تازه بگیر؛ بدون PIN و بدون پشتیبان، فراموشی PIN می‌تواند به پاک‌شدن داده‌ی برنامه ختم شود.","در APK قفل گوشی (اثر انگشت/چهره/PIN دستگاه) باید روی گوشی فعال باشد تا گزینه‌ی بیومتریک دیده شود."],"workflow":["۱) قفل را روشن و PIN را دو بار وارد کن.","۲) در صورت وجود، بیومتریک را روشن و یک بار تست کن.","۳) زمان قفل‌شدن را انتخاب کن.","۴) یک بار «همین الان قفل کن» را بزن و باز شدن را تست کن."],"mistakes":["PIN ساده یا تاریخ تولد انتخاب نکن.","«بلافاصله» را برای استفاده‌ی روزمره انتخاب نکن؛ انتخاب‌گر فایل و پنجره‌ی چاپ هم ممکن است قفل را فعال کنند."],"read":["قفل، دسترسی به برنامه را کنترل می‌کند، نه رمزنگاری فایل‌های پشتیبان را."]},"ماشین‌حساب ریسک و سقف ضرر روزانه":{"before":["موجودی و درصد ریسک را واقعی وارد کن.","ارزش هر پیپ/واحد را با بروکر خودت تطبیق بده، مخصوصاً برای طلا و جفت‌ارزهای JPY."],"workflow":["۱) پیش از ورود، حجم را با حد ضرر واقعی حساب کن.","۲) سقف ضرر روزانه و (اختیاری) حداکثر تعداد معامله و ضرر متوالی را تنظیم کن.","۳) بعد از هر معامله‌ی بسته‌شده، نوار وضعیت را ببین.","۴) با پر شدن سقف، آن روز را متوقف کن."],"mistakes":["حجم را بالا گرد نکن؛ ماشین‌حساب عمداً پایین گرد می‌کند.","هشدار سقف را نادیده نگیر و ضرر را «جبران» نکن."],"read":["مقدار «ضرر امروز» فقط از معاملات بسته‌شده‌ی ژورنال می‌آید؛ معامله‌ی باز در آن نیست."]},"Navigation bar":{"before":["این گزینه فقط در برنامه‌ی نصبی اندروید اثر دارد."],"workflow":["۱) «جدایش» را انتخاب کن تا نوار لایه‌ها بالاتر از نوار ناوبری گوشی بنشیند.","۲) «تداخل» را فقط وقتی انتخاب کن که صفحه‌ی تمام‌صفحه می‌خواهی."],"mistakes":["اگر دکمه‌های پایین صفحه با نوار سیستم قاطی شدند، به‌جای تغییر تم، به «جدایش» برگرد."],"read":["«جدایش» پیش‌فرض و امن‌تر است."]},"بروزرسانی":{"before":["شماره نسخه و Version Code را کنترل کن."],"workflow":["۱) نسخه فعلی را بخوان.","۲) Changelog را مرور کن.","۳) برای هر قابلیت جدید، راهنمای همان قابلیت را باز کن."],"mistakes":["نسخه را هنگام گزارش خطا ناقص یا تقریبی اعلام نکن."],"read":["این بخش مرجع سریع وضعیت نسخه و تغییرات جاری است."]}};
 
 const NM_HELP_ALIASES = {
   "Dashboard Performance":"داشبورد عملکرد", "Dashboard":"داشبورد عملکرد", "Sessions":"نشست‌ها", "Journal":"ژورنال", "Market Behavior Evaluation":"ارزیابی رفتار بازار",
@@ -3109,7 +3706,7 @@ const NM_HELP_ALIASES = {
   "Full Export":"خروجی کل", "Library":"کتابخانه", "Settings":"تنظیمات", "About":"درباره برنامه", "About Namello":"درباره برنامه",
   "Behavioral Psychology Metrics":"متریک‌های روانشناسی رفتاری", "Broker CSV Import Templates":"قالب‌های استاندارد CSV بروکرها", "Portfolio & Multi-Account View":"نمای پرتفوی و چندحسابی",
   "Sync with Journal":"همگام‌سازی با ژورنال", "Backup & Restore Data":"پشتیبان‌گیری و بازیابی داده‌ها", "Custom Trade Fields":"فیلدهای سفارشی معامله", "Price High/Low Evaluation":"ارزیابی سقف/کف قیمت",
-  "Layer Order":"ترتیب لایه‌ها", "Layer Menu Layout":"چیدمان نمایش منوی لایه‌ها", "App Update":"بروزرسانی برنامه", "Storage":"فضای ذخیره‌سازی", "App Layer Theme":"تم لایه‌های برنامه", "App Icon Theme":"تم آیکون برنامه",
+  "Layer Order":"ترتیب لایه‌ها", "Layer Menu Layout":"چیدمان نمایش منوی لایه‌ها", "App Update":"بروزرسانی برنامه", "Storage":"فضای ذخیره‌سازی", "App Layer Theme":"تم لایه‌های برنامه", "App Icon Theme":"تم آیکون برنامه", "Weekly Icon Theme":"تم آیکون برنامه", "App Lock":"قفل برنامه", "Risk Calculator":"ماشین‌حساب ریسک و سقف ضرر روزانه", "Floating Return Button":"دکمه شناور بازگشت به Namello",
   "MT5 · Automatic OHLC and MFE/MAE":"MT5 · دریافت خودکار OHLC و MFE/MAE", "Raw Export for Developers":"خروجی خام برای توسعه‌دهندگان", "Prop Firm":"Prop Firm", "Trade Replay":"Trade Replay"
 };
 function nmHelpKey(title){ const raw=String(title||"").trim(); return NM_HELP_GUIDES[raw] ? raw : (NM_HELP_ALIASES[raw] || raw); }
@@ -3122,8 +3719,8 @@ const NM_HELP_SECTION_OVERRIDES = {
   "تمپلت": { icon:"🧩", purpose:"این بخش برای ذخیره و اعمال مجموعه تنظیمات سفارشی مرتبط با پروفایل است.", steps:["پروفایل فعال را انتخاب کن.","Template موجود را بررسی یا Template جدید را انتخاب کن.","قبل از Apply تفاوت تنظیمات را بررسی کن.","پس از Apply بخش‌های اصلی را بازبینی کن."], terms:[["Template","مجموعه ذخیره‌شده تنظیمات سفارشی"],["Apply","جایگزین کردن تنظیمات فعلی با تنظیمات Template"]], tips:["Apply را بدون انتخاب پروفایل درست انجام نده.","قبل از جایگزینی گسترده از تنظیمات مهم نسخه پشتیبان داشته باش."] },
   "زبان برنامه": { icon:"🌐", purpose:"این بخش زبان رابط کاربری برنامه را بین فارسی و انگلیسی تغییر می‌دهد.", steps:["زبان موردنظر را انتخاب کن.","برچسب‌های رابط را پس از تغییر بررسی کن.","در صورت وجود اصطلاحات تخصصی، معادل استاندارد همان بخش را مبنا قرار بده."], terms:[["FA","حالت رابط فارسی"],["EN","حالت رابط انگلیسی"]], tips:["تغییر زبان داده‌های ثبت‌شده کاربر را ترجمه یا تغییر نمی‌دهد."] },
   "تنظیمات ظاهری": { icon:"🎨", purpose:"این بخش حالت روشن/تیره و تنظیمات ظاهری اصلی رابط را کنترل می‌کند.", steps:["حالت نمایش را انتخاب کن.","خوانایی متن، نمودار و وضعیت‌ها را بررسی کن.","در صورت نیاز تم یا حالت دیگر را انتخاب کن."], terms:[["Dark Mode","حالت رابط با زمینه تیره"],["Light Mode","حالت رابط با زمینه روشن"]], tips:["خوانایی را بر زیبایی بصری مقدم بدان."] },
-  "اجرای سریع MT5/TradingView": { icon:"🚀", purpose:"این بخش دکمه‌های دسترسی سریع به MT5 و TradingView را مدیریت می‌کند.", steps:["قابلیت هر اپ را فعال یا غیرفعال کن.","در صورت نیاز package name یا scheme را بررسی کن.","پس از فعال‌سازی، عملکرد دکمه شناور را آزمایش کن."], terms:[["Quick Launch","دسترسی مستقیم به اپ مقصد"],["Package Name","شناسه اپ نصب‌شده برای Android"],["Scheme","طرح URL اختصاصی برای بازکردن اپ"]], tips:["شناسه یا scheme اشتباه باعث بازنشدن اپ مقصد می‌شود."] },
-  "نوتیفیکیشن بازگشت به Namello": { icon:"🔔", purpose:"این بخش رفتار اعلان/دکمه بازگشت به Namello را در محیط PWA یا Native تنظیم می‌کند.", steps:["قابلیت را فعال کن.","مجوزهای اعلان یا مجوزهای Native لازم را بررسی کن.","بازگشت از اپ مقصد را آزمایش کن."], terms:[["PWA","نسخه وب نصب‌شده برنامه"],["Native","نسخه اپلیکیشن با دسترسی‌های سیستم‌عامل"],["Floating Return","دکمه شناور بازگشت به Namello"]], tips:["عملکرد Native به مجوزهای سیستم‌عامل و محدودیت باتری وابسته است."] },
+  "اجرای سریع MT5/TradingView": { icon:"🚀", purpose:"این بخش دکمه‌های دسترسی سریع به MT5 و TradingView را مدیریت می‌کند.", steps:["قابلیت هر اپ را فعال یا غیرفعال کن.","در صورت نیاز package name یا scheme را بررسی کن.","پس از فعال‌سازی، عملکرد دکمه شناور را آزمایش کن."], terms:[["Quick Launch","دسترسی مستقیم به اپ مقصد"],["Package Name","شناسه اپ نصب‌شده برای Android"],["Scheme","طرح URL اختصاصی برای بازکردن اپ"]], tips:["شناسه یا scheme اشتباه باعث بازنشدن اپ مقصد می‌شود.","در برنامه‌ی نصبی اندروید، اپ نصب‌شده مستقیماً با سیستم اندروید باز می‌شود و به مرورگر وابسته نیست."] },
+  "دکمه شناور بازگشت به Namello": { icon:"🔘", purpose:"در برنامه‌ی نصبی، یک دکمه‌ی شناور روی سایر برنامه‌ها (مثل MT5 و TradingView) نشان می‌دهد که با یک ضربه شما را به Namello برمی‌گرداند.", steps:["گزینه را روشن کن.","در صفحه‌ی مجوز اندروید، «نمایش روی سایر برنامه‌ها» را برای Namello فعال کن و برگرد.","گزینه را یک بار دیگر روشن کن تا دکمه ساخته شود.","به برنامه‌ی دیگری برو؛ دکمه را به جای دلخواه بکش (به لبه می‌چسبد) و برای بازگشت به Namello روی آن بزن."], terms:[["Overlay","نمایش روی سایر برنامه‌ها؛ مجوز سیستمی لازم برای دکمه‌ی شناور"],["Floating Button","دکمه‌ی گرد قابل جابه‌جایی روی صفحه"],["PWA","نسخه وب نصب‌شده؛ به‌جای دکمه فقط نوتیفیکیشن بازگشت دارد"]], tips:["در APK هیچ اعلانی در نوار بالای گوشی نشان داده نمی‌شود.","آیکون دکمه با «تم آیکون برنامه» (ثابت یا هفتگی) هماهنگ می‌شود.","اگر دکمه ناپدید شد، Namello را یک بار باز کن و مصرف باتری آن را «بدون محدودیت» بگذار."] },
   "ویجت ساعت‌شمار نشست‌ها": { icon:"⏱️", purpose:"این بخش اندازه و دسترسی به ویجت وب ساعت نشست‌های معاملاتی را تنظیم می‌کند.", steps:["اندازه ویجت را انتخاب کن.","widget.html را باز کن.","در صورت نیاز آن را به صفحه اصلی اضافه کن.","نمایش زمان نشست‌ها را بررسی کن."], terms:[["Widget","نمایش مستقل و کوچک اطلاعات نشست‌ها"],["Session Clock","نمایش زمان و وضعیت نشست‌های بازار"]], tips:["ویجت وب با Home-screen widget نیتیو یکسان نیست."] }
 };
 function nmGetHelpGuide(title){
@@ -3172,7 +3769,11 @@ function nmHelpEnglish(guide){
     "بروزرسانی برنامه":["Check the installed version and Version Code.","Run the update check and review the new changelog.","Keep a recent backup before major updates."],
     "فضای ذخیره‌سازی":["Review storage usage and migration status.","Back up before changing storage sources.","Verify sample records after migration."],
     "تم لایه‌های برنامه":["Choose the overall visual theme and verify readability.","Use the preview to select the most comfortable layout.","Remember that theme changes affect visual interpretation of charts and cards."],
-    "تم آیکون برنامه":["Choose the application icon theme.","On installed PWAs, an existing home-screen shortcut may need to be refreshed before the new icon appears."],
+    "تم آیکون برنامه":["Choose a fixed custom icon theme, or turn on the weekly icon theme so the icon changes every day to match the weekday.","While the weekly theme is on, the fixed themes are not applied.","In the installed APK the launcher icon changes too (some launchers refresh a few seconds later); on a PWA only the in-app logo changes."],
+    "دکمه شناور بازگشت به Namello":["In the installed app this shows a floating button on top of other apps (MT5, TradingView ...) that brings you back to Namello with one tap.","Turn it on, grant the Display over other apps permission, return and turn it on once more.","Drag it anywhere; it snaps to the screen edge. No notification is shown, and it uses the same icon as the selected icon theme.","On a PWA a background notification is used instead."],
+    "قفل برنامه":["Protects the app with a PIN and (in the APK) fingerprint / face / device lock.","Choose how long after leaving the app it locks again; this is a privacy gate, not data encryption, and backups are not locked.","If you forget the PIN, the APK can reset it with the phone lock; otherwise only clearing app data helps, so keep backups."],
+    "ماشین‌حساب ریسک و سقف ضرر روزانه":["Calculates position size (lots) from risk percent and stop-loss distance; the result is always rounded down.","Set a daily loss cap, max trades per day and max consecutive losses; a banner and notification warn you near the cap.","Only closed trades of the active journal account (New York date) are counted; pip values for gold and JPY pairs are approximate."],
+    "Navigation bar":["Choose whether the bottom layer bar overlaps the Android navigation bar or sits above it.","Separate (default) keeps the layer bar above the system navigation bar; Overlap draws the page full-screen.","This only affects the installed Android app."],
     "بروزرسانی":["Review the current version and its changelog.","Use the feature guides for deeper explanations of individual capabilities."]
   };
   const a=en[key]||["Use this feature as part of the structured trading journal workflow.","Review its inputs and settings before saving data.","Interpret the result together with risk management and sufficient sample size."];
@@ -3343,17 +3944,359 @@ function NmAppThemeCard({ value, onChange }) {
                     RE("span", { className: "rounded-full", style: { width: 16, height: 16, background: th.accent } }))),
         })));
 }
-function NmIconThemeCard({ value, onChange, showToast }) {
+function NmIconThemeCard({ value, onChange, weekly, onWeeklyChange, todayKey, showToast }) {
+    const isNative = !!(window.NamelloAndroid && window.NamelloAndroid.setLauncherIcon);
     const pick = (key) => {
         onChange(key);
-        showToast("لوگوی داخل برنامه عوض شد. اگر برنامه را با «Add to Home screen» نصب کرده‌اید، آیکونِ صفحه‌ی اصلی گوشی را کروم خودش (معمولاً طی چند ساعت) به‌روز می‌کند؛ برای تغییر فوری، میان‌بر را حذف و دوباره اضافه کنید. اگر این برنامه را به‌صورت APK نصب کرده‌اید، آیکون لانچر در خودِ APK ثابت است و فقط با ساخت و نصب دوباره‌ی APK (طبق راهنمای ویجت) عوض می‌شود.");
+        if (isNative) { showToast("آیکون لانچر برنامه عوض شد (بسته به لانچر گوشی ممکن است چند ثانیه طول بکشد)."); return; }
+        showToast("لوگوی داخل برنامه عوض شد. اگر برنامه را با «Add to Home screen» نصب کرده‌اید، آیکونِ صفحه‌ی اصلی را کروم خودش (معمولاً طی چند ساعت) به‌روز می‌کند؛ برای تغییر فوری، میان‌بر را حذف و دوباره اضافه کنید. در نسخه‌ی نصبی APK آیکون لانچر بلافاصله عوض می‌شود.");
     };
-    return RE(NmCollapsible, { title: "تم آیکون برنامه", subtitle: "برای بستن/باز کردن لیست کلیک کنید", badge: "مستقل", icon: "🖼️" },
-        RE("p", { className: "text-[11px] leading-5 mb-3", style: { color: "var(--text-muted)" } }, "آیکون و لوگوی برنامه را مستقل از تم رنگی انتخاب کنید. لوگوی داخل برنامه فوراً عوض می‌شود. آیکونِ صفحه‌ی اصلی گوشی وابسته به نوع نصب است — توضیح کامل بعد از انتخاب نشان داده می‌شود."),
-        NM_ICON_THEMES.map(it => RE(NmRadioRow, {
-            key: it.key, selected: value === it.key, onClick: () => pick(it.key), title: it.name, desc: it.desc,
-            preview: RE("img", { src: it.key === "default" ? it.icon192 : it.icon192, alt: it.name, width: 54, height: 54, className: "shrink-0 rounded-xl", style: { width: 54, height: 54, objectFit: "cover", border: "1px solid var(--border-2)", background: "var(--bg-page)" } }),
-        })));
+    const toggleWeekly = () => {
+        const next = !weekly;
+        onWeeklyChange(next);
+        showToast(next
+            ? (isNative ? "تم هفتگی فعال شد: آیکون برنامه و لانچر هر روز مطابق روز هفته عوض می‌شود." : "تم هفتگی فعال شد: لوگوی داخل برنامه هر روز مطابق روز هفته عوض می‌شود.")
+            : "تم هفتگی غیرفعال شد؛ تم ثابتِ انتخاب‌شده اعمال می‌شود.");
+    };
+    const subTitle = { color: "var(--text-primary)" };
+    return RE(NmCollapsible, { title: "تم آیکون برنامه", subtitle: "تم ثابت یا متغیر هفتگی — برای بستن/باز کردن کلیک کنید", badge: "مستقل", icon: "🖼️" },
+        RE("p", { className: "text-[11px] leading-5 mb-3", style: { color: "var(--text-muted)" } }, isNative
+            ? "آیکون لانچر گوشی و لوگوی داخل برنامه را مستقل از تم رنگی تعیین کن: یا یک «تم آیکون سفارشی ثابت» انتخاب کن، یا «تم آیکون متغیر هفتگی» را روشن کن تا آیکون هر روز مطابق روز هفته عوض شود."
+            : "لوگوی داخل برنامه را مستقل از تم رنگی تعیین کن: یا یک «تم آیکون سفارشی ثابت» انتخاب کن، یا «تم آیکون متغیر هفتگی» را روشن کن تا لوگو هر روز مطابق روز هفته عوض شود. آیکون صفحه‌ی اصلی گوشی در PWA را مرورگر مدیریت می‌کند؛ در برنامه‌ی نصبی APK آیکون لانچر هم تغییر می‌کند."),
+        RE("div", { className: "rounded-xl p-3 mb-3", style: { background: "var(--bg-card)", border: "1px solid var(--border-1)" } },
+            RE("div", { className: "flex items-center justify-between mb-2" },
+                RE("h4", { className: "text-[12px] font-semibold", style: subTitle }, "تم آیکون متغیر هفتگی"),
+                RE("button", { type: "button", onClick: toggleWeekly, className: "px-3 py-1 rounded-full text-[11px] font-medium", style: { background: weekly ? "#34D39922" : "var(--bg-card2)", color: weekly ? "#34D399" : "var(--text-muted)" } }, weekly ? "فعال" : "غیرفعال")),
+            RE("p", { className: "text-[10px] leading-5 mb-2", style: { color: "var(--text-muted)" } }, "با فعال بودن، آیکون هر روز خودکار عوض می‌شود (نیمه‌شب به وقت گوشی). روز امروز با قاب طلایی مشخص شده است."),
+            RE("div", { className: "grid grid-cols-7 gap-1" }, NM_ICON_WEEK.map(d => RE("div", { key: d.key, className: "text-center" },
+                RE("img", { src: d.file, alt: d.label, width: 40, height: 40, className: "rounded-lg mx-auto", style: { width: "100%", maxWidth: 40, aspectRatio: "1 / 1", objectFit: "cover", border: d.key === todayKey ? "2px solid var(--accent-gold)" : "1px solid var(--border-2)", opacity: weekly ? 1 : 0.7 } }),
+                RE("div", { className: "text-[9px] mt-1 leading-3", style: { color: d.key === todayKey ? "var(--accent-gold)" : "var(--text-muted)" } }, d.label),
+                RE("div", { className: "text-[8px] leading-3", style: { color: "var(--text-muted)" } }, d.theme))))),
+        RE("h4", { className: "text-[12px] font-semibold mb-1", style: subTitle }, "تم آیکون سفارشی ثابت"),
+        RE("p", { className: "text-[10px] leading-5 mb-2", style: { color: "var(--text-muted)" } }, weekly
+            ? "تا وقتی «تم آیکون متغیر هفتگی» فعال است این تم‌ها اعمال نمی‌شوند. برای استفاده از یک تم ثابت، تم هفتگی را غیرفعال کن."
+            : "یکی از تم‌ها را به‌عنوان آیکون ثابت برنامه انتخاب کن."),
+        RE("div", { style: weekly ? { opacity: 0.45, pointerEvents: "none" } : undefined, "aria-disabled": weekly ? true : undefined },
+            NM_ICON_THEMES.map(it => RE(NmRadioRow, {
+                key: it.key, selected: !weekly && value === it.key, onClick: () => pick(it.key), title: it.name, desc: it.desc,
+                preview: RE("img", { src: it.icon192, alt: it.name, width: 54, height: 54, className: "shrink-0 rounded-xl", style: { width: 54, height: 54, objectFit: "cover", border: "1px solid var(--border-2)", background: "var(--bg-page)" } }),
+            }))));
+}
+
+/* ---------------- قفل برنامه (PIN + اثر انگشت/چهره/قفل گوشی) ----------------
+   فقط روی همین دستگاه ذخیره می‌شود (localStorage ساده؛ داخل پشتیبان‌ها نیست) و PIN با PBKDF2-SHA256 هش می‌شود.
+   توجه: این یک «دروازه‌ی حریم خصوصی» است، نه رمزنگاری داده‌ها. */
+const NM_LOCK_LS = "nm_applock_v1";
+const NM_LOCK_TIMEOUTS = [{ sec: 0, label: "بلافاصله" }, { sec: 60, label: "۱ دقیقه" }, { sec: 300, label: "۵ دقیقه" }, { sec: 900, label: "۱۵ دقیقه" }, { sec: 1800, label: "۳۰ دقیقه" }];
+const NM_LOCK_DEFAULT = { enabled: false, len: 4, salt: "", hash: "", iter: 100000, bio: false, secure: false, timeoutSec: 60, fails: 0, lockedUntil: 0 };
+function nmLockLoad() {
+    try {
+        const o = JSON.parse(localStorage.getItem(NM_LOCK_LS) || "null");
+        return { ...NM_LOCK_DEFAULT, ...(o && typeof o === "object" ? o : {}) };
+    }
+    catch (e) { return { ...NM_LOCK_DEFAULT }; }
+}
+function nmLockSave(o) { try { localStorage.setItem(NM_LOCK_LS, JSON.stringify(o)); } catch (e) { } }
+const nmLockActive = (c) => !!(c && c.enabled && c.hash);
+const nmToHex = (u8) => Array.from(u8).map(b => b.toString(16).padStart(2, "0")).join("");
+const nmFromHex = (h) => new Uint8Array((h.match(/.{2}/g) || []).map(x => parseInt(x, 16)));
+async function nmPinHash(pin, saltHex, iter) {
+    if (!(window.crypto && window.crypto.subtle))
+        throw new Error("no-crypto");
+    const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(String(pin)), "PBKDF2", false, ["deriveBits"]);
+    const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt: nmFromHex(saltHex), iterations: iter, hash: "SHA-256" }, key, 256);
+    return nmToHex(new Uint8Array(bits));
+}
+async function nmLockSetPin(pin) {
+    const salt = nmToHex(crypto.getRandomValues(new Uint8Array(16)));
+    const iter = NM_LOCK_DEFAULT.iter;
+    const hash = await nmPinHash(pin, salt, iter);
+    nmLockSave({ ...nmLockLoad(), enabled: true, len: String(pin).length, salt, hash, iter, fails: 0, lockedUntil: 0 });
+}
+/* بررسی PIN با تأخیر فزاینده بعد از ۵ تلاش ناموفق */
+async function nmLockCheckPin(pin) {
+    const c = nmLockLoad();
+    const now = Date.now();
+    if (c.lockedUntil && c.lockedUntil > now)
+        return { ok: false, wait: Math.ceil((c.lockedUntil - now) / 1000) };
+    let good = false;
+    try {
+        const h = await nmPinHash(pin, c.salt, c.iter || NM_LOCK_DEFAULT.iter);
+        let diff = h.length ^ c.hash.length;
+        for (let i = 0; i < h.length && i < c.hash.length; i++)
+            diff |= h.charCodeAt(i) ^ c.hash.charCodeAt(i);
+        good = diff === 0;
+    }
+    catch (e) { good = false; }
+    if (good) {
+        nmLockSave({ ...c, fails: 0, lockedUntil: 0 });
+        return { ok: true };
+    }
+    const fails = (c.fails || 0) + 1;
+    const lockedUntil = fails >= 5 ? now + Math.min(900000, 30000 * Math.pow(2, fails - 5)) : 0;
+    nmLockSave({ ...c, fails, lockedUntil });
+    return { ok: false, left: Math.max(0, 5 - fails), wait: lockedUntil ? Math.ceil((lockedUntil - now) / 1000) : 0 };
+}
+function nmLockCanBio() { try { return !!(window.NamelloAndroid && window.NamelloAndroid.canAuthenticate && window.NamelloAndroid.canAuthenticate()); } catch (e) { return false; } }
+/* درخواست تأیید هویت (اثر انگشت/چهره/قفل گوشی) → "ok" | "cancel" | "error" | "timeout" | "unsupported" */
+function nmLockBioPrompt(title, subtitle) {
+    return new Promise(resolve => {
+        if (!(window.NamelloAndroid && window.NamelloAndroid.authenticate)) { resolve("unsupported"); return; }
+        let done = false;
+        const finish = (s) => { if (done) return; done = true; clearTimeout(to); window.__nmAuthResult = null; resolve(s); };
+        const to = setTimeout(() => finish("timeout"), 60000);
+        window.__nmAuthResult = finish;
+        try { window.NamelloAndroid.authenticate(title || "Namello", subtitle || ""); } catch (e) { finish("error"); }
+    });
+}
+function nmLockApplySecure(on) { try { if (window.NamelloAndroid && window.NamelloAndroid.setSecureScreen) window.NamelloAndroid.setSecureScreen(!!on); } catch (e) { } }
+let nmLockUnlockedAt = 0;
+function useAppLock() {
+    const [locked, setLocked] = useState(() => nmLockActive(nmLockLoad()));
+    const hiddenAt = useRef(0);
+    useEffect(() => {
+        const onVis = () => {
+            const c = nmLockLoad();
+            if (!nmLockActive(c))
+                return;
+            if (document.visibilityState === "hidden") { hiddenAt.current = Date.now(); return; }
+            if (Date.now() - nmLockUnlockedAt < 3000) return;
+            if (hiddenAt.current && Date.now() - hiddenAt.current >= (c.timeoutSec || 0) * 1000)
+                setLocked(true);
+        };
+        const lockNow = () => { if (nmLockActive(nmLockLoad())) setLocked(true); };
+        document.addEventListener("visibilitychange", onVis);
+        window.addEventListener("namello-lock-now", lockNow);
+        nmLockApplySecure(nmLockLoad().secure);
+        return () => { document.removeEventListener("visibilitychange", onVis); window.removeEventListener("namello-lock-now", lockNow); };
+    }, []);
+    const unlock = useCallback(() => { nmLockUnlockedAt = Date.now(); hiddenAt.current = 0; setLocked(false); }, []);
+    return { locked, unlock };
+}
+function NmPinPad({ length, title, subtitle, error, disabled, onComplete, onBio, resetKey }) {
+    const [pin, setPin] = useState("");
+    useEffect(() => { setPin(""); }, [resetKey]);
+    const press = (d) => {
+        if (disabled) return;
+        const next = (pin + d).slice(0, length);
+        setPin(next);
+        if (next.length === length) setTimeout(() => { onComplete(next); setPin(""); }, 120);
+    };
+    const key = (label, onClick, k, dim) => RE("button", { key: k, type: "button", onClick, disabled: disabled && k !== "bio", className: "rounded-2xl text-[20px] font-semibold", style: { height: 58, background: dim ? "transparent" : "var(--bg-card2)", color: "var(--text-primary)", border: dim ? "none" : "1px solid var(--border-2)", opacity: disabled ? 0.5 : 1, fontFamily: "JetBrains Mono, monospace" } }, label);
+    const digits = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+    return RE("div", { className: "w-full max-w-[320px] mx-auto text-center", style: { direction: "ltr" } },
+        title && RE("div", { className: "text-[16px] font-bold mb-1", style: { color: "var(--text-primary)", direction: "rtl" } }, title),
+        subtitle && RE("div", { className: "text-[11px] leading-5 mb-3", style: { color: "var(--text-muted)", direction: "rtl" } }, subtitle),
+        RE("div", { className: "flex justify-center gap-3 my-4", "aria-label": "PIN" }, Array.from({ length }).map((_, i) => RE("span", { key: i, style: { width: 14, height: 14, borderRadius: 7, background: i < pin.length ? "var(--accent-gold)" : "transparent", border: "2px solid var(--accent-gold)" } }))),
+        RE("div", { className: "text-[11px] mb-3 min-h-[18px]", style: { color: "#F87171", direction: "rtl" } }, error || ""),
+        RE("div", { className: "grid grid-cols-3 gap-2" },
+            digits.map(d => key(d, () => press(d), d)),
+            onBio ? key("🔐", onBio, "bio", true) : RE("span", { key: "empty" }),
+            key("0", () => press("0"), "0"),
+            key("⌫", () => { if (!disabled) setPin(p => p.slice(0, -1)); }, "del", true)));
+}
+function NmPinSetup({ length, title, onDone, onCancel }) {
+    const [first, setFirst] = useState("");
+    const [error, setError] = useState("");
+    const [round, setRound] = useState(0);
+    const onComplete = (pin) => {
+        if (!first) { setFirst(pin); setError(""); setRound(r => r + 1); return; }
+        if (pin !== first) { setFirst(""); setError("دو PIN یکسان نبودند؛ دوباره از اول وارد کن."); setRound(r => r + 1); return; }
+        onDone(pin);
+    };
+    return RE("div", null,
+        RE(NmPinPad, { length, resetKey: round, title: title || (first ? "PIN را دوباره وارد کن" : "PIN جدید"), subtitle: first ? "برای اطمینان، همان PIN را یک بار دیگر وارد کن." : "یک PIN " + length + " رقمی انتخاب کن (تاریخ تولد یا اعداد ساده نباشد).", error, onComplete }),
+        RE("button", { type: "button", onClick: onCancel, className: "w-full mt-4 py-2.5 rounded-xl text-[12px]", style: { background: "var(--bg-card2)", color: "var(--text-secondary)" } }, "انصراف"));
+}
+function NmLockModal({ children }) {
+    return RE("div", { className: "fixed inset-0 z-[250] flex items-center justify-center px-5", style: { background: "rgba(0,0,0,0.72)" } },
+        RE("div", { className: "w-full max-w-[360px] rounded-3xl p-5", style: { background: "var(--bg-card)", border: "1px solid var(--border-2)" } }, children));
+}
+function NmLockScreen({ onUnlock }) {
+    const cfg = nmLockLoad();
+    const [error, setError] = useState("");
+    const [wait, setWait] = useState(() => Math.max(0, Math.ceil(((nmLockLoad().lockedUntil || 0) - Date.now()) / 1000)));
+    const [reset, setReset] = useState(false);
+    const canBio = cfg.bio && nmLockCanBio();
+    const tryBio = useCallback(async () => {
+        const r = await nmLockBioPrompt("باز کردن Namello", "تأیید هویت");
+        if (r === "ok") onUnlock();
+    }, [onUnlock]);
+    useEffect(() => { if (canBio && !wait) { const t = setTimeout(tryBio, 350); return () => clearTimeout(t); } return undefined; }, []);
+    useEffect(() => {
+        if (!wait) return undefined;
+        const id = setInterval(() => setWait(w => { if (w <= 1) { clearInterval(id); return 0; } return w - 1; }), 1000);
+        return () => clearInterval(id);
+    }, [wait > 0]);
+    const onComplete = async (pin) => {
+        const r = await nmLockCheckPin(pin);
+        if (r.ok) { onUnlock(); return; }
+        if (r.wait) { setWait(r.wait); setError("تلاش‌های ناموفق زیاد بود؛ موقتاً قفل شد."); }
+        else setError("PIN اشتباه است" + (typeof r.left === "number" ? " (" + r.left + " تلاش تا قفل موقت)" : "") + ".");
+    };
+    const forgot = async () => {
+        if (canBio || nmLockCanBio()) {
+            const r = await nmLockBioPrompt("بازنشانی PIN", "برای ساختن PIN جدید با قفل گوشی تأیید کن");
+            if (r === "ok") setReset(true);
+            else setError("تأیید هویت انجام نشد.");
+        } else setError("روی این دستگاه بازیابی PIN ممکن نیست. تنها راه، پاک‌کردن داده‌ی برنامه از تنظیمات اندروید است (همه‌ی داده‌ها پاک می‌شود؛ پشتیبان بگیر).");
+    };
+    return RE("div", { className: "fixed inset-0 z-[300] flex flex-col items-center justify-center px-6", style: { background: "var(--bg-page)" } },
+        RE("img", { src: "icon-192.png", alt: "Namello", width: 72, height: 72, className: "rounded-2xl mb-4", style: { width: 72, height: 72 } }),
+        reset
+            ? RE("div", { className: "w-full max-w-[340px]" }, RE(NmPinSetup, { length: cfg.len || 4, title: "PIN جدید", onDone: async (pin) => { await nmLockSetPin(pin); onUnlock(); }, onCancel: () => setReset(false) }))
+            : RE(React.Fragment, null,
+                RE(NmPinPad, { length: cfg.len || 4, title: "Namello قفل است", subtitle: wait ? "بعد از " + wait + " ثانیه دوباره تلاش کن." : "PIN را وارد کن.", error, disabled: wait > 0, onComplete, onBio: canBio ? tryBio : null }),
+                RE("button", { type: "button", onClick: forgot, className: "mt-5 text-[11px]", style: { color: "var(--text-muted)", textDecoration: "underline" } }, "PIN را فراموش کردم")));
+}
+function NmAppLockCard({ showToast }) {
+    const [cfg, setCfg] = useState(() => nmLockLoad());
+    const [modal, setModal] = useState(null);   // null | {kind:"setup",len} | {kind:"verify",then}
+    const [len, setLen] = useState(4);
+    const [err, setErr] = useState("");
+    const native = !!(window.NamelloAndroid && window.NamelloAndroid.setSecureScreen);
+    const canBio = nmLockCanBio();
+    const update = (patch) => { const n = { ...nmLockLoad(), ...patch }; nmLockSave(n); setCfg(n); return n; };
+    const active = nmLockActive(cfg);
+    const askVerify = (then) => { setErr(""); setModal({ kind: "verify", then }); };
+    const finishSetup = async (pin) => {
+        try { await nmLockSetPin(pin); setCfg(nmLockLoad()); setModal(null); showToast(active ? "PIN تغییر کرد." : "قفل برنامه فعال شد."); }
+        catch (e) { setModal(null); showToast("این مرورگر/دستگاه امکان رمزنگاری PIN را ندارد."); }
+    };
+    const onVerify = async (pin) => {
+        const r = await nmLockCheckPin(pin);
+        if (r.ok) { const then = modal.then; setModal(null); then(); }
+        else setErr(r.wait ? "موقتاً قفل شد؛ " + r.wait + " ثانیه صبر کن." : "PIN اشتباه است.");
+    };
+    const toggle = () => { if (!active) { setModal({ kind: "setup" }); } else askVerify(() => { update({ enabled: false, hash: "", salt: "", bio: false, fails: 0, lockedUntil: 0 }); nmLockApplySecure(false); showToast("قفل برنامه غیرفعال شد."); }); };
+    const toggleBio = async () => {
+        if (!cfg.bio) {
+            const r = await nmLockBioPrompt("فعال‌سازی باز کردن با اثر انگشت/چهره", "برای تست، تأیید هویت کن");
+            if (r === "ok") { update({ bio: true }); showToast("باز کردن با اثر انگشت/چهره/قفل گوشی فعال شد."); }
+            else showToast("تأیید هویت انجام نشد؛ تنظیم تغییری نکرد.");
+        } else update({ bio: false });
+    };
+    const pills = (items, cur, onPick) => RE("div", { className: "flex gap-2 overflow-x-auto pb-1" }, items.map(it => RE("button", { key: it.sec, type: "button", onClick: () => onPick(it.sec), className: "shrink-0 px-3 py-2 rounded-xl text-[12px]", style: { background: cur === it.sec ? "var(--accent-gold)" : "var(--bg-card2)", color: cur === it.sec ? "var(--bg-page)" : "var(--text-secondary)" } }, it.label)));
+    const row = (title, desc, node) => RE("div", { className: "flex items-center justify-between gap-3 mb-3" }, RE("div", { className: "min-w-0" }, RE("div", { className: "text-[13px] font-semibold", style: { color: "var(--text-primary)" } }, title), desc && RE("div", { className: "text-[10px] leading-5 mt-0.5", style: { color: "var(--text-muted)" } }, desc)), node);
+    return RE(React.Fragment, null,
+        RE(NmCollapsible, { title: "قفل برنامه", subtitle: active ? "فعال — PIN" + (cfg.bio ? " + اثر انگشت/چهره" : "") : "غیرفعال", icon: "🔒" },
+            RE("p", { className: "text-[11px] leading-6 mb-3", style: { color: "var(--text-secondary)" } }, "با فعال‌سازی، هر بار که Namello باز شود (یا بعد از مدت انتخابی از رفتن به پس‌زمینه) باید PIN وارد کنی یا (در APK) با اثر انگشت/چهره/قفل گوشی تأیید کنی. این قفل از دیده‌شدن ژورنال و حساب‌هایت توسط دیگران جلوگیری می‌کند؛ داده‌ها را رمزنگاری نمی‌کند و فایل‌های پشتیبان را هم قفل نمی‌کند."),
+            row("فعال‌سازی قفل برنامه", null, RE(NmToggle, { on: active, onChange: toggle, label: "قفل برنامه" })),
+            !active && RE("div", { className: "mb-3" }, RE("div", { className: "text-[11px] mb-1.5", style: { color: "var(--text-muted)" } }, "طول PIN"), pills([{ sec: 4, label: "۴ رقم" }, { sec: 6, label: "۶ رقم" }], len, setLen)),
+            active && RE(React.Fragment, null,
+                canBio && row("اثر انگشت / چهره / قفل گوشی", "علاوه بر PIN، با تأیید هویت دستگاه هم باز می‌شود.", RE(NmToggle, { on: !!cfg.bio, onChange: toggleBio, label: "بیومتریک" })),
+                RE("div", { className: "mb-3" }, RE("div", { className: "text-[11px] mb-1.5", style: { color: "var(--text-muted)" } }, "قفل شدن بعد از رفتن به پس‌زمینه"), pills(NM_LOCK_TIMEOUTS, cfg.timeoutSec, (sec) => update({ timeoutSec: sec }))),
+                RE("p", { className: "text-[10px] leading-5 mb-3", style: { color: "var(--text-muted)" } }, "«بلافاصله» ممکن است هنگام باز شدن انتخاب‌گر فایل یا پنجره‌ی چاپ هم قفل را فعال کند؛ برای استفاده‌ی روزمره «۱ دقیقه» مناسب‌تر است."),
+                native && row("پنهان‌کردن صفحه در برنامه‌های اخیر", "جلوگیری از نمایش محتوا در پیش‌نمایش برنامه‌های اخیر و از اسکرین‌شات (اسکرین‌شات گرفتن غیرفعال می‌شود).", RE(NmToggle, { on: !!cfg.secure, onChange: () => { const on = !cfg.secure; update({ secure: on }); nmLockApplySecure(on); }, label: "پنهان‌سازی" })),
+                RE("div", { className: "flex gap-2" },
+                    RE("button", { type: "button", onClick: () => { window.dispatchEvent(new Event("namello-lock-now")); }, className: "flex-1 py-2.5 rounded-xl text-[12px] font-medium", style: { background: "var(--accent-gold)", color: "var(--bg-page)" } }, "همین الان قفل کن"),
+                    RE("button", { type: "button", onClick: () => askVerify(() => setModal({ kind: "setup" })), className: "flex-1 py-2.5 rounded-xl text-[12px] font-medium", style: { background: "var(--bg-card2)", color: "var(--text-secondary)" } }, "تغییر PIN")),
+                RE("p", { className: "text-[10px] leading-5 mt-3", style: { color: "var(--text-muted)" } }, "اگر PIN را فراموش کنی: در APK با قفل گوشی می‌توانی PIN جدید بسازی؛ در غیر این صورت فقط پاک‌کردن داده‌ی برنامه راه دارد. پشتیبان‌گیری منظم را فراموش نکن."))),
+        modal && RE(NmLockModal, null,
+            modal.kind === "setup"
+                ? RE(NmPinSetup, { length: active ? (cfg.len || 4) : len, onDone: finishSetup, onCancel: () => setModal(null) })
+                : RE("div", null, RE(NmPinPad, { length: cfg.len || 4, resetKey: err, title: "PIN فعلی", subtitle: "برای ادامه PIN فعلی را وارد کن.", error: err, onComplete: onVerify }),
+                    RE("button", { type: "button", onClick: () => setModal(null), className: "w-full mt-4 py-2.5 rounded-xl text-[12px]", style: { background: "var(--bg-card2)", color: "var(--text-secondary)" } }, "انصراف"))));
+}
+
+/* ---------------- ماشین‌حساب ریسک + سقف ضرر روزانه ---------------- */
+const NM_RISK_KEY = "namello_riskguard_v1";
+const NM_RISK_DEFAULT = { enabled: false, capMode: "pct", capPct: 2, capUsd: 200, maxTrades: 0, maxConsecLosses: 0, warnAt: 80, notify: true, calc: { instrument: "fx_usd", riskPct: 1, sl: 20, unitValue: 10, rr: 2, balance: "" } };
+const NM_RISK_INSTRUMENTS = [
+    { key: "fx_usd", label: "فارکس (USD در سمت دوم)", unit: "پیپ", value: 10, note: "EURUSD، GBPUSD، AUDUSD و …: هر پیپ برای ۱ لات ≈ ۱۰ دلار." },
+    { key: "fx_jpy", label: "فارکس (JPY)", unit: "پیپ", value: 6.5, note: "USDJPY و …: ارزش پیپ به قیمت بستگی دارد (تقریباً ۶ تا ۷ دلار)؛ مقدار دقیق را از بروکر بگیر." },
+    { key: "xau", label: "طلا (XAUUSD)", unit: "دلار قیمت", value: 100, note: "هر ۱ دلار حرکت قیمت برای ۱ لات (۱۰۰ اونس) = ۱۰۰ دلار." },
+    { key: "custom", label: "سفارشی", unit: "واحد", value: 10, note: "ارزش هر واحد حد ضرر برای ۱ لات را خودت وارد کن." },
+];
+function nmRiskLoad() {
+    try {
+        const o = JSON.parse(localStorage.getItem("ns_" + NM_RISK_KEY) || "null") || {};
+        return { ...NM_RISK_DEFAULT, ...o, calc: { ...NM_RISK_DEFAULT.calc, ...(o.calc || {}) } };
+    }
+    catch (e) { return { ...NM_RISK_DEFAULT, calc: { ...NM_RISK_DEFAULT.calc } }; }
+}
+/* حجم معامله از روی درصد ریسک؛ همیشه رو به پایین گرد می‌شود (ریسک واقعی هرگز از ریسک تعیین‌شده بیشتر نشود) */
+function nmRiskCalc({ balance, riskPct, sl, unitValue, rr }) {
+    const bal = Number(balance), rp = Number(riskPct), s = Number(sl), v = Number(unitValue), r = Number(rr) || 0;
+    if (!(bal > 0) || !(rp > 0) || !(s > 0) || !(v > 0))
+        return null;
+    const riskUsd = bal * rp / 100;
+    const rawLots = riskUsd / (s * v);
+    const lots = Math.floor(rawLots * 100 + 1e-9) / 100;
+    const actualRisk = lots * s * v;
+    return { riskUsd, rawLots, lots, actualRisk, rewardUsd: actualRisk * r, tp: s * r };
+}
+function nmRiskToday(trades, todayStr) {
+    const today = (trades || []).filter(t => t && t.status === "closed" && t.date === todayStr && Number.isFinite(Number(t.pnl)));
+    today.sort((a, b) => String(a.closeTime || a.time || "").localeCompare(String(b.closeTime || b.time || "")));
+    let consec = 0;
+    for (let i = today.length - 1; i >= 0; i--) { if (Number(today[i].pnl) < 0) consec++; else break; }
+    return { pnl: today.reduce((s, t) => s + Number(t.pnl), 0), count: today.length, consec };
+}
+function nmRiskStatus(cfg, balance, today) {
+    if (!cfg || !cfg.enabled) return null;
+    const capUsd = cfg.capMode === "usd" ? Number(cfg.capUsd) || 0 : (Number(balance) || 0) * (Number(cfg.capPct) || 0) / 100;
+    const loss = Math.max(0, -today.pnl);
+    const usedPct = capUsd > 0 ? loss / capUsd * 100 : 0;
+    const reasons = [];
+    if (capUsd > 0 && usedPct >= 100) reasons.push("سقف ضرر روزانه پر شد");
+    if (cfg.maxTrades > 0 && today.count >= cfg.maxTrades) reasons.push("به سقف تعداد معاملات امروز رسیدی");
+    if (cfg.maxConsecLosses > 0 && today.consec >= cfg.maxConsecLosses) reasons.push(today.consec + " ضرر پشت‌سرهم");
+    const hit = reasons.length > 0;
+    const warn = !hit && ((capUsd > 0 && usedPct >= (Number(cfg.warnAt) || 80)) || (cfg.maxTrades > 0 && today.count >= cfg.maxTrades - 1 && today.count > 0) || (cfg.maxConsecLosses > 0 && today.consec >= cfg.maxConsecLosses - 1 && today.consec > 0));
+    return { level: hit ? "hit" : warn ? "warn" : "ok", capUsd, loss, usedPct, remaining: Math.max(0, capUsd - loss), reasons, today };
+}
+function NmRiskBanner({ status, onOpen }) {
+    const hit = status.level === "hit";
+    const color = hit ? "#F87171" : "#F59E0B";
+    return RE("button", { type: "button", onClick: onOpen, className: "w-[calc(100%-32px)] mx-4 mt-3 rounded-xl px-3 py-2 text-right", style: { background: color + "1F", border: "1px solid " + color + "66", color } },
+        RE("div", { className: "text-[12px] font-bold" }, hit ? "⛔ " + status.reasons.join(" · ") + " — امروز دیگر معامله نکن." : "⚠ نزدیک سقف ریسک روزانه"),
+        RE("div", { className: "text-[10px] mt-0.5", style: { color: "var(--text-secondary)" } }, "ضرر امروز: $" + status.loss.toFixed(2) + " از سقف $" + status.capUsd.toFixed(2) + " (" + Math.round(status.usedPct) + "٪) · " + status.today.count + " معامله"));
+}
+function NmRiskGuardCard({ cfg, onChange, status, balance }) {
+    const c = cfg.calc;
+    const inst = NM_RISK_INSTRUMENTS.find(i => i.key === c.instrument) || NM_RISK_INSTRUMENTS[0];
+    const bal = c.balance !== "" && Number(c.balance) > 0 ? Number(c.balance) : balance;
+    const res = nmRiskCalc({ balance: bal, riskPct: c.riskPct, sl: c.sl, unitValue: c.unitValue, rr: c.rr });
+    const setCalc = (p) => onChange({ ...cfg, calc: { ...c, ...p } });
+    const num = (label, value, onCh, suffix, step) => RE("label", { className: "block mb-2" }, RE("span", { className: "text-[11px]", style: { color: "var(--text-muted)" } }, label),
+        RE("div", { className: "flex items-center gap-2 mt-1" }, RE("input", { type: "number", inputMode: "decimal", step: step || "any", min: "0", value, onChange: e => onCh(e.target.value), className: "flex-1 rounded-lg px-3 py-2 text-[14px]", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)", color: "var(--text-primary)", direction: "ltr", fontFamily: "JetBrains Mono, monospace" } }), suffix && RE("span", { className: "text-[11px] shrink-0", style: { color: "var(--text-muted)" } }, suffix)));
+    const box = (title, children) => RE("div", { className: "rounded-xl p-3 mb-3", style: { background: "var(--bg-card)", border: "1px solid var(--border-1)" } }, RE("h4", { className: "text-[12px] font-semibold mb-2", style: { color: "var(--text-primary)" } }, title), children);
+    const lvlColor = status ? (status.level === "hit" ? "#F87171" : status.level === "warn" ? "#F59E0B" : "#34D399") : "var(--text-muted)";
+    const cap$ = status ? status.capUsd : (cfg.capMode === "usd" ? Number(cfg.capUsd) || 0 : (balance || 0) * (Number(cfg.capPct) || 0) / 100);
+    const overRemaining = res && status && status.capUsd > 0 && res.actualRisk > status.remaining;
+    const fitLots = overRemaining ? Math.floor(status.remaining / (Number(c.sl) * Number(c.unitValue)) * 100 + 1e-9) / 100 : null;
+    return RE(NmCollapsible, { title: "ماشین‌حساب ریسک و سقف ضرر روزانه", subtitle: status ? (status.level === "ok" ? "امروز: در محدوده" : status.level === "warn" ? "نزدیک سقف" : "سقف پر شد") : "حجم معامله + حفاظت از ضرر روزانه", icon: "🛡️" },
+        RE("p", { className: "text-[10px] leading-5 mb-3", style: { color: "var(--text-muted)" } }, "ابتدا حجم معامله را از روی درصد ریسک حساب حساب کن، سپس سقف ضرر روزانه را تنظیم کن تا Namello هنگام نزدیک‌شدن به سقف هشدار بدهد. روز بر اساس تاریخ معاملات ژورنال (به وقت نیویورک مثل ساعت برنامه) حساب می‌شود."),
+        box("ماشین‌حساب حجم معامله",
+            RE("div", null,
+                RE("div", { className: "flex gap-2 overflow-x-auto pb-2 mb-1" }, NM_RISK_INSTRUMENTS.map(i => RE("button", { key: i.key, type: "button", onClick: () => setCalc({ instrument: i.key, unitValue: i.value }), className: "shrink-0 px-3 py-1.5 rounded-lg text-[11px]", style: { background: c.instrument === i.key ? "var(--accent-gold)" : "var(--bg-card2)", color: c.instrument === i.key ? "var(--bg-page)" : "var(--text-secondary)" } }, i.label))),
+                RE("p", { className: "text-[10px] leading-5 mb-2", style: { color: "var(--text-muted)" } }, inst.note),
+                num("موجودی حساب ($) — خالی = موجودی فعلی ژورنال (" + (balance ? balance.toFixed(2) : "—") + ")", c.balance, v => setCalc({ balance: v }), "$"),
+                num("ریسک هر معامله", c.riskPct, v => setCalc({ riskPct: v }), "٪", "0.1"),
+                num("حد ضرر (" + inst.unit + ")", c.sl, v => setCalc({ sl: v }), inst.unit),
+                num("ارزش هر " + inst.unit + " برای ۱ لات ($)", c.unitValue, v => setCalc({ unitValue: v }), "$"),
+                num("نسبت ریسک به بازده (R:R)", c.rr, v => setCalc({ rr: v }), "R", "0.1"),
+                res ? RE("div", { className: "rounded-xl p-3 mt-1", style: { background: "var(--bg-card2)" } },
+                    RE("div", { className: "text-[11px]", style: { color: "var(--text-muted)" } }, "حجم پیشنهادی"),
+                    RE("div", { className: "text-[26px] font-bold", style: { color: "var(--accent-gold)", fontFamily: "JetBrains Mono, monospace", direction: "ltr", textAlign: "right" } }, res.lots.toFixed(2) + " lot"),
+                    RE("div", { className: "text-[11px] leading-6", style: { color: "var(--text-secondary)" } }, "ریسک واقعی: $" + res.actualRisk.toFixed(2) + " (هدف: $" + res.riskUsd.toFixed(2) + ") · سود احتمالی در " + c.rr + "R: $" + res.rewardUsd.toFixed(2) + " · فاصله‌ی TP: " + res.tp.toFixed(1) + " " + inst.unit),
+                    res.lots <= 0 && RE("div", { className: "text-[11px] mt-1", style: { color: "#F87171" } }, "با این حد ضرر، حداقل حجم (۰٫۰۱ لات) هم از ریسک تعیین‌شده بیشتر است؛ حد ضرر را کوچک‌تر یا ریسک را بیشتر کن."),
+                    overRemaining && RE("div", { className: "text-[11px] mt-1 leading-5", style: { color: "#F59E0B" } }, "⚠ این معامله از سقف ضرر باقی‌مانده‌ی امروز ($" + status.remaining.toFixed(2) + ") بیشتر است؛ برای ماندن در سقف، حداکثر " + fitLots.toFixed(2) + " لات.")) : RE("p", { className: "text-[11px]", style: { color: "var(--text-muted)" } }, "همه‌ی فیلدها را با عدد مثبت پر کن."))),
+        box("سقف ضرر روزانه",
+            RE("div", null,
+                RE("div", { className: "flex items-center justify-between mb-3" }, RE("span", { className: "text-[12px]", style: { color: "var(--text-secondary)" } }, "فعال‌سازی هشدار و محافظ"), RE(NmToggle, { on: !!cfg.enabled, onChange: () => onChange({ ...cfg, enabled: !cfg.enabled }), label: "سقف ضرر روزانه" })),
+                RE("div", { className: "flex gap-2 mb-2" }, [["pct", "درصد موجودی"], ["usd", "مبلغ ($)"]].map(([k, l]) => RE("button", { key: k, type: "button", onClick: () => onChange({ ...cfg, capMode: k }), className: "flex-1 py-2 rounded-lg text-[11px]", style: { background: cfg.capMode === k ? "var(--accent-gold)" : "var(--bg-card2)", color: cfg.capMode === k ? "var(--bg-page)" : "var(--text-secondary)" } }, l))),
+                cfg.capMode === "pct" ? num("حداکثر ضرر روزانه", cfg.capPct, v => onChange({ ...cfg, capPct: v }), "٪", "0.1") : num("حداکثر ضرر روزانه", cfg.capUsd, v => onChange({ ...cfg, capUsd: v }), "$"),
+                num("حداکثر تعداد معامله در روز (۰ = بدون محدودیت)", cfg.maxTrades, v => onChange({ ...cfg, maxTrades: Math.max(0, Math.floor(Number(v) || 0)) }), "", "1"),
+                num("توقف بعد از چند ضرر پشت‌سرهم (۰ = بدون محدودیت)", cfg.maxConsecLosses, v => onChange({ ...cfg, maxConsecLosses: Math.max(0, Math.floor(Number(v) || 0)) }), "", "1"),
+                num("هشدار از چند درصد سقف", cfg.warnAt, v => onChange({ ...cfg, warnAt: Math.min(99, Math.max(1, Number(v) || 80)) }), "٪", "1"),
+                RE("div", { className: "flex items-center justify-between mb-2" }, RE("span", { className: "text-[12px]", style: { color: "var(--text-secondary)" } }, "اعلان هنگام رسیدن به هشدار/سقف"), RE(NmToggle, { on: cfg.notify !== false, onChange: () => onChange({ ...cfg, notify: cfg.notify === false }), label: "اعلان" })),
+                cfg.enabled && status && RE("div", { className: "rounded-xl p-3", style: { background: "var(--bg-card2)", border: "1px solid " + lvlColor + "55" } },
+                    RE("div", { className: "flex justify-between text-[11px] mb-1.5" }, RE("span", { style: { color: "var(--text-muted)" } }, "ضرر امروز"), RE("b", { style: { color: lvlColor, fontFamily: "JetBrains Mono, monospace" } }, "$" + status.loss.toFixed(2) + " / $" + cap$.toFixed(2))),
+                    RE("div", { className: "h-2 rounded-full overflow-hidden", style: { background: "var(--bg-page)" } }, RE("div", { style: { width: Math.min(100, status.usedPct) + "%", height: "100%", background: lvlColor } })),
+                    RE("div", { className: "text-[10px] mt-1.5 leading-5", style: { color: "var(--text-muted)" } }, status.today.count + " معامله‌ی بسته‌شده‌ی امروز · " + status.today.consec + " ضرر متوالی" + (status.reasons.length ? " · " + status.reasons.join("، ") : ""))),
+                RE("p", { className: "text-[10px] leading-5 mt-2", style: { color: "var(--text-muted)" } }, "فقط معاملات «بسته‌شده»ی حساب فعال ژورنال شمرده می‌شود؛ معامله‌ی باز یا سابقه‌ی استیتمنت در این محافظ حساب نمی‌شود. این هشدار جلوی ثبت معامله را نمی‌گیرد، فقط یادآوری است."))));
 }
 
 /* ---------------- بروزرسانی برنامه ---------------- */
@@ -3403,9 +4346,17 @@ function NmStorageCard({ showToast }) {
         } catch (err) { }
     }, []);
     useEffect(() => { load(); }, [load]);
-    const requestPersist = async () => { const ok = await window.storage.requestPersist(); setPersisted(ok); showToast(ok ? "ذخیره‌سازی پایدار فعال شد." : "مرورگر این درخواست را تایید نکرد؛ معمولاً وقتی برنامه به‌عنوان PWA نصب شده باشد تایید می‌شود."); };
+    const requestPersist = async () => {
+        if (!(navigator.storage && typeof navigator.storage.persist === "function")) {
+            showToast("این مرورگر درخواست ذخیره‌سازی پایدار را پشتیبانی نمی‌کند. پشتیبان‌گیری منظم را فعال نگه دارید.");
+            return;
+        }
+        const ok = await window.storage.requestPersist();
+        setPersisted(ok);
+        showToast(ok ? "درخواست پذیرفته شد؛ مرورگر داده‌های Namello را در برابر پاک‌سازی خودکار محافظت می‌کند." : "درخواست پذیرفته نشد. این گزینه در اختیار مرورگر/سیستم است؛ از پشتیبان‌گیری منظم استفاده کنید.");
+    };
     const pct = est && est.quota ? Math.min(100, Math.round((est.usage / est.quota) * 100)) : null;
-    return RE(NmCollapsible, { title: "فضای ذخیره‌سازی", subtitle: "حجم مصرفی، وضعیت مهاجرت داده و ذخیره‌سازی پایدار", icon: "🗄️" },
+    return RE(NmCollapsible, { title: "فضای ذخیره‌سازی", subtitle: "بررسی محل نگهداری داده‌ها، حجم مصرفی و محافظت در برابر پاک‌سازی خودکار", icon: "🗄️" },
         !info ? RE("div", { className: "text-[12px]", style: { color: "var(--text-muted)" } }, "در حال بررسی...")
             : RE(React.Fragment, null,
                 RE("div", { className: "rounded-xl p-3 mb-3", style: { background: info.backend === "idb" ? "#34D39915" : "#F59E0B15", border: "1px solid " + (info.backend === "idb" ? "#34D39940" : "#F59E0B40") } },
@@ -3427,9 +4378,10 @@ function NmStorageCard({ showToast }) {
                         RE("span", { className: "mono", style: { color: "var(--text-muted)", fontFamily: "JetBrains Mono, monospace" } }, nmFmtBytes(s.size))))),
                 RE("div", { className: "flex items-center justify-between gap-2 rounded-xl p-3", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
                     RE("div", { className: "min-w-0" },
-                        RE("div", { className: "text-[12px] font-semibold", style: { color: "var(--text-primary)" } }, "ذخیره‌سازی پایدار"),
-                        RE("div", { className: "text-[10px] leading-5 mt-0.5", style: { color: "var(--text-muted)" } }, persisted ? "فعال — مرورگر داده‌ی برنامه را هنگام کمبود فضا حذف نمی‌کند." : "از پاک‌شدن خودکار داده هنگام کمبود فضا جلوگیری می‌کند.")),
-                    !persisted && RE("button", { type: "button", onClick: requestPersist, className: "shrink-0 px-3 py-2 rounded-xl text-[12px] font-medium", style: { background: nmTint(15), color: "var(--accent-gold)" } }, "فعال‌سازی"))));
+                        RE("div", { className: "text-[12px] font-semibold", style: { color: "var(--text-primary)" } }, "محافظت از داده‌ها در برابر پاک‌سازی خودکار"),
+                        RE("div", { className: "text-[10px] leading-5 mt-0.5", style: { color: "var(--text-muted)" } }, persisted === true ? "وضعیت: فعال. مرورگر معمولاً داده‌های Namello را هنگام کمبود فضا خودکار حذف نمی‌کند؛ این گزینه جایگزین فایل پشتیبان نیست." : persisted === false ? "وضعیت: هنوز فعال نشده یا درخواست پذیرفته نشده است. این گزینه فقط از حذف خودکار توسط مرورگر می‌کاهد و مانع پاک‌کردن دستی داده‌ها، حذف برنامه یا خرابی دستگاه نمی‌شود." : "وضعیت این قابلیت توسط مرورگر گزارش نشده است. برای ایمنی، پشتیبان‌گیری منظم را فعال نگه دارید.")),
+                    persisted !== true && RE("button", { type: "button", onClick: requestPersist, className: "shrink-0 px-3 py-2 rounded-xl text-[12px] font-medium", style: { background: nmTint(15), color: "var(--accent-gold)" } }, "درخواست فعال‌سازی")),
+                RE("div", { className: "text-[10px] leading-5 mt-2 px-1", style: { color: "var(--text-muted)" } }, "این دکمه کلید روشن/خاموش معمولی نیست؛ از مرورگر درخواست می‌کند داده‌های محلی برنامه (مانند ژورنال و تنظیمات) را در برابر پاک‌سازی خودکار محافظت کند. تصمیم نهایی با مرورگر است و ممکن است درخواست رد شود. خاموش‌کردن این قابلیت از داخل برنامه معمولاً امکان‌پذیر نیست. فایل پشتیبان جداگانه تهیه کنید.")));
 }
 
 function NmUpdateCard() {
@@ -3543,7 +4495,55 @@ const NM_BK_INTERVALS = [
     { min: 720, label: "۱۲ ساعت" }, { min: 1440, label: "۱ روز" }, { min: 10080, label: "۱ هفته" },
 ];
 const NM_BK_DEFAULT = { auto: false, intervalMin: 360, lastAutoAt: 0, lastBackup: null, manualFolder: "", autoName: "", autoKind: "", pendingPermission: false };
+/* برنامه‌ی نصبی اندروید: فایل پشتیبان واقعی در Download/Namello-Backups ذخیره می‌شود (MediaStore؛ بدون نیاز به مجوز) */
+const NM_BK_NATIVE_DIR = "Namello-Backups";
+const nmBkNative = () => !!(window.NamelloAndroid && typeof window.NamelloAndroid.saveToDownloadsIn === "function");
+function nmB64FromText(text) {
+    const bytes = new TextEncoder().encode(text);
+    let bin = "";
+    const CH = 0x8000;
+    for (let i = 0; i < bytes.length; i += CH)
+        bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
+    return btoa(bin);
+}
+function nmBkNativePickFolder() {
+    if (!window.NamelloAndroid || typeof window.NamelloAndroid.pickBackupFolder !== "function") return Promise.resolve({ unsupported: true });
+    return new Promise(resolve => {
+        let done = false;
+        const timer = setTimeout(() => {
+            if (!done) { done = true; delete window.__nmBackupFolderResult; resolve({ cancelled: true }); }
+        }, 120000);
+        window.__nmBackupFolderResult = (ok, name, uri, errorCode) => {
+            if (done) return; done = true; clearTimeout(timer); delete window.__nmBackupFolderResult;
+            if (ok) resolve({ ok: true, name: String(name || "پوشه انتخابی"), uri: String(uri || "") });
+            else if (errorCode === "cancelled") resolve({ cancelled: true });
+            else resolve({ error: String(errorCode || "folder-selection-failed") });
+        };
+        try { window.NamelloAndroid.pickBackupFolder(); } catch (e) { done = true; clearTimeout(timer); delete window.__nmBackupFolderResult; resolve({ error: true }); }
+    });
+}
+function nmBkNativeSave(name, text, pruneKeepPrefix, keep) {
+    try {
+        const bridge = window.NamelloAndroid;
+        const encoded = nmB64FromText(text);
+        const r = String(bridge && typeof bridge.hasPickedBackupFolder === "function" && bridge.hasPickedBackupFolder() && typeof bridge.saveToPickedBackupFolder === "function"
+            ? bridge.saveToPickedBackupFolder(name, "application/json", encoded)
+            : bridge.saveToDownloadsIn(NM_BK_NATIVE_DIR, name, "application/json", encoded));
+        if (r.indexOf("ok|") !== 0)
+            return { ok: false, reason: r };
+        const custom = !!(bridge && typeof bridge.hasPickedBackupFolder === "function" && bridge.hasPickedBackupFolder());
+        if (pruneKeepPrefix) {
+            try {
+                if (custom && typeof bridge.prunePickedBackupFiles === "function") bridge.prunePickedBackupFiles(pruneKeepPrefix, keep || 8);
+                else if (!custom && typeof bridge.pruneDownloads === "function") bridge.pruneDownloads(NM_BK_NATIVE_DIR, pruneKeepPrefix, keep || 8);
+            } catch (e) { }
+        }
+        return { ok: true, name: r.split("|")[1] || name, where: custom ? "پوشه‌ی انتخاب‌شده" : "Download/" + NM_BK_NATIVE_DIR };
+    }
+    catch (e) { return { ok: false, reason: "exception" }; }
+}
 const nmBkCaps = () => ({
+    native: nmBkNative(),
     dir: typeof window.showDirectoryPicker === "function",
     save: typeof window.showSaveFilePicker === "function",
 });
@@ -3627,6 +4627,23 @@ async function nmBkSaveSnapshot(name, text) {
 async function nmBkCreateManual() {
     const caps = nmBkCaps();
     const name = nmBkFileName("Namello-backup");
+    if (caps.native) {
+        const payloadN = await nmBkCollect();
+        const textN = JSON.stringify(payloadN);
+        const rN = nmBkNativeSave(name, textN, null, 0);
+        if (rN.ok) {
+            const metaN = await nmBkLoadMeta();
+            metaN.lastBackup = { at: payloadN.createdAt, name: rN.name, size: textN.length, where: rN.where, kind: "manual" };
+            await nmBkSaveMeta(metaN);
+            return { ok: true, name: rN.name, where: rN.where, size: textN.length };
+        }
+        // اندروید ۹ و قدیمی‌تر: ذخیره در Download ممکن نیست → منوی اشتراک‌گذاری
+        try {
+            const okShare = window.NamelloNativeFiles ? await window.NamelloNativeFiles.shareBlob(new Blob([textN], { type: "application/json" }), name, "application/json", name) : false;
+            if (okShare) return { ok: true, name, where: "منوی اشتراک‌گذاری", size: textN.length };
+        } catch (e) { }
+        return { error: true };
+    }
     let dir = await nmIdbGet("manualDir");
     let fileHandle = null, where = "";
     if (dir && !(await nmBkEnsurePerm(dir, true))) dir = null;
@@ -3650,7 +4667,14 @@ async function nmBkCreateManual() {
     return { ok: true, name, where, size: text.length };
 }
 async function nmBkPickManualFolder() {
-    if (!nmBkCaps().dir) return { unsupported: true };
+    const caps = nmBkCaps();
+    if (caps.native) {
+        const picked = await nmBkNativePickFolder();
+        if (!picked.ok) return picked;
+        const m = await nmBkLoadMeta(); m.manualFolder = picked.name; m.nativeFolderUri = picked.uri || ""; await nmBkSaveMeta(m);
+        return { ok: true, name: picked.name };
+    }
+    if (!caps.dir) return { unsupported: true };
     try { const d = await window.showDirectoryPicker({ id: "namello-manual", mode: "readwrite" }); await nmIdbSet("manualDir", d); const m = await nmBkLoadMeta(); m.manualFolder = d.name; await nmBkSaveMeta(m); return { ok: true, name: d.name }; }
     catch (e) { return nmIsAbort(e) ? { cancelled: true } : { error: true }; }
 }
@@ -3658,6 +4682,12 @@ async function nmBkPickManualFolder() {
 async function nmBkPickAutoTarget() {
     const caps = nmBkCaps();
     try {
+        if (caps.native) {
+            const picked = await nmBkNativePickFolder();
+            if (!picked.ok) return picked;
+            const m = await nmBkLoadMeta(); m.autoKind = "native-picked"; m.autoName = picked.name; m.nativeFolderUri = picked.uri || ""; m.pendingPermission = false; await nmBkSaveMeta(m);
+            return { ok: true, kind: "native-picked", name: picked.name };
+        }
         if (caps.dir) {
             const d = await window.showDirectoryPicker({ id: "namello-auto", mode: "readwrite" });
             await nmIdbSet("autoTarget", { kind: "dir", handle: d });
@@ -3686,7 +4716,10 @@ async function nmBkRunAuto(fromGesture) {
         const text = JSON.stringify(payload);
         const target = await nmIdbGet("autoTarget");
         let where = "", name = nmBkFileName("Namello-auto"), saved = false;
-        if (target && target.handle && (await nmBkEnsurePerm(target.handle, !!fromGesture))) {
+        if (nmBkNative()) {
+            const rN = nmBkNativeSave(name, text, "Namello-auto-", 8);
+            if (rN.ok) { saved = true; where = rN.where; name = rN.name; meta.pendingPermission = false; }
+        } else if (target && target.handle && (await nmBkEnsurePerm(target.handle, !!fromGesture))) {
             try {
                 if (target.kind === "dir") { await nmBkWriteToDir(target.handle, name, text); await nmBkPrune(target.handle, "Namello-auto-", 10); where = target.handle.name; }
                 else { await nmBkWriteToFile(target.handle, text); name = target.handle.name; where = target.handle.name; }
@@ -3722,13 +4755,49 @@ function useAutoBackupScheduler(enabled) {
         return () => { clearTimeout(first); clearInterval(id); document.removeEventListener("visibilitychange", onVis); };
     }, [enabled]);
 }
+/* برنامه‌ی نصبی: یک‌بار پیشنهاد فعال‌سازی پشتیبان خودکار هفتگی؛ و یادآوری اگر مدت زیادی پشتیبان نگرفته‌ای */
+function useNativeBackupGuard(loaded) {
+    useEffect(() => {
+        if (!loaded || !nmBkNative())
+            return undefined;
+        const id = setTimeout(async () => {
+            try {
+                const m = await nmBkLoadMeta();
+                if (!m.auto && !m.weeklyOffered) {
+                    await nmBkSaveMeta({ ...m, weeklyOffered: true });
+                    const targetText = (m.autoKind === "native-picked" && m.autoName) ? ("پوشه‌ی انتخاب‌شده: " + m.autoName) : "Download/Namello-Backups";
+                    if (window.confirm("پشتیبان خودکار هفتگی فعال شود؟\n\nهر هفته (وقتی Namello باز می‌شود) یک فایل پشتیبان در " + targetText + " ذخیره می‌شود و آخرین ۸ فایل نگه داشته می‌شود. بدون پشتیبان، با حذف برنامه یا نصب نسخه‌ی دیگر تمام داده‌ها پاک می‌شود.")) {
+                        await nmBkSaveMeta({ ...(await nmBkLoadMeta()), auto: true, intervalMin: 10080, lastAutoAt: 0, weeklyOffered: true });
+                        nmToast("پشتیبان خودکار هفتگی فعال شد.");
+                    }
+                    return;
+                }
+                const last = m.lastBackup && m.lastBackup.at ? new Date(m.lastBackup.at).getTime() : 0;
+                const remindedAt = Number(localStorage.getItem("ns_namello_backup_reminded_v1") || 0);
+                if (!m.auto && Date.now() - last > 14 * 86400000 && Date.now() - remindedAt > 86400000) {
+                    localStorage.setItem("ns_namello_backup_reminded_v1", String(Date.now()));
+                    nmToast("بیش از ۱۴ روز از آخرین پشتیبان گذشته؛ تنظیمات ← پشتیبان‌گیری و بازیابی.");
+                }
+            } catch (e) { }
+        }, 8000);
+        return () => clearTimeout(id);
+    }, [loaded]);
+}
 /* ---- بازیابی ---- */
 function nmBkParse(text) {
     const obj = JSON.parse(text);
-    if (obj && obj.app === "Namello" && obj.data && typeof obj.data === "object") return obj;
-    // فرمت قدیمیِ پشتیبان گوگل‌درایو: یک آبجکت تخت از کلیدهای namello_*
-    if (obj && typeof obj === "object" && !Array.isArray(obj) && Object.keys(obj).length && Object.keys(obj).every(k => k.indexOf("namello") === 0)) return { app: "Namello", format: 0, data: obj, createdAt: null };
-    throw new Error("invalid-backup");
+    let payload = null;
+    if (obj && obj.app === "Namello" && obj.data && typeof obj.data === "object" && !Array.isArray(obj.data)) {
+        payload = obj;
+    } else if (obj && typeof obj === "object" && !Array.isArray(obj) && Object.keys(obj).length && Object.keys(obj).every(k => k.indexOf("namello") === 0)) {
+        // فرمت قدیمیِ پشتیبان گوگل‌درایو: یک آبجکت تخت از کلیدهای namello_*
+        payload = { app: "Namello", format: 0, data: obj, createdAt: null };
+    }
+    // Prevent a malformed/foreign backup from being accepted and then clearing data in replace mode.
+    if (!payload) throw new Error("invalid-backup");
+    const keys = Object.keys(payload.data).filter(k => k.indexOf("namello") === 0 && k !== NM_BK_META_KEY);
+    if (!keys.length) throw new Error("empty-or-foreign-backup");
+    return payload;
 }
 function nmMergeVal(cur, inc) {
     const idOf = (x) => (x && typeof x === "object" && x.id !== undefined) ? "id:" + x.id : (x && typeof x === "object" && x.key !== undefined) ? "key:" + x.key : "js:" + JSON.stringify(x);
@@ -3748,6 +4817,17 @@ function nmMergeRaw(curStr, incStr) {
     try { return JSON.stringify(nmMergeVal(JSON.parse(curStr), JSON.parse(incStr))); } catch (e) { return curStr; }
 }
 async function nmBkApply(payload, mode) {
+    if (mode !== "merge" && mode !== "replace") throw new Error("invalid-restore-mode");
+    // دفاعِ لایهٔ دوم: حتی اگر تابع از مسیری غیر از دیالوگ بازیابی فراخوانی شود،
+    // دادهٔ نامعتبر یا فاقد کلیدهای Namello نباید به مرحلهٔ snapshot/تغییر برسد.
+    if (!payload || payload.app !== "Namello" || !payload.data ||
+        typeof payload.data !== "object" || Array.isArray(payload.data)) {
+        throw new Error("invalid-backup-payload");
+    }
+    const validKeys = Object.keys(payload.data).filter(k =>
+        k.indexOf("namello") === 0 && k !== NM_BK_META_KEY
+    );
+    if (!validKeys.length) throw new Error("empty-or-foreign-backup");
     const incoming = {};
     Object.keys(payload.data || {}).forEach(k => {
         if (k.indexOf("namello") !== 0 || k === NM_BK_META_KEY) return;
@@ -3755,21 +4835,48 @@ async function nmBkApply(payload, mode) {
         incoming[k] = typeof v === "string" ? v : JSON.stringify(v);
     });
     const current = await gatherAllAppData();
-    // نسخه‌ی ایمن از وضعیت فعلی، تا بشود بازیابی را لغو کرد
-    try { await nmIdbSet("preRestore", { at: new Date().toISOString(), text: JSON.stringify({ app: "Namello", format: 1, data: current }) }); } catch (e) { }
-    let failed = 0;
-    if (mode === "replace") {
-        for (const k of Object.keys(current)) { if (k === NM_BK_META_KEY) continue; try { await window.storage.delete(k); } catch (e) { } }
-        for (const k of Object.keys(incoming)) { try { await window.storage.set(k, incoming[k]); } catch (e) { failed++; } }
-    } else {
-        for (const k of Object.keys(incoming)) {
-            try {
+    // قبل از هر تغییری، snapshot قابل‌بازیابی را با موفقیت ذخیره کن.
+    // اگر ذخیره‌سازی snapshot شکست بخورد، بازیابی را متوقف کن تا در صورت بسته‌شدن ناگهانی
+    // برنامه، کاربر بدون نسخه‌ی پشتیبان از وضعیت قبلی نماند.
+    try {
+        await nmIdbSet("preRestore", { at: new Date().toISOString(), text: JSON.stringify({ app: "Namello", format: 1, data: current }) });
+    } catch (e) {
+        throw new Error("restore-aborted-snapshot-failed");
+    }
+    const touched = new Set([...Object.keys(current), ...Object.keys(incoming)]);
+    const rollback = async () => {
+        let rollbackErrors = 0;
+        // برگرداندن کلیدهای درگیر به Snapshot قبلی، حتی اگر بازیابی فقط نیمه‌کاره پیش رفته باشد.
+        for (const k of touched) {
+            if (k === NM_BK_META_KEY) continue;
+            try { await window.storage.delete(k); } catch (e) { rollbackErrors++; }
+        }
+        for (const k of Object.keys(current)) {
+            if (k === NM_BK_META_KEY) continue;
+            try { await window.storage.set(k, current[k]); } catch (e) { rollbackErrors++; }
+        }
+        if (rollbackErrors) throw new Error("restore-rollback-failed:" + rollbackErrors);
+    };
+    try {
+        if (mode === "replace") {
+            for (const k of Object.keys(current)) {
+                if (k === NM_BK_META_KEY) continue;
+                await window.storage.delete(k);
+            }
+            for (const k of Object.keys(incoming)) await window.storage.set(k, incoming[k]);
+        } else {
+            for (const k of Object.keys(incoming)) {
                 const val = (k in current) ? nmMergeRaw(current[k], incoming[k]) : incoming[k];
                 await window.storage.set(k, val);
-            } catch (e) { failed++; }
+            }
         }
+    } catch (e) {
+        try { await rollback(); } catch (rollbackError) {
+            throw new Error("restore-failed-and-rollback-failed; use the saved pre-restore snapshot");
+        }
+        throw new Error("restore-failed; previous data restored");
     }
-    return { count: Object.keys(incoming).length, failed };
+    return { count: Object.keys(incoming).length, failed: 0 };
 }
 function NmRestoreDialog({ open, onClose }) {
     const [mode, setMode] = useState("merge");
@@ -3779,6 +4886,32 @@ function NmRestoreDialog({ open, onClose }) {
     useEffect(() => { if (open) { setMode("merge"); setStage(1); setParsed(null); setBusy(false); } }, [open]);
     useBackClose(open, onClose);
     if (!open) return null;
+    const pickFromNativeFolder = async () => {
+        const bridge = window.NamelloAndroid;
+        if (!bridge || typeof bridge.listPickedBackupFiles !== "function" || typeof bridge.readPickedBackupFile !== "function") {
+            nmToast("بازیابی از پوشه‌ی انتخابی فقط در نسخه‌ی اندروید پشتیبانی می‌شود."); return;
+        }
+        try {
+            if (typeof bridge.hasPickedBackupFolder === "function" && !bridge.hasPickedBackupFolder()) {
+                const selected = await nmBkNativePickFolder();
+                if (!selected.ok) { nmToast(selected.error === "permission" ? "برای پوشه‌ی پشتیبان، دسترسی خواندن و نوشتن لازم است؛ پوشه‌ی دیگری انتخاب کنید." : "پوشه‌ای انتخاب نشد."); return; }
+            }
+            const files = JSON.parse(String(bridge.listPickedBackupFiles() || "[]"));
+            if (!Array.isArray(files) || !files.length) { nmToast("در پوشه‌ی انتخاب‌شده فایل پشتیبان JSON پیدا نشد."); return; }
+            const choices = files.map((f, i) => `${i + 1}. ${f.name} (${nmFmtKB(Number(f.size || 0))})`).join("\n");
+            const answer = window.prompt("شماره‌ی فایل پشتیبان را وارد کنید:\n" + choices, "1");
+            if (answer === null) return;
+            const idx = Number(answer) - 1;
+            if (!Number.isInteger(idx) || idx < 0 || idx >= files.length) { nmToast("شماره‌ی فایل معتبر نیست."); return; }
+            const encoded = String(bridge.readPickedBackupFile(String(files[idx].id)) || "");
+            if (!encoded) { nmToast("خواندن فایل از پوشه ناموفق بود."); return; }
+            const bin = atob(encoded), bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+            const text = new TextDecoder("utf-8").decode(bytes);
+            const payload = nmBkParse(text);
+            setParsed({ payload, fileName: files[idx].name, size: Number(files[idx].size || bytes.byteLength) });
+            setStage(2);
+        } catch (e) { nmToast("فایل انتخابی خوانده نشد یا پشتیبان معتبر Namello نیست."); }
+    };
     const pickFile = () => {
         const input = document.createElement("input");
         input.type = "file"; input.style.display = "none";
@@ -3815,7 +4948,8 @@ function NmRestoreDialog({ open, onClose }) {
                 RE("p", { className: "text-[10px] leading-5 mt-1", style: { color: "var(--text-muted)" } }, "پیش از بازیابی، یک نسخه‌ی ایمن از وضعیت فعلی در حافظه‌ی داخلی برنامه نگه‌داری می‌شود تا بتوانید آن را لغو کنید."),
                 RE("div", { className: "flex gap-3 mt-4" },
                     RE("button", { type: "button", onClick: onClose, className: "flex-1 py-3 rounded-2xl text-[13px]", style: { color: "var(--text-secondary)", background: "var(--bg-card2)" } }, "انصراف"),
-                    RE("button", { type: "button", onClick: pickFile, className: "py-3 rounded-2xl text-[13px] font-bold", style: { flex: 2, background: "var(--accent-gold)", color: "var(--bg-page)" } }, "تایید و انتخاب فایل پشتیبان")))
+                    RE("button", { type: "button", onClick: pickFile, className: "py-3 rounded-2xl text-[13px] font-bold", style: { flex: 2, background: "var(--accent-gold)", color: "var(--bg-page)" } }, "انتخاب فایل"),
+                    window.NamelloAndroid && typeof window.NamelloAndroid.listPickedBackupFiles === "function" ? RE("button", { type: "button", onClick: pickFromNativeFolder, className: "w-full py-3 rounded-2xl text-[12px] font-semibold mt-2", style: { background: "var(--bg-card2)", color: "var(--accent-gold)", border: "1px solid var(--border-2)" } }, "انتخاب از پوشه‌ی پشتیبان اندروید") : null))
                 : RE(React.Fragment, null,
                     RE("p", { className: "text-[13px] mb-2", style: { color: "var(--text-secondary)" } }, "فایل پشتیبان خوانده شد. اطلاعات آن را بررسی و تایید کنید:"),
                     RE("div", { className: "rounded-xl px-3 py-1 mb-3", style: { background: "var(--bg-card2)" } },
@@ -3858,6 +4992,14 @@ function NmBackupCard({ showToast }) {
         setBusy(false);
     };
     const onPickManual = async () => {
+        if (caps.native) {
+            const r = await nmBkNativePickFolder();
+            if (r.ok) { const m = await nmBkLoadMeta(); m.manualFolder = r.name; m.autoName = r.name; m.autoKind = "native-picked"; await nmBkSaveMeta(m); showToast("پوشه‌ی پشتیبان دستی و خودکار انتخاب شد: " + r.name); }
+            else if (r.unsupported) showToast("انتخاب پوشه در این نسخه پشتیبانی نمی‌شود.");
+            else if (r.error === "permission") showToast("برای پوشه‌ی پشتیبان، دسترسی خواندن و نوشتن لازم است.");
+            else if (r.error) showToast("انتخاب پوشه ناموفق بود؛ لطفاً پوشه‌ی دیگری انتخاب کنید.");
+            return;
+        }
         const r = await nmBkPickManualFolder();
         if (r.ok) showToast("پوشه‌ی پشتیبان دستی: " + r.name);
         else if (r.unsupported) showToast("این مرورگر انتخاب پوشه را پشتیبانی نمی‌کند؛ محل ذخیره هنگام ایجاد فایل پرسیده می‌شود.");
@@ -3865,12 +5007,19 @@ function NmBackupCard({ showToast }) {
     const onToggleAuto = async (on) => {
         if (on) {
             const t = await nmIdbGet("autoTarget");
-            if (!t && (caps.dir || caps.save)) { const r = await nmBkPickAutoTarget(); if (r.ok) showToast("مسیر ذخیره‌ی خودکار: " + r.name); }
-            await saveMeta({ auto: true, lastAutoAt: 0 });
+            if (!caps.native && !t && (caps.dir || caps.save)) { const r = await nmBkPickAutoTarget(); if (r.ok) showToast("مسیر ذخیره‌ی خودکار: " + r.name); }
+            await saveMeta(caps.native ? { auto: true, lastAutoAt: 0, intervalMin: meta.intervalMin === NM_BK_DEFAULT.intervalMin ? 10080 : meta.intervalMin } : { auto: true, lastAutoAt: 0 });
             showToast("پشتیبان‌گیری خودکار فعال شد.");
         } else await saveMeta({ auto: false });
     };
     const onChangeAutoFolder = async () => {
+        if (caps.native) {
+            const r = await nmBkNativePickFolder();
+            if (r.ok) { await saveMeta({ autoName: r.name, autoKind: "native-picked" }); showToast("پوشه‌ی پشتیبان خودکار انتخاب شد: " + r.name); }
+            else if (r.error === "permission") showToast("برای پوشه‌ی پشتیبان، دسترسی خواندن و نوشتن لازم است.");
+            else if (r.error) showToast("انتخاب پوشه ناموفق بود؛ لطفاً دوباره تلاش کنید.");
+            return;
+        }
         const r = await nmBkPickAutoTarget();
         if (r.ok) showToast("مسیر ذخیره‌ی خودکار: " + r.name);
         else if (r.unsupported) showToast("این مرورگر انتخاب پوشه/فایل را پشتیبانی نمی‌کند؛ پشتیبان‌های خودکار در حافظه‌ی داخلی برنامه نگه‌داری می‌شوند.");
@@ -3883,7 +5032,7 @@ function NmBackupCard({ showToast }) {
         catch (e) { showToast("لغو بازیابی ناموفق بود."); }
     };
     const lb = meta.lastBackup;
-    const autoPath = meta.autoKind === "dir" ? meta.autoName : meta.autoKind === "file" ? meta.autoName + " (بازنویسی همین فایل)" : "حافظه‌ی داخلی برنامه";
+    const autoPath = caps.native ? (meta.autoKind === "native-picked" && meta.autoName ? meta.autoName + " (پوشه‌ی انتخاب‌شده)" : "Download/" + NM_BK_NATIVE_DIR + " (آخرین ۸ فایل)") : meta.autoKind === "dir" ? meta.autoName : meta.autoKind === "file" ? meta.autoName + " (بازنویسی همین فایل)" : "حافظه‌ی داخلی برنامه";
     const bigBtn = (icon, title, sub, onClick) => RE("button", { type: "button", onClick, disabled: busy, className: "flex-1 flex flex-col items-center justify-center gap-1 rounded-2xl py-5 px-2", style: { background: nmTint(9), border: "1.5px solid " + nmTint(45), opacity: busy ? 0.6 : 1 } },
         RE("span", { style: { fontSize: 34, lineHeight: 1 } }, icon),
         RE("span", { className: "text-[13px] font-bold mt-1", style: { color: "var(--text-primary)" } }, title),
@@ -3903,9 +5052,10 @@ function NmBackupCard({ showToast }) {
                 RE("div", { className: "flex items-center justify-between gap-2" },
                     RE("div", { className: "min-w-0" },
                         RE("div", { className: "text-[11px]", style: { color: "var(--text-muted)" } }, "پوشه‌ی ذخیره‌ی فایل پشتیبان (دستی):"),
-                        RE("div", { className: "text-[13px] font-semibold truncate", style: { color: "var(--accent-gold)" } }, caps.dir ? (meta.manualFolder || "هنوز انتخاب نشده") : (caps.save ? "محل ذخیره هنگام ایجاد فایل پرسیده می‌شود" : "پوشه‌ی دانلودهای گوشی"))),
-                    caps.dir && RE("button", { type: "button", onClick: onPickManual, className: "shrink-0 px-3 py-2 rounded-xl text-[12px] font-medium", style: { background: nmTint(15), color: "var(--accent-gold)" } }, meta.manualFolder ? "تغییر پوشه" : "انتخاب پوشه")),
-                !caps.dir && RE("p", { className: "text-[10px] leading-5 mt-2", style: { color: "var(--text-muted)" } }, "مرورگر فعلی شما انتخاب «پوشه‌ی دائمی» را پشتیبانی نمی‌کند" + (caps.save ? "؛ به‌جایش هر بار محل ذخیره‌ی فایل را خودتان انتخاب می‌کنید." : "؛ فایل در پوشه‌ی دانلودها ذخیره می‌شود و بعد می‌توانید آن را به هر پوشه‌ای منتقل کنید."))),
+                        RE("div", { className: "text-[13px] font-semibold truncate", style: { color: "var(--accent-gold)" } }, caps.native ? (meta.manualFolder || meta.autoName && meta.autoKind === "native-picked" ? (meta.manualFolder || meta.autoName) + " (پوشه‌ی انتخاب‌شده)" : "Download/" + NM_BK_NATIVE_DIR) : caps.native ? (meta.manualFolder || "Download/Namello-Backups (یا پوشه انتخابی)") : caps.dir ? (meta.manualFolder || "هنوز انتخاب نشده") : (caps.save ? "محل ذخیره هنگام ایجاد فایل پرسیده می‌شود" : "پوشه‌ی دانلودهای گوشی"))),
+                    (caps.dir || caps.native) && RE("button", { type: "button", onClick: onPickManual, className: "shrink-0 px-3 py-2 rounded-xl text-[12px] font-medium", style: { background: nmTint(15), color: "var(--accent-gold)" } }, "انتخاب پوشه")),
+                caps.native && RE("p", { className: "text-[10px] leading-5 mt-2", style: { color: "var(--text-muted)" } }, "در برنامه‌ی نصبی، فایل پشتیبان در پوشه‌ی Download/" + NM_BK_NATIVE_DIR + " ذخیره می‌شود و با «Files» یا هر برنامه‌ی دیگر قابل دسترسی است. این فایل شامل همه‌ی داده‌های معاملاتی توست؛ آن را جای امنی نگه دار."),
+                !caps.native && !(caps.dir || caps.native) && RE("p", { className: "text-[10px] leading-5 mt-2", style: { color: "var(--text-muted)" } }, "مرورگر فعلی شما انتخاب «پوشه‌ی دائمی» را پشتیبانی نمی‌کند" + (caps.save ? "؛ به‌جایش هر بار محل ذخیره‌ی فایل را خودتان انتخاب می‌کنید." : "؛ فایل در پوشه‌ی دانلودها ذخیره می‌شود و بعد می‌توانید آن را به هر پوشه‌ای منتقل کنید."))),
             hasPre && RE("button", { type: "button", onClick: onUndoRestore, className: "w-full py-2 rounded-lg text-[11px] mb-3", style: { background: "var(--bg-card2)", color: "var(--text-secondary)" } }, "↩ لغو آخرین بازیابی (برگرداندن وضعیت قبل از آن)"),
             RE("div", { className: "pt-3 mt-1", style: { borderTop: "1px solid var(--border-1)" } },
                 RE("div", { className: "flex items-center gap-2 mb-3" },
@@ -3924,14 +5074,14 @@ function NmBackupCard({ showToast }) {
                         RE("div", { className: "min-w-0" },
                             RE("div", { className: "text-[11px]", style: { color: "var(--text-muted)" } }, "مسیر ذخیره‌سازی خودکار:"),
                             RE("div", { className: "text-[14px] font-semibold truncate", style: { color: "var(--accent-gold)" } }, autoPath)),
-                        (caps.dir || caps.save) && RE("button", { type: "button", onClick: onChangeAutoFolder, className: "shrink-0 px-3 py-3 rounded-xl text-[12px] font-medium", style: { background: nmTint(15), color: "var(--accent-gold)" } }, caps.dir ? "تغییر پوشه" : "تغییر فایل")),
+                        (caps.dir || caps.save || caps.native) && RE("button", { type: "button", onClick: onChangeAutoFolder, className: "shrink-0 px-3 py-3 rounded-xl text-[12px] font-medium", style: { background: nmTint(15), color: "var(--accent-gold)" } }, (caps.dir || caps.native) ? "انتخاب پوشه" : "انتخاب فایل")),
                     meta.pendingPermission && RE("button", { type: "button", onClick: onApprove, disabled: busy, className: "w-full py-2.5 rounded-xl text-[12px] font-semibold mb-3", style: { background: "#F59E0B22", color: "#F59E0B" } }, "⚠ تایید دسترسی و ذخیره‌ی پشتیبان در پوشه‌ی انتخابی"),
                     snaps.length > 0 && RE("div", { className: "rounded-xl p-2.5 mb-3", style: { background: "var(--bg-card2)" } },
                         RE("div", { className: "text-[11px] mb-1.5", style: { color: "var(--text-muted)" } }, "نسخه‌های خودکار ذخیره‌شده‌ی داخلی (۳ مورد آخر)"),
                         snaps.map((s, i) => RE("div", { key: i, className: "flex items-center justify-between text-[11px] py-1" },
                             RE("span", { style: { color: "var(--text-secondary)" } }, nmFaDateTime(s.at) + " · " + nmFmtKB(s.size)),
                             RE("button", { type: "button", onClick: () => nmBkDownload(s.name, s.text), className: "px-2.5 py-1 rounded-lg", style: { background: nmTint(15), color: "var(--accent-gold)" } }, "دانلود")))),
-                    RE("p", { className: "text-[10px] leading-5", style: { color: "var(--text-muted)" } }, "توجه: چون Namello یک وب‌اپ است، پشتیبان خودکار فقط وقتی برنامه باز است (یا هنگام باز کردن بعدی) اجرا می‌شود؛ برنامه در پس‌زمینه‌ی کاملاً بسته نمی‌تواند پشتیبان بگیرد. آخرین پشتیبان خودکار: " + (meta.lastAutoAt ? nmFaDateTime(new Date(meta.lastAutoAt).toISOString()) : "هنوز اجرا نشده") + (caps.dir || caps.save ? " · اگر مرورگر دسترسی پوشه را بین اجراها فراموش کند، یک‌بار تایید دوباره لازم است." : "")))
+                    RE("p", { className: "text-[10px] leading-5", style: { color: "var(--text-muted)" } }, (caps.native ? "توجه: پشتیبان خودکار فقط وقتی Namello باز است (یا هنگام باز شدن بعدی) ساخته می‌شود و فایل‌ها در Download/" + NM_BK_NATIVE_DIR + " نگه داشته می‌شوند. آخرین پشتیبان خودکار: " : "توجه: چون Namello یک وب‌اپ است، پشتیبان خودکار فقط وقتی برنامه باز است (یا هنگام باز کردن بعدی) اجرا می‌شود؛ برنامه در پس‌زمینه‌ی کاملاً بسته نمی‌تواند پشتیبان بگیرد. آخرین پشتیبان خودکار: ") + (meta.lastAutoAt ? nmFaDateTime(new Date(meta.lastAutoAt).toISOString()) : "هنوز اجرا نشده") + (caps.dir || caps.save ? " · اگر مرورگر دسترسی پوشه را بین اجراها فراموش کند، یک‌بار تایید دوباره لازم است." : "")))
             )),
         RE(NmRestoreDialog, { open: restoreOpen, onClose: () => setRestoreOpen(false) }));
 }
@@ -4003,7 +5153,7 @@ function NmEventMultiSelect({ config, value, onChange, hint }) {
     const extra = sel.filter(x => !known.has(x));
     const chip = (name) => RE("button", { key: name, type: "button", onClick: () => toggle(name), className: "px-2.5 py-1.5 rounded-lg text-[11px]", style: { background: sel.includes(name) ? nmTint(15) : "var(--bg-card2)", color: sel.includes(name) ? "var(--accent-gold)" : "var(--text-muted)", border: "1px solid " + (sel.includes(name) ? nmTint(35) : "var(--border-2)") } }, name);
     return RE("div", null,
-        RE("div", { className: "flex flex-wrap gap-1.5" },
+        RE("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" },
             groups.flatMap(g => (g[1] || []).map(ev => chip(ev.name))),
             extra.map(chip)),
         sel.length === 0 && RE("div", { className: "text-[10px] mt-1.5", style: { color: "var(--text-muted)" } }, hint || "با تعیین زمان رخ‌دادن، رویدادهای فعال در همان لحظه خودکار انتخاب می‌شوند — یا دستی انتخاب کنید."));
@@ -4243,7 +5393,7 @@ function NmGuideLevelsField({ kind, value, onChange, editMode: externalEditMode 
     const add = () => { const v = newText.trim(); if (!v) return; if (!options.includes(v)) persist([...options, v]); if (!sel.includes(v)) onChange([...sel, v]); setNewText(""); };
     return RE("div", { style: { position: "relative", paddingTop: 6 } },
         externalEditMode === undefined ? JournalEditToggle({ editMode, onToggle: () => setInternalEditMode(m => !m) }) : null,
-        RE("div", { className: "flex flex-wrap gap-1.5" }, options.map((o, i) => editMode
+        RE("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, options.map((o, i) => editMode
             ? RE("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px]", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
                 RE("button", { type: "button", onClick: () => move(i, -1), disabled: i === 0, style: { opacity: i === 0 ? 0.3 : 1 } }, RE(ChevronUp, { size: 12, color: "var(--text-muted)" })),
                 RE("button", { type: "button", onClick: () => move(i, 1), disabled: i === options.length - 1, style: { opacity: i === options.length - 1 ? 0.3 : 1 } }, RE(ChevronDown, { size: 12, color: "var(--text-muted)" })),
@@ -4365,24 +5515,60 @@ function NmEntryVsExtremesCard({ trades }) {
    کاربر در تنظیمات فیلد دلخواه (متنی/عددی/انتخابی) می‌سازد؛ این فیلدها خودشان را در فرم ثبت ورود
    و فرم ویرایش نشان می‌دهند و روی هر معامله در t.customFields[fieldId] ذخیره می‌شوند. */
 const NM_CF_KEY = "namello_custom_trade_fields_v1";
+const NM_CF_PROFILES_KEY = "namello_custom_trade_field_profiles_v1";
+const NM_CF_ENTRY_MODE_KEY = "namello_custom_trade_field_entry_mode_v1";
+const NM_CF_RESULT_MODE_KEY = "namello_custom_trade_field_result_mode_v1";
 const NM_CF_TYPES = [{ v: "text", l: "متنی" }, { v: "number", l: "عددی" }, { v: "select", l: "انتخابی (چند گزینه)" }, { v: "checkbox", l: "بله/خیر" }];
 async function nmCfLoad() { try { const r = await window.storage.get(NM_CF_KEY); const a = JSON.parse(r.value); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
 async function nmCfSave(defs) { await window.storage.set(NM_CF_KEY, JSON.stringify(defs)); try { window.dispatchEvent(new Event("namello-customfields-changed")); } catch (e) { } }
-function useCustomFieldDefs() {
+async function nmCfGetValue(key, fallback) { try { const r = await window.storage.get(key); return r && r.value !== undefined ? JSON.parse(r.value) : fallback; } catch (e) { return fallback; } }
+async function nmCfSetValue(key, value) { await window.storage.set(key, JSON.stringify(value)); try { window.dispatchEvent(new Event("namello-customfields-changed")); } catch (e) { } }
+async function nmCfSaveProfile(name) { const n = String(name || "").trim(); if (!n) return false; const profiles = await nmCfGetValue(NM_CF_PROFILES_KEY, {}); profiles[n] = { defs: await nmCfLoad(), version: 2, savedAt: Date.now() }; await nmCfSetValue(NM_CF_PROFILES_KEY, profiles); return true; }
+function nmCfProfileDefs(profile) { return Array.isArray(profile) ? profile : (profile && Array.isArray(profile.defs) ? profile.defs : []); }
+async function nmCfApplyMode(kind, mode, profileName) {
+    const modeKey = kind === "result" ? NM_CF_RESULT_MODE_KEY : NM_CF_ENTRY_MODE_KEY;
+    if (!['namello', 'raw', 'custom'].includes(mode)) return false;
+    if (mode === "custom") {
+        const profiles = await nmCfGetValue(NM_CF_PROFILES_KEY, {});
+        if (!profileName || !profiles[profileName] || !Array.isArray(profiles[profileName])) return false;
+    }
+    // Each form stores its own mode/profile. Applying a profile no longer overwrites global
+    // definitions and therefore cannot unexpectedly change the other form's active setup.
+    await nmCfSetValue(modeKey, { mode, profileName: mode === "custom" ? profileName : "" });
+    try { window.dispatchEvent(new Event("namello-customfields-changed")); } catch (e) { }
+    return true;
+}
+function useCustomFieldDefs(kind) {
     const [defs, setDefs] = useState([]);
     useEffect(() => {
         let alive = true;
-        const load = () => nmCfLoad().then(d => { if (alive) setDefs(d); });
+        const load = async () => {
+            let next = await nmCfLoad();
+            if (kind !== "manager" && kind !== "all") {
+                const modeKey = kind === "result" ? NM_CF_RESULT_MODE_KEY : NM_CF_ENTRY_MODE_KEY;
+                const modeState = await nmCfGetValue(modeKey, { mode: "namello" });
+                if (modeState.mode === "custom" && modeState.profileName) {
+                    const profiles = await nmCfGetValue(NM_CF_PROFILES_KEY, {});
+                    if (Array.isArray(profiles[modeState.profileName]) || (profiles[modeState.profileName] && Array.isArray(profiles[modeState.profileName].defs))) next = nmCfProfileDefs(profiles[modeState.profileName]);
+                }
+            }
+            if (alive) setDefs(next);
+        };
         load();
         window.addEventListener("namello-customfields-changed", load);
         return () => { alive = false; window.removeEventListener("namello-customfields-changed", load); };
-    }, []);
+    }, [kind]);
     return defs;
 }
 function NmCustomFieldsManager() {
-    const defs = useCustomFieldDefs();
+    const defs = useCustomFieldDefs("manager");
     const [form, setForm] = useState({ label: "", type: "text", optionsText: "" });
     const [editId, setEditId] = useState(null);
+    const [profileName, setProfileName] = useState("");
+    const [profiles, setProfiles] = useState({});
+    const [entryMode, setEntryMode] = useState("namello");
+    const [resultMode, setResultMode] = useState("namello");
+    useEffect(() => { (async () => { setProfiles(await nmCfGetValue(NM_CF_PROFILES_KEY, {})); const a = await nmCfGetValue(NM_CF_ENTRY_MODE_KEY, {mode:"namello"}); const b = await nmCfGetValue(NM_CF_RESULT_MODE_KEY, {mode:"namello"}); setEntryMode(a.mode || "namello"); setResultMode(b.mode || "namello"); })(); }, []);
     const add = async () => {
         const label = form.label.trim(); if (!label) return;
         const opts = form.type === "select" ? form.optionsText.split(",").map(s => s.trim()).filter(Boolean) : undefined;
@@ -4394,8 +5580,39 @@ function NmCustomFieldsManager() {
     };
     const startEdit = (d) => { setEditId(d.id); setForm({ label: d.label, type: d.type, optionsText: (d.options || []).join(", ") }); };
     const remove = (id) => { nmCfSave(defs.filter(d => d.id !== id)); if (editId === id) { setEditId(null); setForm({ label: "", type: "text", optionsText: "" }); } };
-    return RE(NmCollapsible, { title: "فیلدهای سفارشی معامله", subtitle: "فیلد دلخواه بساز و بدون نیاز به کدنویسی به فرم ژورنال اضافه کن", icon: "🧩" },
-        RE("p", { className: "text-[11px] leading-6 mb-3", style: { color: "var(--text-secondary)" } }, "هر فیلدی که اینجا بسازید، در فرم «ثبت ورود» و «ویرایش معامله» زیر بخش «فیلدهای سفارشی» ظاهر می‌شود و مقدارش روی همان معامله ذخیره می‌شود."),
+    const saveProfile = async () => { const n = profileName.trim(); if (!n) { nmToast("نام پیکربندی را وارد کنید."); return; } await nmCfSaveProfile(n); setProfiles(await nmCfGetValue(NM_CF_PROFILES_KEY, {})); nmToast("پیکربندی «" + n + "» ذخیره شد."); };
+    const applyMode = async (kind, mode, chosenName) => { const selected = mode === "custom" ? (chosenName || profileName.trim() || Object.keys(profiles)[0] || "") : ""; const ok = await nmCfApplyMode(kind, mode, selected); if (!ok && mode === "custom") { nmToast("ابتدا یک پیکربندی سفارشی ذخیره کنید."); return; } if (kind === "entry") setEntryMode(mode); else setResultMode(mode); };
+    const applyJournalForm = async (mode, profileName) => {
+        const chosen = mode === "custom" ? (profileName || "") : "";
+        if (mode === "custom" && !chosen) { nmToast("ابتدا یک پیکربندی سفارشی ذخیره کنید."); return; }
+        const a = await nmCfApplyMode("entry", mode, chosen);
+        const b = await nmCfApplyMode("result", mode, chosen);
+        if (!a || !b) { nmToast("انتخاب فرم انجام نشد."); return; }
+        setEntryMode(mode); setResultMode(mode); setProfileName(chosen);
+        nmToast(mode === "custom" ? `فرم «${chosen}» برای ثبت ورود و نتیجه فعال شد.` : "فرم Namello برای ثبت ورود و نتیجه فعال شد.");
+    };
+    const modePanel = RE("div", { className: "rounded-xl p-3 mb-3", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
+        RE("div", { className: "text-[11px] font-semibold mb-1.5", style: { color: "var(--text-primary)" } }, "فرم فعال ژورنال"),
+        RE("div", { className: "text-[9px] leading-5 mb-2", style: { color: "var(--text-muted)" } }, "با انتخاب یک فرم، بخش «ثبت ورود» و «ثبت نتیجه معامله» هر دو مطابق همان فرم نمایش داده می‌شوند."),
+        RE("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" },
+            RE("button", { type:"button", onClick:()=>applyJournalForm("namello"), className:"px-3 py-2 rounded-lg text-[10px] font-semibold", style:{background:entryMode==="namello"&&resultMode==="namello"?"var(--accent-gold)":"var(--bg-card)",color:entryMode==="namello"&&resultMode==="namello"?"var(--bg-page)":"var(--text-secondary)",border:"1px solid "+(entryMode==="namello"&&resultMode==="namello"?"var(--accent-gold)":"var(--border-2)")} }, "Namello"),
+            Object.keys(profiles).map(name => RE("button", { key:name, type:"button", onClick:()=>applyJournalForm("custom",name), className:"px-3 py-2 rounded-lg text-[10px] font-semibold", style:{background:entryMode==="custom"&&resultMode==="custom"&&profileName===name?"var(--accent-gold)":"var(--bg-card)",color:entryMode==="custom"&&resultMode==="custom"&&profileName===name?"var(--bg-page)":"var(--text-secondary)",border:"1px solid "+(entryMode==="custom"&&resultMode==="custom"&&profileName===name?"var(--accent-gold)":"var(--border-2)")} }, name))
+        )
+    );
+    const profilePanel = RE("div", { className: "rounded-lg p-2 mb-3", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
+        RE("div", { className: "text-[11px] font-semibold mb-2", style: { color: "var(--text-primary)" } }, "ذخیره پیکربندی سفارشی"),
+        RE("div", { className: "flex gap-2" },
+            RE("input", { value: profileName, onChange: e => setProfileName(e.target.value), placeholder: "نام پیکربندی", className: "min-w-0 flex-1 rounded-lg px-3 py-2 text-[11px]", style: { background: "var(--bg-card)", color: "var(--text-primary)", border: "1px solid var(--border-2)" } }),
+            RE("button", { type: "button", onClick: saveProfile, className: "px-3 py-2 rounded-lg text-[11px]", style: { background: "var(--accent-gold)", color: "var(--bg-page)" } }, "ذخیره")),
+        Object.keys(profiles).length > 0 && RE("div", { className: "mt-2" },
+            RE("div", { className: "text-[10px] mb-1", style: { color: "var(--text-muted)" } }, "برای استفاده، فرم موردنظر را انتخاب کنید؛ همان فرم هم‌زمان برای «ثبت ورود» و «ثبت نتیجه معامله» فعال می‌شود:"),
+            Object.keys(profiles).map(name => RE("div", { key: name, className: "flex items-center gap-2 mb-1.5" },
+                RE("span", { className: "min-w-0 flex-1 text-[10px]", style: { color: "var(--text-secondary)" } }, name),
+                RE("button", { type: "button", onClick: () => applyJournalForm("custom", name), className: "px-2 py-1 rounded-md text-[10px]", style: { background: "var(--bg-card)", color: "var(--text-secondary)", border: "1px solid var(--border-2)" } }, "انتخاب فرم")))));
+    return RE(NmCollapsible, { title: "فیلدهای سفارشی معامله", subtitle: "تنظیم مستقل ثبت ورود و ثبت نتیجه معامله", icon: "🧩" },
+        RE("p", { className: "text-[11px] leading-6 mb-3", style: { color: "var(--text-secondary)" } }, "حالت خام فیلدهای سفارشی را از فرم پنهان می‌کند و اطلاعات قبلی را پاک نمی‌کند. پیکربندی‌ها برای استفاده‌ی دوباره ذخیره می‌شوند."),
+        modePanel,
+        profilePanel,
         defs.length > 0 && RE("div", { className: "mb-3" }, defs.map(d => RE("div", { key: d.id, className: "flex items-center justify-between gap-2 rounded-lg px-3 py-2 mb-1.5", style: { background: "var(--bg-card2)" } },
             RE("div", { className: "min-w-0" },
                 RE("span", { className: "text-[12px] font-medium", style: { color: "var(--text-primary)" } }, d.label),
@@ -4412,9 +5629,11 @@ function NmCustomFieldsManager() {
                 editId && RE("button", { type: "button", onClick: () => { setEditId(null); setForm({ label: "", type: "text", optionsText: "" }); }, className: "flex-1 py-2 rounded-lg text-[12px]", style: { background: "var(--bg-card)", color: "var(--text-secondary)" } }, "انصراف"),
                 RE("button", { type: "button", onClick: add, className: "flex-1 py-2 rounded-lg text-[12px] font-semibold", style: { background: "var(--accent-gold)", color: "var(--bg-page)" } }, editId ? "ذخیره تغییرات" : "➕ افزودن فیلد"))));
 }
-function NmCustomFieldsFormSection({ values, onChange }) {
-    const defs = useCustomFieldDefs();
-    if (!defs.length) return null;
+function NmCustomFieldsFormSection({ values, onChange, kind = "entry" }) {
+    const defs = useCustomFieldDefs(kind);
+    const [mode, setMode] = useState("namello");
+    useEffect(() => { let alive=true; const load=async()=>{const key=kind === "result" ? NM_CF_RESULT_MODE_KEY : NM_CF_ENTRY_MODE_KEY; const r=await nmCfGetValue(key,{mode:"namello"}); if(alive)setMode(r.mode||"namello");}; load(); window.addEventListener("namello-customfields-changed",load); return ()=>{alive=false;window.removeEventListener("namello-customfields-changed",load);}; }, [kind]);
+    if (mode === "raw" || !defs.length) return null;
     const v = values || {};
     const set = (id, val) => onChange({ ...v, [id]: val });
     return RE("div", { className: "rounded-xl p-3 mb-3", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
@@ -4424,10 +5643,38 @@ function NmCustomFieldsFormSection({ values, onChange }) {
             d.type === "text" && RE("input", { type: "text", value: v[d.id] || "", onChange: e => set(d.id, e.target.value), className: "w-full rounded-lg px-3 py-2 text-[13px] bg-transparent outline-none", style: { color: "var(--text-primary)", border: "1px solid var(--border-2)" } }),
             d.type === "number" && RE("input", { type: "number", inputMode: "decimal", value: v[d.id] || "", onChange: e => set(d.id, e.target.value), className: "w-full rounded-lg px-3 py-2 text-[13px] bg-transparent outline-none", style: { color: "var(--text-primary)", border: "1px solid var(--border-2)" } }),
             d.type === "checkbox" && RE("button", { type: "button", onClick: () => set(d.id, !v[d.id]), className: "px-4 py-2 rounded-lg text-[12px]", style: { background: v[d.id] ? nmTint(15) : "var(--bg-card)", color: v[d.id] ? "var(--accent-gold)" : "var(--text-secondary)", border: "1px solid " + (v[d.id] ? nmTint(40) : "var(--border-2)") } }, v[d.id] ? "✓ بله" : "خیر"),
-            d.type === "select" && RE("div", { className: "flex flex-wrap gap-1.5" }, (d.options || []).map(opt => RE("button", { key: opt, type: "button", onClick: () => set(d.id, opt), className: "px-3 py-1.5 rounded-lg text-[12px]", style: { background: v[d.id] === opt ? nmTint(15) : "var(--bg-card)", color: v[d.id] === opt ? "var(--accent-gold)" : "var(--text-secondary)", border: "1px solid " + (v[d.id] === opt ? nmTint(40) : "var(--border-2)") } }, opt))))));
+            d.type === "select" && RE("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, (d.options || []).map(opt => RE("button", { key: opt, type: "button", onClick: () => set(d.id, opt), className: "px-3 py-1.5 rounded-lg text-[12px]", style: { background: v[d.id] === opt ? nmTint(15) : "var(--bg-card)", color: v[d.id] === opt ? "var(--accent-gold)" : "var(--text-secondary)", border: "1px solid " + (v[d.id] === opt ? nmTint(40) : "var(--border-2)") } }, opt))))));
 }
+
+function useJournalFormMode(kind) {
+ const [state,setState]=React.useState({mode:"namello",profileName:""});
+ React.useEffect(()=>{let alive=true; const load=async()=>{const key=kind==="result"?NM_CF_RESULT_MODE_KEY:NM_CF_ENTRY_MODE_KEY; const v=await nmCfGetValue(key,{mode:"namello",profileName:""}); if(alive)setState({mode:v.mode||"namello",profileName:v.profileName||""});}; load(); const on=()=>load(); window.addEventListener("namello-customfields-changed",on); return()=>{alive=false;window.removeEventListener("namello-customfields-changed",on)}},[kind]);
+ return state;
+}
+function NmCustomJournalEntryView({form,setForm,pairs,appLanguage,profileName,onSave}){
+ const defs=useCustomFieldDefs("entry"); const pairOptions=pairs&&pairs.length?pairs:["XAUUSD"]; const set=(k,v)=>setForm(f=>({...f,[k]:v}));
+ return RE("div",{className:"nm-custom-journal-view rounded-2xl p-3 mb-2",style:{background:"var(--bg-card2)",border:"1px solid var(--border-2)"}},
+  RE("div",{className:"rounded-xl p-3 mb-3",style:{background:"color-mix(in srgb, var(--accent-gold) 8%, var(--bg-card))",border:"1px solid color-mix(in srgb, var(--accent-gold) 28%, var(--border-1))"}},RE("div",{className:"text-[12px] font-extrabold",style:{color:"var(--accent-gold)"}},"فرم سفارشی ثبت ورود"),RE("div",{className:"text-[9px] leading-5 mt-1",style:{color:"var(--text-muted)"}},profileName?`فرم فعال: ${profileName}`:"فرم سفارشی فعال")),
+  RE("div",{className:"grid grid-cols-2 gap-2"},RE(Field,{label:"تاریخ"},RE("input",{type:"date",value:form.date||"",onChange:e=>set("date",e.target.value),className:"w-full bg-transparent outline-none text-sm",style:{color:"var(--text-primary)"}})),RE(Field,{label:"ساعت (NY)"},RE("input",{type:"time",value:form.time||"",onChange:e=>set("time",e.target.value),className:"w-full bg-transparent outline-none text-sm",style:{color:"var(--text-primary)"}}))),
+  RE(Field,{label:"جفت‌ارز"},RE("select",{value:form.pair||pairOptions[0],onChange:e=>set("pair",e.target.value),className:"w-full bg-transparent outline-none text-sm",style:{color:"var(--text-primary)"}},pairOptions.map(x=>RE("option",{key:x,value:x,style:{background:"var(--bg-card2)"}},x)))),
+  RE(Field,{label:"جهت معامله"},RE("div",{className:"grid grid-cols-2 gap-2"},RE("button",{type:"button",onClick:()=>set("direction","buy"),className:"py-2.5 rounded-lg text-sm font-semibold",style:{background:form.direction==="buy"?"#34D39922":"var(--bg-card)",color:form.direction==="buy"?"#34D399":"var(--text-secondary)",border:"1px solid "+(form.direction==="buy"?"#34D39966":"var(--border-2)")}},"خرید"),RE("button",{type:"button",onClick:()=>set("direction","sell"),className:"py-2.5 rounded-lg text-sm font-semibold",style:{background:form.direction==="sell"?"#F8717122":"var(--bg-card)",color:form.direction==="sell"?"#F87171":"var(--text-secondary)",border:"1px solid "+(form.direction==="sell"?"#F8717166":"var(--border-2)")}},"فروش"))),
+  RE("div",{className:"grid grid-cols-2 gap-2"},RE(Field,{label:"قیمت ورود"},RE("input",{type:"number",inputMode:"decimal",value:form.entry||"",onChange:e=>set("entry",e.target.value),className:"w-full bg-transparent outline-none text-sm mono",style:{color:"var(--text-primary)",fontFamily:"JetBrains Mono, monospace"}})),RE(Field,{label:"حجم (لات)"},RE("input",{type:"text",inputMode:"decimal",value:form.lot||"",onChange:e=>set("lot",e.target.value),className:"w-full bg-transparent outline-none text-sm mono",style:{color:"var(--text-primary)",fontFamily:"JetBrains Mono, monospace"}}))),
+  defs.length?RE(NmCustomFieldsFormSection,{values:form.customFields||{},onChange:v=>set("customFields",v),kind:"entry"}):RE("div",{className:"rounded-xl p-3 mb-3 text-[10px]",style:{background:"var(--bg-card)",color:"var(--text-muted)",border:"1px solid var(--border-1)"}},"این فرم هنوز فیلد سفارشی ندارد. از تنظیمات فیلد اضافه کن."),
+  RE("button",{type:"button",onClick:onSave,className:"w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium mt-2",style:{background:"#FFEDD5",color:"#C2410C",border:"1px solid #FDBA74"}},RE(Check,{size:16}),appLanguage==="en"?"Log Entry":"ثبت ورود"));
+}
+function NmCustomJournalResultView({form,profileName,appLanguage,onChange,onSave}){
+ const set=(k,v)=>onChange(k,v);
+ return RE("div",{className:"nm-custom-journal-view rounded-2xl p-3 mb-2",style:{background:"var(--bg-card2)",border:"1px solid var(--border-2)"}},
+  RE("div",{className:"rounded-xl p-3 mb-3",style:{background:"color-mix(in srgb, var(--accent-gold) 8%, var(--bg-card))",border:"1px solid color-mix(in srgb, var(--accent-gold) 28%, var(--border-1))"}},RE("div",{className:"text-[12px] font-extrabold",style:{color:"var(--accent-gold)"}},"فرم سفارشی ثبت نتیجه معامله"),RE("div",{className:"text-[9px] leading-5 mt-1",style:{color:"var(--text-muted)"}},profileName?`فرم فعال: ${profileName}`:"فرم سفارشی فعال")),
+  RE(Field,{label:"قیمت خروج (اختیاری)"},RE("input",{type:"number",inputMode:"decimal",value:form.exit||"",onChange:e=>set("exit",e.target.value),className:"w-full bg-transparent outline-none text-sm mono",style:{color:"var(--text-primary)",fontFamily:"JetBrains Mono, monospace"}})),
+  RE(Field,{label:"سود/ضرر ($)"},RE("div",{className:"flex gap-2"},RE("button",{type:"button",onClick:()=>set("pnlSign","profit"),className:"px-3 rounded-lg text-sm",style:{background:form.pnlSign==="profit"?"#34D39922":"var(--bg-card)",color:form.pnlSign==="profit"?"#34D399":"var(--text-muted)",border:"1px solid var(--border-2)"}},"+ سود"),RE("button",{type:"button",onClick:()=>set("pnlSign","loss"),className:"px-3 rounded-lg text-sm",style:{background:form.pnlSign==="loss"?"#F8717122":"var(--bg-card)",color:form.pnlSign==="loss"?"#F87171":"var(--text-muted)",border:"1px solid var(--border-2)"}},"− ضرر"),RE("input",{type:"number",inputMode:"decimal",min:"0",value:form.pnl||"",onChange:e=>set("pnl",e.target.value),className:"flex-1 rounded-lg px-3 py-2 bg-transparent outline-none text-sm mono",style:{color:"var(--text-primary)",border:"1px solid var(--border-2)",fontFamily:"JetBrains Mono, monospace"}}))),
+  RE("div",{className:"grid grid-cols-2 gap-2"},RE(Field,{label:"پیپ"},RE("input",{type:"number",inputMode:"decimal",value:form.pips||"",onChange:e=>set("pips",e.target.value),className:"w-full bg-transparent outline-none text-sm mono",style:{color:"var(--text-primary)",fontFamily:"JetBrains Mono, monospace"}})),RE(Field,{label:"نوع بستن"},RE(ChipGroup,{value:form.closeType||"دستی",options:["دستی","حد سود (TP)","حد ضرر (SL)"],onChange:v=>set("closeType",v),activeColor:"var(--accent-gold)"}))),
+  RE(NmCustomFieldsFormSection,{values:form.customFields||{},onChange:v=>set("customFields",v),kind:"result"}),RE(Field,{label:"یادداشت"},RE("textarea",{rows:3,value:form.note||"",onChange:e=>set("note",e.target.value),className:"w-full bg-transparent outline-none text-sm resize-none",style:{color:"var(--text-primary)"}})),
+  RE("button",{type:"button",onClick:onSave,className:"w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium mt-2 nm-unified-export-btn",style:{background:"#FEF3C7",color:"#92400E",border:"1px solid #F59E0B"}},RE(Check,{size:16}),appLanguage==="en"?"Save Trade":"ثبت نهایی"));
+}
+
 function NmCustomFieldsChips({ trade }) {
-    const defs = useCustomFieldDefs();
+    const defs = useCustomFieldDefs("all");
     const v = trade.customFields || {};
     const items = defs.filter(d => v[d.id] !== undefined && v[d.id] !== "" && v[d.id] !== false);
     if (!items.length) return null;
@@ -4594,8 +5841,8 @@ function NmNavOrderCard({value,onChange}){
     safe.map((k,i)=>RE("div",{key:k,className:"flex items-center gap-2 rounded-lg px-2.5 py-2",style:{background:"var(--bg-card2)",border:"1px solid var(--border-2)"}},
       RE("span",{className:"w-6 text-center text-[10px] font-bold",style:{color:"var(--accent-gold)"}},i+1),
       RE("span",{className:"flex-1 text-[11px]",style:{color:"var(--text-primary)"}},NM_NAV_LABELS[k]||k),
-      RE("button",{type:"button",onClick:()=>move(i,-1),disabled:i===0,className:"p-1",style:{opacity:i===0?.3:1}},RE(ChevronUp,{size:13})),
-      RE("button",{type:"button",onClick:()=>move(i,1),disabled:i===safe.length-1,className:"p-1",style:{opacity:i===safe.length-1?.3:1}},RE(ChevronDown,{size:13}))
+      RE("button",{type:"button",onClick:()=>move(i,-1),disabled:i===0,className:"p-1",style:{opacity:i===0?.3:1}},RE(ChevronUp,{size:15,color:"#F59E0B",strokeWidth:2.6})),
+      RE("button",{type:"button",onClick:()=>move(i,1),disabled:i===safe.length-1,className:"p-1",style:{opacity:i===safe.length-1?.3:1}},RE(ChevronDown,{size:15,color:"#F59E0B",strokeWidth:2.6}))
     )),
     RE("button",{type:"button",onClick:()=>onChange?.([...NM_DEFAULT_NAV_ORDER]),className:"w-full mt-2 py-2 rounded-lg text-[10px]",style:{background:"var(--bg-card2)",color:"var(--accent-gold)"}},"بازگشت به ترتیب پیش‌فرض")
    )
@@ -4622,6 +5869,24 @@ function NmNavLayoutCard({ value, onChange }) {
             selected: value === "vertical", onClick: () => onChange("vertical"), title: "عمودی (آبشاری)", desc: "با لمس آیکون Namello، فهرست عمودی لایه‌ها باز می‌شود؛ نوار پایین صفحه پنهان است.",
             preview: RE("span", { className: "shrink-0 rounded-xl flex flex-col justify-center gap-1 p-2", style: { width: 54, height: 54, background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
                 [1, 2, 3].map(i => RE("span", { key: i, className: "rounded", style: { width: i === 1 ? 34 : 24, height: 6, background: i === 1 ? "var(--accent-gold)" : "var(--border-2)" } }))),
+        }));
+}
+
+function NmNavBarModeCard({ value, onChange }) {
+    const isNative = typeof window !== "undefined" && !!(window.NamelloAndroid && window.NamelloAndroid.setNavBarMode);
+    const mini = (overlap) => RE("span", { className: "shrink-0 rounded-xl relative overflow-hidden", style: { width: 54, height: 54, background: "var(--bg-card2)", border: "1px solid var(--border-2)", display: "block" } },
+        RE("span", { style: { position: "absolute", left: 0, right: 0, bottom: 0, height: 8, background: "#6B7280", opacity: 0.55 } }),
+        RE("span", { style: { position: "absolute", left: 4, right: 4, bottom: overlap ? 0 : 10, height: 10, borderRadius: 3, background: "var(--accent-gold)", opacity: overlap ? 0.9 : 1 } }));
+    return RE(NmCollapsible, { title: "Navigation bar", subtitle: "تداخل یا جدایش نوار لایه‌ها با نوار ناوبری گوشی", icon: "📱" },
+        RE("p", { className: "text-[11px] leading-5 mb-3", style: { color: "var(--text-muted)" } }, "تعیین می‌کند نوار لایه‌های پایین صفحه روی نوار ناوبری اندروید (دکمه‌های برگشت/خانه/اخیر یا خط ژست) قرار بگیرد یا بالاتر از آن بنشیند. تغییر بلافاصله اعمال می‌شود."),
+        !isNative && RE("p", { className: "text-[10px] leading-5 mb-3", style: { color: "var(--accent-gold)" } }, "این گزینه فقط در برنامه‌ی نصبی اندروید (APK) اثر دارد؛ در مرورگر/PWA فقط ذخیره می‌شود."),
+        RE(NmRadioRow, {
+            selected: value === "overlap", onClick: () => onChange("overlap"), title: "تداخل", desc: "صفحه تمام‌صفحه رسم می‌شود و نوار لایه‌ها می‌تواند روی نوار ناوبری گوشی قرار بگیرد.",
+            preview: mini(true),
+        }),
+        RE(NmRadioRow, {
+            selected: value === "separate", onClick: () => onChange("separate"), title: "جدایش (پیش‌فرض)", desc: "نوار لایه‌ها بالاتر از نوار ناوبری گوشی می‌نشیند و تداخلی پیش نمی‌آید.",
+            preview: mini(false),
         }));
 }
 
@@ -4963,6 +6228,14 @@ function NmBookViewer({ book, onClose, showToast }) {
     }, [book.id]);
     const externalOpen = async () => {
         const blob = state.blob; if (!blob) return;
+        if (window.NamelloNativeFiles) {
+            const ext0 = nmLibExt(book.fileName);
+            const mime0 = (ext0 === "txt" || ext0 === "md" || ext0 === "text") ? "text/plain" : (ext0 === "pdf" ? "application/pdf" : (blob.type || book.mimeType || "application/octet-stream"));
+            const done = await window.NamelloNativeFiles.shareBlob(blob, book.fileName || (book.title + ".bin"), mime0, book.title);
+            if (done) return;
+            showToast("منوی «باز کردن با…» باز نشد.");
+            return;
+        }
         try {
             const file = new File([blob], book.fileName || (book.title + ".bin"), { type: blob.type || book.mimeType || "application/octet-stream" });
             if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: book.title }); return; }
@@ -4976,7 +6249,7 @@ function NmBookViewer({ book, onClose, showToast }) {
         } catch (e) { showToast("باز کردن فایل ناموفق بود."); }
     };
     return RE("div", { className: "fixed inset-0 z-[70] flex flex-col", style: { background: "var(--bg-page)" } },
-        RE("div", { className: "flex items-center gap-2 px-3 py-2.5", style: { background: "var(--bg-card)", borderBottom: "1px solid var(--border-1)", paddingTop: "calc(env(safe-area-inset-top, 0px) + 10px)" } },
+        RE("div", { className: "flex items-center gap-2 px-3 py-2.5", style: { background: "var(--bg-card)", borderBottom: "1px solid var(--border-1)", paddingTop: "calc(var(--nm-safe-top, env(safe-area-inset-top, 0px)) + 10px)" } },
             RE("button", { type: "button", onClick: onClose, className: "p-1.5 shrink-0", "aria-label": "بستن" }, RE(X, { size: 18, color: "var(--text-primary)" })),
             RE("div", { className: "flex-1 min-w-0 text-[13px] font-semibold truncate", style: { color: "var(--text-primary)" } }, book.title),
             state.blob && RE("button", { type: "button", onClick: externalOpen, className: "px-2.5 py-1 rounded-lg text-[11px] shrink-0", style: { background: "var(--bg-card2)", color: "var(--accent-gold)" } }, "اشتراک/دانلود")),
@@ -5040,6 +6313,17 @@ function NmLibraryBooksSection({ showToast, askDeleteConfirm }) {
             const ext = nmLibExt(b.fileName);
             const type = (ext === "txt" || ext === "md" || ext === "text") ? "text/plain" : (ext === "pdf" ? "application/pdf" : (blob.type || b.mimeType || "application/octet-stream"));
             const name = b.fileName || (b.title + (ext ? "" : ".txt"));
+            // برنامه‌ی نصبی اندروید: WebView از navigator.share برای فایل پشتیبانی نمی‌کند.
+            // فایل متنی همیشه داخل خود برنامه باز می‌شود (قابل اتکا)؛ بقیه‌ی فایل‌ها با منوی «باز کردن با…» اندروید.
+            if (window.NamelloNativeFiles) {
+                const isTextFile = ext === "txt" || ext === "md" || ext === "text" || String(blob.type || b.mimeType || "").indexOf("text/") === 0;
+                if (isTextFile) { setViewing(b); return; }
+                const done = await window.NamelloNativeFiles.shareBlob(blob, name, type, b.title);
+                if (done) return;
+                showToast("منوی انتخاب برنامه باز نشد؛ فایل داخل خود برنامه باز شد.");
+                setViewing(b);
+                return;
+            }
             const file = new File([blob], name, { type });
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({ files: [file], title: b.title });
@@ -5188,6 +6472,62 @@ function NmLibrarySettingsCard({ open, onToggle }) {
     );
 }
 /* ---------------- پیام انگیزشی ترید ---------------- */
+const NM_TEXT_NOTIF_KEY = "namello_text_notification_settings_v1";
+const NM_TEXT_NOTIF_DEFAULTS = Object.freeze({ sessions: true, news: true, evaluation: true, psychology: true, motivation: true });
+function nmTextNotifLoadSettings() {
+    try { return { ...NM_TEXT_NOTIF_DEFAULTS, ...JSON.parse(localStorage.getItem(NM_TEXT_NOTIF_KEY) || "{}") }; }
+    catch (e) { return { ...NM_TEXT_NOTIF_DEFAULTS }; }
+}
+function nmTextNotifSaveSettings(next) {
+    const clean = { ...NM_TEXT_NOTIF_DEFAULTS, ...(next || {}) };
+    try { localStorage.setItem(NM_TEXT_NOTIF_KEY, JSON.stringify(clean)); } catch (e) {}
+    try { window.dispatchEvent(new CustomEvent("namello-text-notification-settings")); } catch (e) {}
+    return clean;
+}
+function nmTextNotifEnabled(category) { return nmTextNotifLoadSettings()[category] !== false; }
+const NM_TEXT_NOTIF_ART = Object.freeze({
+    evaluation: "./logos/01-evaluation.png",
+    psychology: "./logos/02-psychology.png",
+    sessions: "./logos/03-sessions-and-events.png",
+    news: "./logos/04-news.png",
+    motivation: "./logos/05-motivation.png"
+});
+function nmSendTextCategoryNotification(category, title, body, dedupeKey) {
+    if (!nmTextNotifEnabled(category) || typeof Notification === "undefined" || Notification.permission !== "granted" || !("serviceWorker" in navigator)) return Promise.resolve(false);
+    const day = new Date().toISOString().slice(0, 10);
+    const key = "namello_text_notif_sent_" + category + "_" + day;
+    const fingerprint = String(dedupeKey || body || title).slice(0, 180);
+    try { if (localStorage.getItem(key)) return Promise.resolve(false); } catch (e) {}
+    return navigator.serviceWorker.ready.then(reg => reg.showNotification(title, {
+        body, icon: NM_TEXT_NOTIF_ART[category] || "./icon-192.png", badge: "./icon-192.png",
+        tag: "namello-text-" + category + "-" + day, requireInteraction: false, silent: false,
+        data: { kind: category, category }
+    })).then(() => { try { localStorage.setItem(key, fingerprint); } catch (e) {} return true; }).catch(() => false);
+}
+function NmNotificationTextSettings() {
+    const [settings, setSettings] = React.useState(() => nmTextNotifLoadSettings());
+    const [expanded, setExpanded] = React.useState(false);
+    const rows = [
+        ["sessions", "نشست‌ها و رویدادها", "شروع و پایان نشست‌ها، Kill Zone و Silver Bullet", "./logos/03-sessions-and-events.png"],
+        ["news", "اخبار اقتصادی", "هشدار خبر ۳۰ ثانیه پیش از زمان رویداد", "./logos/04-news.png"],
+        ["evaluation", "توصیه‌های ارزیابی پیشرفته", "اعلان توصیه‌های مبتنی بر داده‌های معاملاتی", "./logos/01-evaluation.png"],
+        ["psychology", "توصیه‌های روانشناسی ترید", "اعلان نکته‌ها و اقدام‌های پیشنهادی رفتاری", "./logos/02-psychology.png"],
+        ["motivation", "پیام‌های انگیزشی کتابخانه", "پیام‌های انگیزشی زمان‌بندی‌شده", "./logos/05-motivation.png"]
+    ];
+    const toggle = key => setSettings(prev => { const next = nmTextNotifSaveSettings({ ...prev, [key]: !(prev[key] !== false) }); return next; });
+    return RE("section", { className: "rounded-2xl p-3 mb-3", style: { background: "var(--bg-card)", border: "1px solid var(--border-1)" } },
+        RE("button", { type: "button", onClick: () => setExpanded(v => !v), className: "w-full flex items-center justify-between", "aria-expanded": expanded },
+            RE("span", { className: "flex items-center gap-2 text-[13px] font-bold", style: { color: "var(--text-primary)" } }, "🔔", "نوتیفیکیشن‌های متنی"),
+            RE("span", { className: "text-[10px]", style: { color: "var(--accent-gold)" } }, expanded ? "بستن ▲" : "تنظیم دسته‌ها ▼")),
+        expanded && RE("div", { className: "mt-3" },
+            RE("p", { className: "text-[10px] leading-5 mb-3", style: { color: "var(--text-muted)" } }, "هر دسته مستقل است. خاموش‌کردن یک دسته، اعلان‌های متنی همان دسته را در نسخه وب و APK متوقف می‌کند؛ تنظیم زنگ هر رویداد همچنان جداگانه باقی می‌ماند."),
+            rows.map(([key, title, desc, icon]) => RE("div", { key, className: "flex items-center gap-3 rounded-xl p-2.5 mb-2", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
+                RE("img", { src: icon, alt: "", className: "w-10 h-10 rounded-lg object-contain shrink-0" }),
+                RE("div", { className: "flex-1 min-w-0" }, RE("div", { className: "text-[11px] font-semibold", style: { color: "var(--text-primary)" } }, title), RE("div", { className: "text-[9px] leading-4 mt-0.5", style: { color: "var(--text-muted)" } }, desc)),
+                RE("button", { type: "button", role: "switch", "aria-checked": settings[key] !== false, "aria-label": title, onClick: () => toggle(key), className: "rounded-full px-1 flex items-center shrink-0", style: { width: 42, height: 24, background: settings[key] !== false ? "var(--accent-gold)" : "var(--border-2)", justifyContent: settings[key] !== false ? "flex-end" : "flex-start" } },
+                    RE("span", { className: "rounded-full", style: { width: 18, height: 18, background: "var(--bg-page)" } }))))));
+}
+
 const NM_MOTIVATION_KEY = "namello_motivational_messages_v1";
 const NM_MOTIVATION_SETTINGS_KEY = "namello_motivational_settings_v1";
 const NM_MOTIVATION_EVT = "namello-motivational-settings";
@@ -5206,17 +6546,17 @@ const NM_MOTIVATION_DEFAULTS = [
     "موفقیت پایدار یک جهش ناگهانی نیست؛ حاصل صدها تصمیم کوچک و درست است."
 ];
 function nmMotivationLoadMessages() { try { const v = JSON.parse(localStorage.getItem(NM_MOTIVATION_KEY) || "null"); return Array.isArray(v) && v.length ? v.filter(x => x && typeof x.text === "string") : NM_MOTIVATION_DEFAULTS.map((text,i) => ({ id: "m"+i, text, createdAt: Date.now() })); } catch (e) { return NM_MOTIVATION_DEFAULTS.map((text,i) => ({ id: "m"+i, text, createdAt: Date.now() })); } }
-function nmMotivationLoadSettings() { try { return { enabled:false, intervalMs:1800000, nextAt:0, ...JSON.parse(localStorage.getItem(NM_MOTIVATION_SETTINGS_KEY) || "{}") }; } catch (e) { return { enabled:false, intervalMs:1800000, nextAt:0 }; } }
+function nmMotivationLoadSettings() { try { return { enabled:false, intervalMs:600000, nextAt:0, ...JSON.parse(localStorage.getItem(NM_MOTIVATION_SETTINGS_KEY) || "{}") }; } catch (e) { return { enabled:false, intervalMs:600000, nextAt:0 }; } }
 function nmMotivationSaveMessages(v) { try { localStorage.setItem(NM_MOTIVATION_KEY, JSON.stringify(v)); } catch (e) {} try { window.dispatchEvent(new CustomEvent(NM_MOTIVATION_EVT)); } catch (e) {} }
 function nmMotivationSaveSettings(v) { try { localStorage.setItem(NM_MOTIVATION_SETTINGS_KEY, JSON.stringify(v)); } catch (e) {} try { window.dispatchEvent(new CustomEvent(NM_MOTIVATION_EVT)); } catch (e) {} }
 async function nmMotivationRequestPermission() { if (typeof Notification === "undefined") return false; if (Notification.permission === "granted") return true; if (Notification.permission === "denied") return false; try { return (await Notification.requestPermission()) === "granted"; } catch (e) { return false; } }
 async function nmShowMotivationalNotification(text) {
-    const body = String(text || "").trim(); if (!body) return false;
+    const body = String(text || "").trim(); if (!body || !nmTextNotifEnabled("motivation")) return false;
     if (typeof Notification === "undefined" || Notification.permission !== "granted" || !("serviceWorker" in navigator)) return false;
     try {
         const reg = await navigator.serviceWorker.ready;
         const tag = "namello-motivation-" + Date.now();
-        await reg.showNotification("پیام انگیزشی Namello", { body, icon:"./icon-192.png", badge:"./icon-192.png", tag, vibrate:[200,100,200], silent:false, requireInteraction:false, data:{kind:"motivation"} });
+        await reg.showNotification("پیام انگیزشی Namello", { body, icon:NM_TEXT_NOTIF_ART.motivation, badge:"./icon-192.png", tag, vibrate:[200,100,200], silent:false, requireInteraction:false, data:{kind:"motivation",category:"motivation"} });
         setTimeout(() => { try { reg.getNotifications({tag}).then(ns => ns.forEach(n => n.close())).catch(()=>{}); } catch(e){} }, 20000);
         return true;
     } catch (e) { return false; }
@@ -5231,12 +6571,12 @@ function NmMotivationalNotificationScheduler() {
             const messages = nmMotivationLoadMessages();
             if (!messages.length) return;
             const now = Date.now();
-            let nextAt = Number(settings.nextAt) || (now + 1800000);
+            let nextAt = Number(settings.nextAt) || (now + 600000);
             if (nextAt <= now) {
                 const pick = messages[Math.floor(Math.random() * messages.length)];
                 const ok = await nmShowMotivationalNotification(pick.text);
-                nextAt = now + 1800000;
-                nmMotivationSaveSettings({ ...settings, intervalMs:1800000, nextAt });
+                nextAt = now + 600000;
+                nmMotivationSaveSettings({ ...settings, intervalMs:600000, nextAt });
                 if (!ok && typeof console !== "undefined") { try { console.warn("[Namello motivation] notification not shown"); } catch(e){} }
             }
             const delay = Math.max(1000, Math.min(nextAt - Date.now(), 2147480000));
@@ -5262,7 +6602,7 @@ function NmMotivationalMessagesSection({ showToast, askDeleteConfirm }) {
         if(enabled){ const st={...nmMotivationLoadSettings(),enabled:false,nextAt:0}; nmMotivationSaveSettings(st); setEnabled(false); setNextAt(0); return; }
         const ok=await nmMotivationRequestPermission(); setPermission(typeof Notification === "undefined" ? "unsupported" : Notification.permission);
         if(!ok){ if(showToast) showToast("اجازه‌ی نوتیفیکیشن داده نشد."); return; }
-        const st={...nmMotivationLoadSettings(),enabled:true,intervalMs:1800000,nextAt:Date.now()+1800000}; nmMotivationSaveSettings(st); setEnabled(true); setNextAt(st.nextAt); if(showToast) showToast("پیام انگیزشی هر ۳۰ دقیقه فعال شد.");
+        const st={...nmMotivationLoadSettings(),enabled:true,intervalMs:600000,nextAt:Date.now()+600000}; nmMotivationSaveSettings(st); setEnabled(true); setNextAt(st.nextAt); if(showToast) showToast("پیام‌های متنی هر ۱۰ دقیقه، به‌صورت تصادفی، فعال شد.");
     };
     const test = async () => { const m=messages[0]; if(!m)return; const ok=await nmMotivationRequestPermission(); setPermission(typeof Notification === "undefined" ? "unsupported" : Notification.permission); if(!ok){if(showToast)showToast("اجازه‌ی نوتیفیکیشن داده نشد.");return;} const shown=await nmShowMotivationalNotification(m.text); if(showToast)showToast(shown?"اعلان آزمایشی ارسال شد.":"ارسال اعلان ممکن نشد."); };
     const addDefault = () => { const missing=NM_MOTIVATION_DEFAULTS.filter(t=>!messages.some(m=>m.text===t)); if(!missing.length){if(showToast)showToast("همه‌ی پیام‌های پیش‌فرض در فهرست هستند.");return;} persist([...missing.map((text,i)=>({id:"md"+Date.now().toString(36)+i,text,createdAt:Date.now()})),...messages]); };
@@ -6360,65 +7700,10 @@ function nmStrExportRows(s) {
   return rows;
 }
 
-
-/* ---------- Module 14: Strategic LLM Copilot (1.0.21) ---------- */
-const NM_LLM_CFG_KEY = "namello_llm_config_v1";
-const NM_LLM_DEFAULT = { enabled:false, mode:"backend", baseUrl:"", endpoint:"", apiKey:"", model:"", temperature:0.2, includeTradeRows:false };
-function nmLlmCfg(){ try{return {...NM_LLM_DEFAULT,...JSON.parse(localStorage.getItem(NM_LLM_CFG_KEY)||"{}")} }catch(e){return {...NM_LLM_DEFAULT};} }
-function nmLlmSaveCfg(v){ try{localStorage.setItem(NM_LLM_CFG_KEY,JSON.stringify(v));}catch(e){} }
-function nmLlmSafe(v, fallback=null){ return v===undefined||v===null||Number.isNaN(v)?fallback:v; }
-function nmLlmBuildPayload(s){
-  const regime=s?.regime||{};
-  const payload={schema:"namello-strategic-llm-v1",version:NM_VERSION_NAME,generatedAt:new Date().toISOString(),
-    objective:"تفسیر و اولویت‌بندی خروجی موتور آماری/Rule-Based؛ بدون پیش‌بینی قطعی بازار و بدون ساخت داده.",
-    health:{score:s?.health?.score,confidence:s?.confidence?.score,dataQuality:s?.dataQuality?.score,n:s?.n},
-    performance:{unit:s?.unit,expectancy:s?.all?.mean,ci:[s?.all?.lo,s?.all?.hi],profitFactor:s?.risk?.profitFactor,maxDrawdown:s?.risk?.maxDD,halfKelly:s?.risk?.halfKelly},
-    decision:s?.decision||{},
-    regime:{dims:(regime.dims||[]).map(d=>({key:d.key,title:d.title,source:d.source,groups:(d.groups||[]).map(g=>({name:g.name,n:g.n,mean:g.mean,win:g.win,t:g.t,verdict:g.verdict}))})),
-      persistence:regime.persistence||null,changes:regime.changes||null,rolling:regime.rolling||null,transition:regime.transition||null,risk:regime.risk||null,forecast:regime.forecast||null,adaptiveDecay:regime.adaptiveDecay||null,psychology:regime.psychology||null},
-    strategy:{systems:(s?.strategy?.systems||[]).map(x=>({name:x.name,n:x.n,mean:x.mean,win:x.win,t:x.t})),adaptive:s?.strategy?.adaptive||null,interactions:(s?.strategy?.interactions||[]).slice(0,20),decaySys:s?.strategy?.decaySys||[]},
-    narrative:{status:s?.narrative?.status||null,strengths:s?.narrative?.strengths||[],leaks:s?.narrative?.leaks||[],avoid:s?.narrative?.avoid||[],short:s?.narrative?.short||[],mid:s?.narrative?.mid||[]},
-    forward:s?.forward||null,
-    audit:(s?.audit||[]).slice(0,20)
-  };
-  return payload;
-}
-function nmLlmSystemPrompt(){ return `تو Strategic Copilot ناملو هستی. فقط بر اساس JSON داده‌شده تحلیل کن. هیچ عدد، معامله، رژیم، علت یا نتیجه‌ای را که در داده نیست اختراع نکن. اگر نمونه کم، CI ضعیف، یا نتیجه مقدماتی است صریحاً بگو. خروجی باید تصمیم‌یار باشد نه توصیه قطعی خرید/فروش یا تضمین سود. تفاوت بین «داده»، «استنباط Rule-Based» و «تفسیر LLM» را حفظ کن. اولویت با Transition/Regime، Edge، Risk، Strategy Fit، Decay و Psychology است. پاسخ را JSON معتبر با این کلیدها بده: summary (string), regime (string), edge (string), risk (string), strategy (string), psychology (string), actions (array of strings), warnings (array of strings), confidence (number 0..100), rationale (array of strings). فارسی و کوتاه اما دقیق بنویس.`; }
-function nmLlmExtractText(body){
-  return body?.output_text || body?.choices?.[0]?.message?.content || body?.choices?.[0]?.text || body?.response || body?.content || "";
-}
-function nmLlmParse(text){
-  if(typeof text!=="string") return null;
-  const cleaned=text.replace(/^```json\s*/i,"").replace(/^```\s*/i,"").replace(/\s*```$/i,"").trim();
-  try{return JSON.parse(cleaned);}catch(e){
-    const a=cleaned.indexOf("{"); const b=cleaned.lastIndexOf("}");
-    if(a>=0&&b>a){try{return JSON.parse(cleaned.slice(a,b+1));}catch(_){}}
-  }
-  return null;
-}
-async function nmLlmGenerate(s,cfg){
-  const payload=nmLlmBuildPayload(s); const system=nmLlmSystemPrompt();
-  const user=`این خروجی ساختاریافته موتور Rule-Based ناملو است. آن را تفسیر کن:\n${JSON.stringify(payload)}`;
-  if(cfg.mode==="backend"){
-    const body=await nmBackendRequest("/v1/llm/strategic",{method:"POST",body:JSON.stringify({model:cfg.model||undefined,temperature:Number(cfg.temperature)||0.2,system,user,data:payload})});
-    const text=nmLlmExtractText(body); const parsed=nmLlmParse(text); if(!parsed) throw new Error("پاسخ LLM قابل تبدیل به JSON نبود."); return {parsed,raw:text,model:body.model||cfg.model||"backend"};
-  }
-  const endpoint=String(cfg.endpoint||cfg.baseUrl||"").trim(); if(!endpoint) throw new Error("Endpoint مدل LLM را وارد کن.");
-  if(!cfg.apiKey) throw new Error("API Key برای حالت مستقیم وارد نشده است.");
-  const r=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+cfg.apiKey},body:JSON.stringify({model:cfg.model,messages:[{role:"system",content:system},{role:"user",content:user}],temperature:Number(cfg.temperature)||0.2,response_format:{type:"json_object"}})});
-  let body=null;try{body=await r.json();}catch(e){}
-  if(!r.ok) throw new Error(body?.error?.message||body?.error||`LLM HTTP ${r.status}`);
-  const text=nmLlmExtractText(body); const parsed=nmLlmParse(text); if(!parsed) throw new Error("پاسخ LLM قابل تبدیل به JSON نبود."); return {parsed,raw:text,model:body.model||cfg.model||"direct"};
-}
-
 function NmStrategicEnginePanel({ trades, startingBalance }) {
   const [tab, setTab] = React.useState("story");
   const [rules, setRules] = React.useState(nmStrLoadRules);
   const [showRules, setShowRules] = React.useState(false);
-  const [llmCfg, setLlmCfg] = React.useState(nmLlmCfg);
-  const [llmBusy, setLlmBusy] = React.useState(false);
-  const [llmResult, setLlmResult] = React.useState(null);
-  const [llmError, setLlmError] = React.useState("");
   const start = Number(startingBalance) > 0 ? Number(startingBalance) : 0;
   const [goalT, setGoalT] = React.useState(start > 0 ? "10" : "");
   const [goalH, setGoalH] = React.useState("100");
@@ -6510,22 +7795,6 @@ function NmStrategicEnginePanel({ trades, startingBalance }) {
       s.regime.psychology?.length ? sub("Regime × Psychology",listOf(s.regime.psychology.map(x=>({text:`${x.name}: Edge ${f(x.edge,3)}${u} · رفتار پرریسک ${f(x.behaviorRate*100,0)}٪`,why:x.behaviorEdge===null?`n=${x.n}`:`Edge معاملات دارای رفتار ${f(x.behaviorEdge,3)}${u} · n=${x.n}`})),"#F59E0B")):null,
       s.regime.adaptiveDecay?.dimensions?.length ? sub("Adaptive Edge / Decay",listOf(s.regime.adaptiveDecay.dimensions.map(x=>({text:`${x.title} · ${x.name}: ${x.status}`,why:x.delta===null?`نمونه قبل کافی نیست`:`تغییر ${f(x.delta,3)}${u}`})),"#F87171")):null
     );
-  } else if (tab === "llm") {
-    const lr=llmResult?.parsed||null;
-    const saveCfg=(patch)=>{const nx={...llmCfg,...patch};setLlmCfg(nx);nmLlmSaveCfg(nx);};
-    const run=async()=>{setLlmBusy(true);setLlmError("");try{const out=await nmLlmGenerate(s,llmCfg);setLlmResult({...out,at:new Date().toISOString()});}catch(e){setLlmError(e?.message||"خطای LLM");}finally{setLlmBusy(false);}};
-    const aiItem=(title,text,color)=>React.createElement("div",{className:"rounded-xl p-2.5 mb-2",style:{background:"var(--bg-card2)",borderInlineStart:"3px solid "+color}},React.createElement("div",{className:"text-[10px] font-semibold mb-1"},title),React.createElement("div",{className:"text-[10px] leading-5",style:{color:"var(--text-secondary)"}},text||"—"));
-    body=React.createElement("div",null,
-      sub("Strategic LLM Copilot",note("LLM فقط خروجی ساختاریافته موتور Rule-Based را تفسیر می‌کند؛ داده خام معاملات، نام حساب و یادداشت‌های شخصی به‌صورت پیش‌فرض ارسال نمی‌شوند.")),
-      React.createElement("div",{className:"rounded-xl p-2.5 mt-2",style:{background:"var(--bg-card2)",border:"1px solid var(--border-1)"}},
-        React.createElement("div",{className:"grid grid-cols-2 gap-2"},
-          React.createElement("label",{className:"text-[9px]",style:{color:"var(--text-muted)"}},"حالت اتصال",React.createElement("select",{value:llmCfg.mode,onChange:e=>saveCfg({mode:e.target.value}),className:"w-full mt-1 rounded px-2 py-1 text-[10px] bg-transparent",style:{border:"1px solid var(--border-1)",color:"var(--text-primary)"}},React.createElement("option",{value:"backend"},"Backend امن (پیشنهادی)"),React.createElement("option",{value:"direct"},"مستقیم از دستگاه"))),
-          React.createElement("label",{className:"text-[9px]",style:{color:"var(--text-muted)"}},"Model",React.createElement("input",{value:llmCfg.model||"",onChange:e=>saveCfg({model:e.target.value}),placeholder:"نام مدل",className:"w-full mt-1 rounded px-2 py-1 text-[10px] bg-transparent",style:{border:"1px solid var(--border-1)",color:"var(--text-primary)",direction:"ltr"}}))),
-        llmCfg.mode==="direct"?React.createElement("div",{className:"grid grid-cols-1 gap-2 mt-2"},React.createElement("label",{className:"text-[9px]",style:{color:"var(--text-muted)"}},"Endpoint سازگار با Chat Completions",React.createElement("input",{value:llmCfg.endpoint||"",onChange:e=>saveCfg({endpoint:e.target.value}),placeholder:"https://.../chat/completions",className:"w-full mt-1 rounded px-2 py-1 text-[10px] bg-transparent",style:{border:"1px solid var(--border-1)",color:"var(--text-primary)",direction:"ltr"}})),React.createElement("label",{className:"text-[9px]",style:{color:"var(--text-muted)"}},"API Key",React.createElement("input",{type:"password",value:llmCfg.apiKey||"",onChange:e=>saveCfg({apiKey:e.target.value}),placeholder:"در حافظه محلی دستگاه ذخیره می‌شود",className:"w-full mt-1 rounded px-2 py-1 text-[10px] bg-transparent",style:{border:"1px solid var(--border-1)",color:"var(--text-primary)",direction:"ltr"}}))):React.createElement("div",{className:"text-[9px] leading-5 mt-2",style:{color:"var(--text-muted)"}},"حالت Backend کلید مدل را در مرورگر نگه نمی‌دارد. آدرس Backend از تنظیمات اتصال Namello استفاده می‌شود و باید Endpoint مدل در سرور تنظیم شده باشد."),
-        React.createElement("div",{className:"flex items-center gap-2 mt-2"},React.createElement("button",{type:"button",disabled:llmBusy,onClick:run,className:"px-3 py-1.5 rounded-lg text-[10px] font-bold",style:{background:"var(--accent-gold)",color:"var(--bg-page)",opacity:llmBusy?.6:1}},llmBusy?"در حال تحلیل…":"اجرای تحلیل LLM"),React.createElement("button",{type:"button",onClick:()=>{setLlmResult(null);setLlmError("");},className:"px-2 py-1.5 rounded-lg text-[9px]",style:{background:"var(--bg-card)",color:"var(--text-secondary)",border:"1px solid var(--border-1)"}},"پاک کردن نتیجه"))),
-      llmError?React.createElement("div",{className:"rounded-lg p-2 mt-2 text-[10px] leading-5",style:{background:"#F8717112",color:"#F87171"}},llmError):null,
-      lr?React.createElement("div",{className:"mt-3"},aiItem("جمع‌بندی",lr.summary,"#06B6D4"),aiItem("رژیم و Transition",lr.regime,"#A78BFA"),aiItem("Edge",lr.edge,"#34D399"),aiItem("ریسک",lr.risk,"#F59E0B"),aiItem("Strategy Fit",lr.strategy,"#60A5FA"),aiItem("Psychology",lr.psychology,"#F472B6"),sub("اقدامات پیشنهادی",listOf((lr.actions||[]).map(x=>({text:String(x),why:"تفسیر LLM از خروجی Rule-Based؛ قبل از اجرا با داده اصلی بررسی شود."})),"#34D399")),sub("هشدارها",listOf((lr.warnings||[]).map(x=>({text:String(x),why:"هشدار تولیدشده بر پایه داده ساختاریافته."})),"#F87171")),sub("منطق و شواهد",listOf((lr.rationale||[]).map(x=>({text:String(x),why:"باید با داده‌های نمایش‌داده‌شده در Namello قابل تطبیق باشد."})),"#A78BFA")),card("اعتماد LLM",`${Math.max(0,Math.min(100,Number(lr.confidence)||0))}/100`,llmResult?.model?`مدل: ${llmResult.model}`:"",Number(lr.confidence)>=75?"good":Number(lr.confidence)>=50?"warn":"bad"),React.createElement("div",{className:"text-[8px] leading-4 mt-2",style:{color:"var(--text-muted)"}},`آخرین اجرا: ${llmResult.at||"—"}`)):note("برای شروع، اتصال را تنظیم و «اجرای تحلیل LLM» را بزن."),
-      note("LLM منبع حقیقت داده نیست؛ محاسبات اصلی، Edge، ریسک و Regime از موتور آماری Namello می‌آیند. خروجی LLM برای تفسیر، اولویت‌بندی و توضیح انسانی است."));
   } else if (tab === "behavior") {
     const b = s.behavior, a = b.attribution;
     const tl = v => v === null ? "info" : v < 25 ? "good" : v < 50 ? "warn" : "bad";
@@ -6580,7 +7849,7 @@ function NmStrategicEnginePanel({ trades, startingBalance }) {
       note("شبیه‌سازی‌ها بر پایه معاملات گذشته شماست و تضمینی برای آینده نیستند."));
   }
   return React.createElement("div", box, head, tabBar, body,
-    React.createElement("div", { className: "text-[8px] leading-4 mt-3", style: { color: "var(--text-muted)" } }, "محاسبات اصلی قاعده‌محور و قابل ردیابی‌اند. LLM فقط در تب LLM و پس از اجرای دستی استفاده می‌شود؛ داده خام معاملات به‌صورت پیش‌فرض ارسال نمی‌شود."));
+    React.createElement("div", { className: "text-[8px] leading-4 mt-3", style: { color: "var(--text-muted)" } }, "همه نتایج قاعده‌محور و قابل ردیابی‌اند (زیر هر یافته دلیل آن آمده)، توصیه سرمایه‌گذاری نیستند و داده‌ها از دستگاه شما خارج نمی‌شوند."));
 }
 
 function nmExitInsight(t){
@@ -6987,10 +8256,11 @@ function NmDashboard({trades,startingBalance,todayStr,onEditTrade,onPersistTrade
  const [showAdvanced,setShowAdvanced]=React.useState(false);
  const [showPsychology,setShowPsychology]=React.useState(false);
  const [showComprehensive,setShowComprehensive]=React.useState(false);
+ const [showDashboardAI,setShowDashboardAI]=React.useState(false);
  const [layout,setLayout]=React.useState(()=>{try{const x=JSON.parse(localStorage.getItem(NM_DASH_LAYOUT_KEY)||"null");return Array.isArray(x)&&x.length?x:NM_DASH_DEFAULT_LAYOUT}catch(e){return NM_DASH_DEFAULT_LAYOUT}});const [drag,setDrag]=React.useState(null);const [selected,setSelected]=React.useState(null);const [excursion,setExcursion]=React.useState(null);const [replay,setReplay]=React.useState(null);const [coach,setCoach]=React.useState(false);
  const persistFilters=x=>{setFilters(x);try{localStorage.setItem(NM_DASH_FILTER_KEY,JSON.stringify(x))}catch(e){}};const saveLayout=a=>{setLayout(a);try{localStorage.setItem(NM_DASH_LAYOUT_KEY,JSON.stringify(a))}catch(e){}};const reorder=(from,to)=>{if(!from||from===to)return;const a=[...layout],i=a.indexOf(from),j=a.indexOf(to);if(i<0||j<0)return;a.splice(i,1);a.splice(j,0,from);saveLayout(a);};const moveWidget=(id,dir)=>{const a=[...layout],i=a.indexOf(id),j=i+dir;if(i<0||j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];saveLayout(a);};
  const analysisPlans=React.useMemo(()=>[...(plans||[]),...(chartPlans||[]),...(dayPlans||[])],[plans,chartPlans,dayPlans]);
- const closed=(trades||[]).filter(t=>t.status==="closed");const sessions=React.useMemo(()=>Array.from(new Set(closed.map(nmDashSession))).filter(Boolean).sort(),[trades]);const setups=React.useMemo(()=>Array.from(new Set(closed.map(nmDashSetup))).filter(Boolean).sort(),[trades]);const filtered=React.useMemo(()=>closed.filter(t=>nmDashFilterDate(t,filters.range,todayStr)&&(filters.session==="all"||nmDashSession(t)===filters.session)&&(filters.setup==="all"||nmDashSetup(t)===filters.setup)&&(filters.direction==="all"||t.direction===filters.direction)),[closed,filters,todayStr]);const m=React.useMemo(()=>nmDashMetrics(filtered,startingBalance),[filtered,startingBalance]);
+ const closed=(trades||[]).filter(t=>t.status==="closed");const sessions=React.useMemo(()=>Array.from(new Set(closed.map(nmDashSession))).filter(Boolean).sort(),[trades]);const setups=React.useMemo(()=>Array.from(new Set(closed.map(nmDashSetup))).filter(Boolean).sort(),[trades]);const filtered=React.useMemo(()=>closed.filter(t=>nmDashFilterDate(t,filters.range,todayStr)&&(filters.session==="all"||nmDashSession(t)===filters.session)&&(filters.setup==="all"||nmDashSetup(t)===filters.setup)&&(filters.direction==="all"||t.direction===filters.direction)),[closed,filters,todayStr]); const advancedRecommendations = React.useMemo(() => nmAdvancedRecommendations(filtered), [filtered]); const m=React.useMemo(()=>nmDashMetrics(filtered,startingBalance),[filtered,startingBalance]);
  const edge=React.useMemo(()=>{const make=fn=>{const map={};filtered.forEach(t=>{const k=fn(t);if(!k)return;(map[k]??=[]).push(t)});return Object.entries(map).map(([name,ts])=>{const mm=nmDashMetrics(ts,0);return{name,count:ts.length,pnl:mm.pnl,win:mm.winRate,exp:mm.expectancy}}).sort((a,b)=>b.pnl-a.pnl)};return{session:make(nmDashSession),setup:make(nmDashSetup)}},[filtered]);
  const excursionStats=React.useMemo(()=>{const x=filtered.filter(t=>Number.isFinite(Number(t.mfe))||Number.isFinite(Number(t.mae)));const avgM=x.length?x.reduce((s,t)=>s+Number(t.mfe||0),0)/x.length:null,avgA=x.length?x.reduce((s,t)=>s+Number(t.mae||0),0)/x.length:null,eff=x.filter(t=>Number.isFinite(Number(t.exitEfficiency)));return{count:x.length,avgM,avgA,avgEff:eff.length?eff.reduce((s,t)=>s+Number(t.exitEfficiency),0)/eff.length:null}} , [filtered]);
  const mistakes=React.useMemo(()=>{const map={};filtered.forEach(t=>(t.disciplineMistakes||t.review?.mistakes||[]).forEach(k=>{map[k]??={count:0,pnl:0};map[k].count++;map[k].pnl+=Number(t.pnl)||0}));return Object.entries(map).map(([key,v])=>({key,label:(NM_DISCIPLINE_OPTIONS.find(x=>x[0]===key)||NM_REVIEW_MISTAKES.find(x=>x[0]===key)||[key,key])[1],...v})).sort((a,b)=>a.pnl-b.pnl)},[filtered]);
@@ -7064,13 +8334,13 @@ function NmDashboard({trades,startingBalance,todayStr,onEditTrade,onPersistTrade
        React.createElement("span",{className:"nm-settings-chevron nm-collapse-chevron shrink-0","aria-hidden":true},showAdvanced?React.createElement(ChevronUp,{size:14,color:"var(--accent-gold)"}):React.createElement(ChevronDown,{size:14,color:"var(--accent-gold)"}))),
      showAdvanced&&React.createElement("div",{className:"pt-2"},
        React.createElement("div",{className:"text-[9px] leading-5 mb-3 px-1",style:{color:"var(--text-muted)"}},window.nmDashboardAccountSummary(selectedBaseAccounts,baseAccounts)),
-       RE(NmDashboardAIArm,{mode:"advanced",trades:filtered}),
        RE(NmAdvancedSection,{number:"۱",title:"منبع ارزیابی و حساب‌های مبنا",subtitle:"انتخاب Journal/Statement و دامنه حساب‌های واردشده به محاسبات",accent:"#F59E0B",help:NM_ADVANCED_SECTION_GUIDES.source},baseAccountPanel),
        RE(NmAdvancedSection,{number:"۲",title:"فیلترهای ارزیابی",subtitle:"محدودکردن نمونه بر اساس بازه، نشست، سیستم و جهت معامله",accent:"#06B6D4",help:NM_ADVANCED_SECTION_GUIDES.filters},filterPanel),
        RE(NmAdvancedSection,{number:"۳",title:"شاخص‌ها و جزئیات معاملات",subtitle:"KPI، Equity Curve، Session/Setup، Discipline، Plan و Drill-down",accent:"#10B981",help:NM_ADVANCED_SECTION_GUIDES.widgets},React.createElement("div",{className:"grid grid-cols-1 lg:grid-cols-2 gap-3"},layout.map(id=>React.createElement(React.Fragment,{key:id},widgets[id])))),
        RE(NmAdvancedSection,{number:"۴",title:"تحلیل مالی پیشرفته",subtitle:"SQN، Expectancy، Kelly، Drawdown، VaR/CVaR و Monte Carlo",accent:"#8B5CF6",help:NM_ADVANCED_SECTION_GUIDES.financial},RE(NmAdvancedFinancialPanel,{trades:filtered,startingBalance:startingBalance})),
        RE(NmAdvancedSection,{number:"۵",title:"موتورهای تحلیل استراتژیک",subtitle:"Edge، Regime، رفتار، Attribution، سناریو، تصمیم و LLM",accent:"#06B6D4",help:NM_ADVANCED_SECTION_GUIDES.strategic},RE(NmStrategicEnginePanel,{trades:filtered,startingBalance:startingBalance})),
-       RE(NmAdvancedSection,{number:"۶",title:"خروجی ارزیابی پیشرفته",subtitle:"گزارش Excel/PDF از نتایج همین دامنه ارزیابی",accent:"#A78BFA",help:NM_ADVANCED_SECTION_GUIDES.export},
+       RE(NmAdvancedSection,{number:"۶",title:"توصیه",subtitle:"جملات کوتاه پیشنهادی بر اساس نتایج همین ارزیابی",accent:"#F59E0B",help:{mechanism:"توصیه‌ها از شاخص‌های ارزیابی پیشرفته، عملکرد اخیر، نشست‌ها و خطاهای ثبت‌شده استخراج می‌شوند و جایگزین محاسبات نیستند."}},RE(NmDashboardRecommendations,{title:"توصیه",recommendations:advancedRecommendations,accent:"#F59E0B"})),
+       RE(NmAdvancedSection,{number:"۷",title:"خروجی ارزیابی پیشرفته",subtitle:"گزارش Excel/PDF از نتایج همین دامنه ارزیابی",accent:"#A78BFA",help:NM_ADVANCED_SECTION_GUIDES.export},
          React.createElement("div",{className:"rounded-xl p-3",style:{background:"color-mix(in srgb, #8B5CF6 7%, var(--bg-card2))",border:"1px solid color-mix(in srgb, #8B5CF6 30%, var(--border-1))"}},
            React.createElement("div",{className:"flex items-center justify-between mb-2"},React.createElement("div",null,React.createElement("div",{className:"text-[12px] font-semibold",style:{color:"var(--text-primary)"}},"خروجی ارزیابی پیشرفته"),React.createElement("div",{className:"text-[9px] mt-1",style:{color:"var(--text-muted)"}},"فقط شاخص‌های ریسک، خروج، Edge، Discipline و Planهای ارزیابی پیشرفته")),React.createElement("span",{className:"text-[9px]",style:{color:"var(--text-muted)"}},`${selectedBaseAccounts.length} حساب مبنا`)),
            React.createElement("div",{className:"grid grid-cols-2 gap-2"},
@@ -7079,6 +8349,13 @@ function NmDashboard({trades,startingBalance,todayStr,onEditTrade,onPersistTrade
        ),
        React.createElement(PsychologyLayer,{journalTrades:closed,statementTrades:statementTrades,source:psychologyDataSource,setSource:setPsychologyDataSource,psychOptions:psychOptions,activeAccount:activeAccount,statementImporting:statementImporting,statementImportError:statementImportError,onImportDashboardStatementFiles:onImportDashboardStatementFiles,onClearDashboardStatement:onClearDashboardStatement,dashboardStatementTrades:dashboardStatementTrades,baseAccounts:baseAccounts,selectedBaseAccounts:selectedBaseAccounts,onToggleBaseAccount:onToggleBaseAccount,onSelectBaseType:onSelectBaseType,onToggleAllBaseAccounts:onToggleAllBaseAccounts,accountTypeOf:accountTypeOf}),
        RE(NmPortfolioView,{accounts:selectedBaseAccounts,accountTypes,activeAccount,accountTradesMap}),
+       React.createElement("section",{className:"rounded-2xl mt-3 mb-3",style:nmDashBoxStyle("#A78BFA")},
+         React.createElement("button",{type:"button",onClick:()=>setShowDashboardAI(v=>!v),className:"w-full flex items-center justify-between rounded-t-2xl px-4 py-3",style:nmDashHeadStyle("#A78BFA",showDashboardAI),"aria-expanded":showDashboardAI},
+           React.createElement("div",{className:"flex items-center gap-2 min-w-0"},nmDashChip("#A78BFA","✨"),React.createElement("div",null,React.createElement("div",{className:"text-[15px] font-extrabold",style:{color:"var(--text-primary)"}},"تحلیل هوش مصنوعی"),React.createElement("div",{className:"text-[9px] mt-1",style:{color:"var(--text-muted)"}},"برآیند تحلیل کل مجموعه داشبورد؛ تنها محل نمایش تحلیل هوش مصنوعی")),RE(NmHeaderDots,{title:"تحلیل هوش مصنوعی"})),
+           React.createElement("span",{className:"nm-settings-chevron nm-collapse-chevron shrink-0","aria-hidden":true},showDashboardAI?React.createElement(ChevronUp,{size:14,color:"var(--accent-gold)"}):React.createElement(ChevronDown,{size:14,color:"var(--accent-gold)"}))),
+         showDashboardAI&&React.createElement("div",{className:"p-3"},
+           React.createElement("div",{className:"text-[10px] leading-5 mb-3 px-1",style:{color:"var(--text-muted)"}},"این بخش برآیند تحلیل آماری، ارزیابی پیشرفته، روانشناسی ترید و نمای پرتفوی/چندحسابی را یکجا جمع می‌کند. توصیه‌های جزئی فقط در بخش توصیه خودشان باقی می‌مانند."),
+           RE(NmDashboardAIArm,{mode:"all",trades:filtered,recommendations:advancedRecommendations}))),
 React.createElement("section",{className:"rounded-2xl mt-3 mb-3",style:nmDashBoxStyle(NM_DASH_ACCENT.exp)},
          React.createElement("button",{type:"button",onClick:()=>setShowComprehensive(v=>!v),className:"w-full flex items-center justify-between rounded-t-2xl px-4 py-3",style:nmDashHeadStyle(NM_DASH_ACCENT.exp, showComprehensive),"aria-expanded":showComprehensive},
            React.createElement("div",{className:"flex items-center gap-2 min-w-0"},nmDashChip(NM_DASH_ACCENT.exp,"📤"),React.createElement("div",null,React.createElement("div",{className:"text-[15px] font-extrabold",style:{color:"var(--text-primary)"}},"خروجی جامع داشبورد"),React.createElement("div",{className:"text-[9px] mt-1",style:{color:"var(--text-muted)"}},"Excel و PDF جامع داشبورد"))),
@@ -7382,6 +8659,9 @@ class NmSettingsErrorBoundary extends React.Component {
 function App() {
     const [, forceTick] = useState(0);
     const [tab, setTab] = useState("live");
+    const { locked, unlock } = useAppLock();
+    const [riskCfg, setRiskCfg] = useState(() => nmRiskLoad());
+    const persistRiskCfg = useCallback((next) => { setRiskCfg(next); try { window.storage.set(NM_RISK_KEY, JSON.stringify(next)); } catch (e) { } }, []);
     useEffect(() => { if (tab === "analysis" || tab === "user" || tab === "prep") setTab("dashboard"); }, [tab]);
     const [showRef, setShowRef] = useState(false);
     const [config, setConfig] = useState(DEFAULT_CONFIG);
@@ -7420,6 +8700,9 @@ function App() {
     const [themeMode, setThemeMode] = useState("dark");
     const [appTheme, setAppTheme] = useState(() => { try { return localStorage.getItem("ns_namello_app_theme_v1") || "classic"; } catch (e) { return "classic"; } });
     const [iconTheme, setIconTheme] = useState(() => { try { return localStorage.getItem("ns_namello_icon_theme_v1") || "default"; } catch (e) { return "default"; } });
+    const [iconWeekly, setIconWeekly] = useState(() => { try { return localStorage.getItem("ns_namello_icon_weekly_v1") === "1"; } catch (e) { return false; } });
+    const [dayKey, setDayKey] = useState(() => nmWeekdayKey());
+    const [navBarMode, setNavBarMode] = useState(() => { try { return localStorage.getItem("ns_namello_navbar_mode_v1") === "overlap" ? "overlap" : "separate"; } catch (e) { return "separate"; } });
     const [navLayout, setNavLayout] = useState(() => { try { return localStorage.getItem("ns_namello_nav_layout_v1") || "horizontal"; } catch (e) { return "horizontal"; } });
     const [navOrder, setNavOrder] = useState(() => { try { const v=JSON.parse(localStorage.getItem("ns_namello_nav_order_v1")||"null"); return nmNormalizeNavOrder(v); } catch (e) { return [...NM_DEFAULT_NAV_ORDER]; } });
     const [navMenuOpen, setNavMenuOpen] = useState(false);
@@ -7543,7 +8826,9 @@ function App() {
     const [closingTrade, setClosingTrade] = useState(null);
     const [editingTrade, setEditingTrade] = useState(null);
     const [editForm, setEditForm] = useState(null);
-    const [closeForm, setCloseForm] = useState({ exit: "", pnl: "", pnlSign: "profit", pips: "", note: "", disciplineMistakes: [], closeType: "دستی", manualExitReason: "", tradeManagement: [], planAnswers: {} });
+    const [closeForm, setCloseForm] = useState({ exit: "", pnl: "", pnlSign: "profit", pips: "", note: "", disciplineMistakes: [], closeType: "دستی", manualExitReason: "", tradeManagement: [], planAnswers: {}, customFields: {} });
+    const entryJournalForm = useJournalFormMode("entry");
+    const resultJournalForm = useJournalFormMode("result");
     const [mt5BridgeSettings, setMt5BridgeSettings] = useState(DEFAULT_MT5_BRIDGE_SETTINGS);
     const [mt5BridgeStatus, setMt5BridgeStatus] = useState({ state: "idle", text: "غیرفعال", synced: 0 });
     const [tradePlans, setTradePlans] = useState([NM_DEFAULT_TRADE_PLAN]);
@@ -7624,13 +8909,20 @@ function App() {
             if (nmBackStack.length) { try { nmBackStack[nmBackStack.length - 1](); } catch (e) { } handled = true; }
             else if (backHandlerRef.current && backHandlerRef.current()) handled = true;
             if (handled) { if (timer) { clearTimeout(timer); timer = null; } pushGuard(); return; }
-            // صفحه‌ی اصلی: بار اول فقط هشدار؛ اگر ظرف ۲ ثانیه دوباره Back بزنی، مرورگر/برنامه بسته می‌شود.
-            showToast("برای خروج از برنامه، یک بار دیگر دکمه‌ی برگشت را بزنید");
-            if (timer) clearTimeout(timer);
-            timer = setTimeout(() => { timer = null; pushGuard(); }, 2000);
+            // در صفحه‌ی اصلی، Back برای خروج است؛ لایه‌ها/پنجره‌های داخلی بالاتر مدیریت می‌شوند.
+            if (timer) { clearTimeout(timer); timer = null; }
+            try { window.close(); } catch (e) { }
+            pushGuard();
         };
         window.addEventListener("popstate", onPop);
-        return () => { window.removeEventListener("popstate", onPop); if (timer) clearTimeout(timer); };
+        // برنامه‌ی نصبی اندروید: MainActivity دکمه‌ی Back را به همین تابع می‌سپارد (نه به تاریخچه‌ی WebView).
+        // "handled" = پنجره/لایه بسته شد یا هشدار خروج نشان داده شد؛ "exit" = بار دوم ظرف ۲ ثانیه → خروج.
+        window.__nmNativeBack = () => {
+            if (nmBackStack.length) { try { nmBackStack[nmBackStack.length - 1](); } catch (e) { } return "handled"; }
+            if (backHandlerRef.current && backHandlerRef.current()) return "handled";
+            return "exit";
+        };
+        return () => { window.removeEventListener("popstate", onPop); if (timer) clearTimeout(timer); try { delete window.__nmNativeBack; } catch (e) { } };
     }, []);
     useEffect(() => {
         const f = (e) => showToast(e.detail);
@@ -7638,6 +8930,7 @@ function App() {
         return () => window.removeEventListener("namello-toast", f);
     }, []);
     useAutoBackupScheduler(loaded);
+    useNativeBackupGuard(loaded);
     /* ---------------- boot: load globals ---------------- */
     useEffect(() => {
         const id = setInterval(() => forceTick(t => t + 1), 1000);
@@ -8232,7 +9525,7 @@ function App() {
             for (const file of files) {
                 const ext = (file.name.split(".").pop() || "").toLowerCase();
                 if (ext === "htm" || ext === "html") {
-                    const text = await file.text();
+                    const text = nmDecodeStatementText(await file.arrayBuffer());
                     collected = collected.concat(parseStatementHtml(text));
                 }
                 else {
@@ -8267,7 +9560,7 @@ function App() {
         await window.storage.set("namello_quick_launch_settings_v1", JSON.stringify(next));
     }
     catch (e) { } }, []);
-    const persistNamelloReturnSettings = useCallback(async (next) => { setNamelloReturnSettings(next); try {
+    const persistNamelloReturnSettings = useCallback(async (next) => { setNamelloReturnSettings(next); try { if (window.NamelloAndroid && window.NamelloAndroid.setReturnNotification) window.NamelloAndroid.setReturnNotification(!!(next && next.enabled)); } catch (e) { } try {
         await window.storage.set("namello_return_fab_settings_v1", JSON.stringify(next));
     }
     catch (e) { } }, []);
@@ -8288,8 +9581,10 @@ function App() {
         try { localStorage.setItem("ns_namello_nav_layout_v1", next); } catch (e2) { }
     }
     catch (e) { } }, []);
+    const persistNavBarMode = useCallback(async (next) => { const mode = next === "overlap" ? "overlap" : "separate"; setNavBarMode(mode); try { if (window.NamelloAndroid && window.NamelloAndroid.setNavBarMode) window.NamelloAndroid.setNavBarMode(mode); } catch (e) { } try { await window.storage.set("namello_navbar_mode_v1", mode); } catch (e) { } }, []);
     const persistNavOrder = useCallback(async (next) => { const safe=nmNormalizeNavOrder(next); setNavOrder(safe); try { await window.storage.set("namello_nav_order_v1", JSON.stringify(safe)); } catch (e) {} try { localStorage.setItem("ns_namello_nav_order_v1", JSON.stringify(safe)); } catch (e2) {} }, []);
-    const persistIconTheme = useCallback(async (next) => { setIconTheme(next); try {
+    const persistIconWeekly = useCallback(async (next) => { const on = !!next; setIconWeekly(on); try { if (window.NamelloAndroid && window.NamelloAndroid.setWeeklyIcon) window.NamelloAndroid.setWeeklyIcon(on); } catch (e) { } try { await window.storage.set("namello_icon_weekly_v1", on ? "1" : "0"); } catch (e) { } }, []);
+    const persistIconTheme = useCallback(async (next) => { setIconTheme(next); try { if (window.NamelloAndroid && window.NamelloAndroid.setLauncherIcon) window.NamelloAndroid.setLauncherIcon(next); } catch (e) { } try {
         await window.storage.set("namello_icon_theme_v1", next);
     }
     catch (e) { } }, []);
@@ -8403,7 +9698,9 @@ function App() {
         document.documentElement.dataset.theme = themeMode;
         nmApplyAppTheme(appTheme, themeMode);
     }, [themeMode, appTheme]);
-    useEffect(() => { nmApplyIconTheme(iconTheme); }, [iconTheme]);
+    useEffect(() => { nmApplyIconTheme(iconTheme, iconWeekly ? dayKey : null); }, [iconTheme, iconWeekly, dayKey]);
+    useEffect(() => { const id = setInterval(() => setDayKey(k => { const n = nmWeekdayKey(); return n === k ? k : n; }), 60000); return () => clearInterval(id); }, []);
+    useEffect(() => { try { if (window.NamelloAndroid && window.NamelloAndroid.setNavBarMode) window.NamelloAndroid.setNavBarMode(navBarMode); } catch (e) { } }, [navBarMode]);
     // قبلاً فونتِ انتخابی فقط با document.body.style.fontFamily اعمال می‌شد که چون قانون
     // `* { font-family: 'Vazirmatn' }` در <style> روی تمام فرزندهای body هم مستقیم مچ می‌شد (نه
     // فقط ارثی)، همیشه همون‌ها رو می‌برد و در عمل فونت انتخابی روی بیشتر جاهای اپ اثر نمی‌کرد؛
@@ -8428,6 +9725,16 @@ function App() {
     function launchInstalledApp(pkg, label, scheme) {
         if (isIOS) {
             showToast(`روی آیفون به‌خاطر محدودیت‌های اپل، اجرای مستقیم «${label || "اپ"}» از طریق مرورگر ممکن نیست.`);
+            return;
+        }
+        // برنامه‌ی نصبی اندروید: اجرای مستقیم با PackageManager (intent:// داخل WebView کار نمی‌کند)
+        if (window.NamelloAndroid && typeof window.NamelloAndroid.launchApp === "function") {
+            let res = "error";
+            try { res = String(window.NamelloAndroid.launchApp(pkg || "", scheme || "")); } catch (e) { }
+            if (res === "ok" || res === "scheme") return;
+            showToast(res === "notfound"
+                ? `«${label || "اپ"}» روی گوشی پیدا نشد. نصب بودن اپ و package name را در تنظیمات (اجرای سریع) بررسی کن.`
+                : `«${label || "اپ"}» باز نشد.`);
             return;
         }
         const attempts = [];
@@ -8711,16 +10018,16 @@ function App() {
                 return;
             }
             if (!wasActive && ev.active && ev.alarmStart)
-                fireNotification(`شروع ${ev.name}`, `${ev.kind} «${ev.name}» شروع شد.`);
+                fireNotification(`شروع ${ev.name}`, `${ev.kind} «${ev.name}» شروع شد.`, "sessions");
             if (wasActive && !ev.active && ev.alarmEnd)
-                fireNotification(`پایان ${ev.name}`, `${ev.kind} «${ev.name}» به پایان رسید.`);
+                fireNotification(`پایان ${ev.name}`, `${ev.kind} «${ev.name}» به پایان رسید.`, "sessions");
             prev[ev.key] = ev.active;
         });
     }, [now.minutesOfDay]);
     useEffect(() => {
         const fired = newsAlarmRef.current;
         const nowMs = Date.now();
-        const LEAD_MS = 5 * 60 * 1000;
+        const LEAD_MS = 30 * 1000;
         newsEvents.forEach(ev => {
             if (!ev.alarmStart || fired[ev.id])
                 return;
@@ -8728,14 +10035,13 @@ function App() {
             if (isNaN(evMs))
                 return;
             const msUntil = evMs - nowMs;
-            // بین ۵ دقیقه‌ی مونده تا اعلام و خودِ لحظه‌ی اعلام (نه بعدش) هشدار می‌ده؛ اگه کاربر
-            // درست همون بازه رو از دست داده باشه (مثلاً برنامه یه لحظه بسته بوده)، هنوز تا ۹۰ ثانیه
-            // بعد از لحظه‌ی اعلام هم به‌عنوان جبران هشدار می‌ده.
+            // دقیقاً ۳۰ ثانیه پیش از خبر هشدار می‌دهد؛ اگر برنامه در همان بازه موقتاً
+            // متوقف بوده باشد، تا ۹۰ ثانیه پس از زمان خبر نیز هشدار جبرانی می‌دهد.
             if ((msUntil <= LEAD_MS && msUntil > -90000)) {
                 if (msUntil > 0)
-                    fireNotification(`\u06F5 \u062F\u0642\u06CC\u0642\u0647 \u062A\u0627 \u062E\u0628\u0631: ${ev.title}`, `\u062E\u0628\u0631 \u00AB${ev.title}\u00BB (${ev.currency}) \u062A\u0627 \u06F5 \u062F\u0642\u06CC\u0642\u0647 \u062F\u06CC\u06AF\u0631 \u0627\u0639\u0644\u0627\u0645 \u0645\u06CC\u200C\u0634\u0648\u062F.`);
+                    fireNotification(`\u06F3\u06F0 \u062B\u0627\u0646\u06CC\u0647 \u062A\u0627 \u062E\u0628\u0631: ${ev.title}`, `\u062E\u0628\u0631 \u00AB${ev.title}\u00BB (${ev.currency}) \u062A\u0627 \u06F3\u06F0 \u062B\u0627\u0646\u06CC\u0647 \u062F\u06CC\u06AF\u0631 \u0627\u0639\u0644\u0627\u0645 \u0645\u06CC\u200C\u0634\u0648\u062F.`, "news");
                 else
-                    fireNotification(`\u062E\u0628\u0631: ${ev.title}`, `\u062E\u0628\u0631 \u00AB${ev.title}\u00BB (${ev.currency}) \u0647\u0645‌\u0627\u06A9\u0646\u0648\u0646 \u0627\u0639\u0644\u0627\u0645 \u0634\u062F.`);
+                    fireNotification(`\u062E\u0628\u0631: ${ev.title}`, `\u062E\u0628\u0631 \u00AB${ev.title}\u00BB (${ev.currency}) \u0647\u0645‌\u0627\u06A9\u0646\u0648\u0646 \u0627\u0639\u0644\u0627\u0645 \u0634\u062F.`, "news");
                 fired[ev.id] = true;
             }
         });
@@ -8786,10 +10092,12 @@ function App() {
     // حافظه خارج کنه، نه فقط پس‌زمینه، هیچ نوتیفی نمی‌تونه فایر بشه — برای بهترین قابلیت‌اطمینان،
     // مرورگری که Namello توش بازه رو از بهینه‌سازی باتری مستثنی کن (دقیقاً مثل نکته‌ی بخش
     // «بازگشت به Namello»).
-    function fireNotification(title, body) {
+    function fireNotification(title, body, category = "sessions") {
+        if (!nmTextNotifEnabled(category)) return;
+        const icon = NM_TEXT_NOTIF_ART[category] || "./icon-192.png";
         try {
             if (window.NamelloNative && typeof window.NamelloNative.showNotification === "function") {
-                window.NamelloNative.showNotification(String(title), String(body));
+                window.NamelloNative.showNotification(String(title), { body: String(body), icon, badge: "./icon-192.png", data: { kind: category, category } });
             }
         } catch (e) {}
         if (popupAlarmEnabled)
@@ -8799,7 +10107,7 @@ function App() {
         if (typeof Notification === "undefined" || Notification.permission !== "granted")
             return;
         const tag = "namello-evt-" + Date.now();
-        const show = (reg) => reg.showNotification(title, { body, tag, vibrate: [200, 100, 200, 100, 200, 100, 200, 100, 200], requireInteraction: false, silent: false });
+        const show = (reg) => reg.showNotification(title, { body, tag, icon, badge: "./icon-192.png", data: { kind: category, category }, vibrate: [200, 100, 200, 100, 200, 100, 200, 100, 200], requireInteraction: false, silent: false });
         try {
             if (navigator.serviceWorker && navigator.serviceWorker.ready) {
                 navigator.serviceWorker.ready.then(reg => {
@@ -9520,7 +10828,7 @@ function App() {
     }
     function openCloseForm(trade) {
         setClosingTrade(trade);
-        setCloseForm({ exit: "", pnl: "", pnlSign: "profit", pips: "", note: "", disciplineMistakes: [], closeType: "دستی", manualExitReason: "", tradeManagement: [], planAnswers: {}, chartImageAfter: "", voiceNoteAfter: "" });
+        setCloseForm({ exit: "", pnl: "", pnlSign: "profit", pips: "", note: "", disciplineMistakes: [], closeType: "دستی", manualExitReason: "", tradeManagement: [], planAnswers: {}, customFields: {}, chartImageAfter: "", voiceNoteAfter: "" });
     }
     function openEditCloseForm(trade) {
         setClosingTrade(trade);
@@ -9536,7 +10844,7 @@ function App() {
             manualExitReason: trade.manualExitReason || "",
             tradeManagement: trade.tradeManagement || [],
             planAnswers: trade.review?.planAnswers?.answers || {},
-            chartImageAfter: trade.chartImageAfter || "", voiceNoteAfter: trade.voiceNoteAfter || "",
+            chartImageAfter: trade.chartImageAfter || "", voiceNoteAfter: trade.voiceNoteAfter || "", customFields: trade.customFields || {},
         });
     }
     function onCloseFieldChange(field, val) {
@@ -9577,6 +10885,7 @@ function App() {
             closeType: closeForm.closeType,
             manualExitReason: closeForm.manualExitReason,
             tradeManagement: closeForm.tradeManagement || [],
+            customFields: { ...(t.customFields || {}), ...(closeForm.customFields || {}) },
             chartImageAfter: closeForm.chartImageAfter || "", voiceNoteAfter: closeForm.voiceNoteAfter || "",
             closedDate, closedTime, durationMinutes,
         } : t);
@@ -9758,7 +11067,7 @@ function App() {
                 }
             </style></head>
             <body>
-                <div class="nm-header"><img src="icon-192.png" alt="" /><span class="nm-brand">Namello 1.0.26</span></div>
+                <div class="nm-header"><img src="icon-192.png" alt="" /><span class="nm-brand">Namello ${NM_VERSION_NAME}</span></div>
                 <div class="nm-body">
                     <h1>${esc(title)}</h1>
                     <div class="meta">تاریخ تهیه / Prepared Date: ${esc(new Date().toLocaleDateString("fa-IR"))}</div>
@@ -9766,6 +11075,14 @@ function App() {
                     <table><thead>${theadHtml}</thead><tbody>${tbodyHtml}</tbody></table>
                 </div>
             </body></html>`;
+        // برنامه‌ی نصبی اندروید: WebView از window.print() پشتیبانی نمی‌کند → چاپ بومی اندروید (گزینه‌ی «ذخیره به‌صورت PDF»)
+        if (window.NamelloAndroid && typeof window.NamelloAndroid.printHtml === "function") {
+            try {
+                window.NamelloAndroid.printHtml(html, String(title || "Namello"));
+                showToast("در پنجره‌ی چاپ، «ذخیره به‌صورت PDF» (Save as PDF) را انتخاب کن.");
+                return;
+            } catch (e) { }
+        }
         const iframe = document.createElement("iframe");
         iframe.style.position = "fixed";
         iframe.style.left = "-9999px";
@@ -10087,6 +11404,21 @@ function App() {
     const financeSourceTrades = financeDataSource === "statement" ? statementTrades.filter(t => t.status === "closed") : rangeFilterTrades(financeJournalTrades, financePeriod, todayStr, now);
     const financeSourceBase = financeDataSource === "statement" ? 0 : periodBase;
     const finMetrics = useMemo(() => computeFinancialMetrics(financeSourceTrades, financeSourceBase), [financeSourceTrades, financeSourceBase, financeDataSource, financePeriod, accSettings.startingBalance, activeAccount]);
+    const riskBalance = (accSettings.startingBalance || 0) + closedTrades.reduce((s, t) => s + (Number(t.pnl) || 0), 0);
+    const riskToday = useMemo(() => nmRiskToday(trades, todayStr), [trades, todayStr]);
+    const riskStatus = useMemo(() => nmRiskStatus(riskCfg, riskBalance, riskToday), [riskCfg, riskBalance, riskToday]);
+    const prevRiskLevel = useRef("ok");
+    useEffect(() => {
+        const lvl = riskStatus ? riskStatus.level : "ok";
+        const prev = prevRiskLevel.current;
+        prevRiskLevel.current = lvl;
+        if (!riskCfg.enabled || riskCfg.notify === false || lvl === "ok" || lvl === prev) return;
+        const key = todayStr + ":" + lvl;
+        try { if (localStorage.getItem("ns_namello_risk_notified_v1") === key) return; localStorage.setItem("ns_namello_risk_notified_v1", key); } catch (e) { }
+        const msg = lvl === "hit" ? "⛔ " + riskStatus.reasons.join(" · ") + " — امروز دیگر معامله نکن." : "⚠ نزدیک سقف ریسک روزانه (" + Math.round(riskStatus.usedPct) + "٪)";
+        showToast(msg);
+        try { if (typeof Notification !== "undefined" && Notification.permission === "granted") new Notification("محافظ ریسک Namello", { body: msg, tag: "namello-risk" }); } catch (e) { }
+    }, [riskStatus && riskStatus.level]);
     async function runAIAnalysis() {
         setAiLoading(true);
         setAiError("");
@@ -10488,13 +11820,21 @@ function App() {
                 }
             </style></head>
             <body>
-                <div class="nm-header"><img src="icon-192.png" alt="" /><span class="nm-brand">Namello 1.0.26</span></div>
+                <div class="nm-header"><img src="icon-192.png" alt="" /><span class="nm-brand">Namello ${NM_VERSION_NAME}</span></div>
                 <div class="nm-body">
                     <h1>${esc(title)}</h1>
                     <div class="meta">تاریخ تهیه / Prepared Date: ${esc(new Date().toLocaleDateString("fa-IR"))}</div>
                     ${sectionsHtml}
                 </div>
             </body></html>`;
+        // برنامه‌ی نصبی اندروید: WebView از window.print() پشتیبانی نمی‌کند → چاپ بومی اندروید (گزینه‌ی «ذخیره به‌صورت PDF»)
+        if (window.NamelloAndroid && typeof window.NamelloAndroid.printHtml === "function") {
+            try {
+                window.NamelloAndroid.printHtml(html, String(title || "Namello"));
+                showToast("در پنجره‌ی چاپ، «ذخیره به‌صورت PDF» (Save as PDF) را انتخاب کن.");
+                return;
+            } catch (e) { }
+        }
         const iframe = document.createElement("iframe");
         iframe.style.position = "fixed";
         iframe.style.left = "-9999px";
@@ -10679,7 +12019,6 @@ function App() {
             React.createElement("div", { className: "flex items-center gap-2 min-w-0" },nmDashChip(NM_DASH_ACCENT.stats, "📈"),React.createElement("span", { className: "text-[15px] font-extrabold", style: { color: "var(--text-primary)" } }, "تحلیل آماری"),RE(NmHeaderDots,{title:"تحلیل آماری"})),
             React.createElement("span", { className: "nm-settings-chevron nm-collapse-chevron shrink-0", "aria-hidden": true }, showStatisticalAnalysis ? React.createElement(ChevronUp, { size: 14, color: "var(--accent-gold)" }) : React.createElement(ChevronDown, { size: 14, color: "var(--accent-gold)" }))),
         showStatisticalAnalysis && React.createElement("div", { className: "px-4 mt-2" },
-            RE(NmDashboardAIArm,{mode:"stats",trades:dashboardStatisticalSelectedTrades}),
             React.createElement("div", { className: "rounded-xl p-2.5 mb-3", style: { background: "color-mix(in srgb, #F59E0B 7%, var(--bg-card2))", border: "1px solid color-mix(in srgb, #F59E0B 25%, var(--border-2))" } },
                 React.createElement("div", { className: "text-[11px] font-semibold mb-1.5", style: { color: "var(--text-primary)" } }, "منبع ارزیابی تحلیل آماری"),
                 React.createElement("div", { className: "text-[9px] leading-5 mb-2", style: { color: "var(--text-muted)" } }, "منبع این بخش مستقل از ارزیابی پیشرفته است. انتخاب ژورنال یا استیتمنت فقط نمودارها، پارامترها و خروجی‌های همین تحلیل آماری را تغییر می‌دهد."),
@@ -10880,7 +12219,7 @@ function App() {
         @media (prefers-reduced-motion: reduce) { .nm-news-run-logo, .nm-news-run-arms, .nm-news-run-legs, .nm-news-run-dash, .nm-news-run-eye { animation-duration: 1.6s !important; } }
         @keyframes namelloPulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(1.3); } }
       `),
-        sessionAlarmPopup && (React.createElement("div", { className: "fixed left-0 right-0 z-[60] px-3", style: { top: "env(safe-area-inset-top, 0px)", paddingTop: 10, animation: "namelloAlarmSlideDown 0.35s ease-out" }, onClick: () => setSessionAlarmPopup(null) },
+        sessionAlarmPopup && (React.createElement("div", { className: "fixed left-0 right-0 z-[60] px-3", style: { top: "var(--nm-safe-top, env(safe-area-inset-top, 0px))", paddingTop: 10, animation: "namelloAlarmSlideDown 0.35s ease-out" }, onClick: () => setSessionAlarmPopup(null) },
             React.createElement("div", { className: "rounded-xl p-3 flex items-start gap-2 shadow-lg", style: { background: "var(--bg-card)", border: "1px solid color-mix(in srgb, var(--accent-gold) 33%, transparent)" } },
                 React.createElement(Bell, { size: 18, color: "var(--accent-gold)", className: "shrink-0 mt-0.5" }),
                 React.createElement("div", { className: "flex-1" },
@@ -10888,14 +12227,15 @@ function App() {
                     React.createElement("div", { className: "text-[12px] mt-0.5", style: { color: "var(--text-secondary)" } }, sessionAlarmPopup.body)),
                 React.createElement("button", { onClick: e => { e.stopPropagation(); setSessionAlarmPopup(null); }, className: "shrink-0" },
                     React.createElement(X, { size: 16, color: "var(--text-muted)" }))))),
-        React.createElement("div", { className: "px-4 pt-6 pb-4", style: { background: "linear-gradient(180deg, var(--bg-card) 0%, var(--bg-page) 100%)", borderBottom: "1px solid #1C2128" } },
+        React.createElement("div", { className: "px-4 pb-4", style: { position: "relative", paddingTop: "max(24px, calc(var(--nm-safe-top, env(safe-area-inset-top, 0px)) + 14px))", background: "linear-gradient(180deg, var(--bg-card) 0%, var(--bg-page) 100%)", borderBottom: "1px solid #1C2128" } },
             React.createElement("div", { className: "flex items-center justify-between mb-1" },
                 React.createElement("h1", { className: "font-bold flex items-center gap-2", style: { color: "var(--text-primary)", fontSize: 12, lineHeight: 1.2 } },
                     React.createElement("button", { type: "button", onClick: () => { if (navLayout === "vertical") setNavMenuOpen(o => !o); }, style: { cursor: navLayout === "vertical" ? "pointer" : "default", lineHeight: 0, background: "none", border: "none", padding: 0 }, "aria-label": "منوی لایه‌ها" },
-                        React.createElement("img", { src: iconTheme === "default" ? APP_LOGO : nmIconThemeInfo(iconTheme).icon192, alt: NM_VERSION_LABEL, className: "w-7 h-7 rounded-full object-cover", style: { border: "1px solid var(--border-2)" } })),
+                        React.createElement("img", { src: iconWeekly ? nmWeekIcon(dayKey) : (iconTheme === "default" ? APP_LOGO : nmIconThemeInfo(iconTheme).icon192), alt: NM_VERSION_LABEL, className: "w-7 h-7 rounded-full object-cover", style: { border: "1px solid var(--border-2)" } })),
                     React.createElement("span", { dir: "ltr", style: { unicodeBidi: "isolate", whiteSpace: "nowrap" } }, NM_APP_NAME, React.createElement("sup", { "aria-label": "\u0646\u0633\u062E\u0647 " + NM_VERSION_NAME, style: { fontSize: 6, fontWeight: 600, lineHeight: 0, marginLeft: 1, verticalAlign: "super", color: "var(--text-muted)" } }, NM_VERSION_NAME))),
                 React.createElement("div", { className: "flex items-center gap-2" },
-                    React.createElement("button", { onClick: () => persistThemeMode(themeMode === "dark" ? "light" : "dark"), className: "w-8 h-8 rounded-full flex items-center justify-center", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" }, "aria-label": themeMode === "dark" ? "تغییر به زمینه‌ی روشن" : "تغییر به زمینه‌ی تیره" },
+                    React.createElement("span", { "aria-hidden": true, className: "w-8 h-8 inline-block" }),
+                    React.createElement("button", { id: "nm-theme-toggle", onClick: () => persistThemeMode(themeMode === "dark" ? "light" : "dark"), className: "w-8 h-8 rounded-full flex items-center justify-center", style: { position: "absolute", left: "50%", transform: "translateX(-50%)", top: "max(24px, calc(var(--nm-safe-top, env(safe-area-inset-top, 0px)) + 14px))", zIndex: 5, background: "var(--bg-card2)", border: "1px solid var(--border-2)" }, "aria-label": themeMode === "dark" ? "تغییر به زمینه‌ی روشن" : "تغییر به زمینه‌ی تیره" },
                         themeMode === "dark" ? React.createElement(Sun, { size: 14, color: "var(--accent-gold)" }) : React.createElement(Moon, { size: 14, color: "var(--accent-gold)" })),
                     React.createElement("span", { id: "nm-player-mini-slot", className: "inline-flex" }),
                     null)),
@@ -10916,6 +12256,7 @@ function App() {
                 React.createElement("span", { dir: "ltr", style: { unicodeBidi: "isolate", color: "var(--text-muted)" }, title: "\u062A\u0627\u0631\u06CC\u062E \u0645\u06CC\u0644\u0627\u062F\u06CC" }, now.d + " " + ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][now.m - 1] + " " + now.y))),
         RE(NmGlobalPlayer, { tab }),
         tab === "dashboard" && (RE(NmDashboardRootBoundary, null, RE(NmDashboard, { trades: dashboardSelectedTrades, startingBalance: dashboardStartingBalance, todayStr: todayStr, activeAccount: activeAccount, onEditTrade: openEditTrade, onPersistTrades: persistTrades, plans: tradePlans, dayPlans: dayPlans, chartPlans: chartPlans, setPlans: persistTradePlans, setDayPlans: persistDayPlans, setChartPlans: persistChartPlans, statisticalAnalysisSection: nmStatisticalAnalysisSection, baseAccounts: accounts, selectedBaseAccounts: dashboardSelectedAccounts, onToggleBaseAccount: toggleStatsAccount, onSelectBaseType: selectStatsAccountsByType, onToggleAllBaseAccounts: toggleAllStatsAccounts, onOpenBasePicker: () => setShowStatsAccountPicker(v => !v), showBasePicker: showStatsAccountPicker, accountTypeOf: accTypeOf, onExportAdvancedExcel: exportDashboardAdvancedExcel, onExportAdvancedPdf: exportDashboardAdvancedPdf, onExportComprehensiveExcel: exportDashboardComprehensiveExcel, onExportComprehensivePdf: exportDashboardComprehensivePdf, dashboardDataSource: dashboardDataSource, onDashboardDataSourceChange: setDashboardDataSource, statementTrades: statementTrades, statementImporting: statementImporting, statementImportError: statementImportError, onImportDashboardStatementFiles: importStatementFiles, onClearDashboardStatement: clearStatementTrades, dashboardStatementTrades: dashboardStatementTrades, psychologyDataSource: psychologyDataSource, setPsychologyDataSource: setPsychologyDataSource, psychOptions: psychOptions, accountTradesMap: Object.fromEntries(accounts.map(c=>[c,c===activeAccount?trades:(multiAccountTradesCache[c]||[])])), accountTypes: accountTypes }))),
+        riskStatus && riskStatus.level !== "ok" && RE(NmRiskBanner, { status: riskStatus, onOpen: () => setTab("finance") }),
         tab === "live" && (React.createElement("div", { className: "px-4 mt-4" },
             React.createElement(NmLayerHeading, { title: appLanguage === "en" ? "Sessions" : "نشست‌ها", image: "./icon-sessions.png", action: React.createElement("button", { type: "button", onClick: openSessionSettings, className: "nm-layer-heading-settings", "aria-label": t("live_session_settings") }, React.createElement(SettingsIcon, { size: 14, color: "var(--text-secondary)" })) }),
             React.createElement(SessionClock, { minutesOfDay: now.minutesOfDay, seconds: now.ss, sessions: schedule.sessions, killzones: schedule.killzones, silverbullets: schedule.silverbullets, colors: config.colors }),
@@ -11355,6 +12696,7 @@ function App() {
                         React.createElement("div", { className: "text-lg font-bold", style: { color: "var(--text-primary)" } }, formatDurationFa(finMetrics.avgDurationMinutes)),
                         React.createElement("div", { className: "text-[11px]", style: { color: "var(--text-muted)" } }, (appLanguage === "en" ? "Avg Trade Duration" : "میانگین مدت معامله")))),
                 finMetrics.riskOfRuin === null && (React.createElement("p", { className: "text-[11px] mb-3", style: { color: "var(--text-muted)" } }, appLanguage === "en" ? "To calculate Risk of Ruin, fill in \"Trade Risk\" the next time you log a trade entry." : "\u0628\u0631\u0627\u06CC \u0645\u062D\u0627\u0633\u0628\u0647\u200C\u06CC Risk of Ruin\u060C \u062D\u062F\u0627\u0642\u0644 \u062A\u0648 \u0686\u0646\u062F \u0645\u0639\u0627\u0645\u0644\u0647 \u0628\u0627\u06A9\u0633 \u00AB\u0631\u06CC\u0633\u06A9 \u0645\u0639\u0627\u0645\u0644\u0647\u00BB \u0631\u0648 \u062A\u0648 \u062B\u0628\u062A \u0648\u0631\u0648\u062F \u067E\u0631 \u06A9\u0646.")),
+                RE(NmRiskGuardCard, { cfg: riskCfg, onChange: persistRiskCfg, status: riskStatus, balance: riskBalance }),
                 RE(NmPropFirmCard,{activeAccount,trades:financeSourceTrades}),
                 React.createElement("h3", { className: "text-[13px] font-semibold mt-4 mb-2", style: { color: "var(--text-primary)" } }, (appLanguage === "en" ? "Account Growth Chart" : "نمودار رشد حساب")),
                 React.createElement("div", { className: "rounded-xl p-2 mb-4", style: { background: "var(--bg-card)" } },
@@ -11830,9 +13172,11 @@ function App() {
                         React.createElement(Sun, { size: 13 }),
                         " ", t("settings_theme_light")))),
             RE(NmAppThemeCard, { value: appTheme, onChange: persistAppTheme }),
-            RE(NmIconThemeCard, { value: iconTheme, onChange: persistIconTheme, showToast }),
+            RE(NmIconThemeCard, { value: iconTheme, onChange: persistIconTheme, weekly: iconWeekly, onWeeklyChange: persistIconWeekly, todayKey: dayKey, showToast }),
             RE(NmNavLayoutCard, { value: navLayout, onChange: persistNavLayout }),
+            RE(NmSettingsErrorBoundary, null, RE(NmNavBarModeCard, { value: navBarMode, onChange: persistNavBarMode })),
             RE(NmSettingsErrorBoundary, null, RE(NmNavOrderCard, { value: navOrder, onChange: persistNavOrder })),
+            RE(NmNotificationTextSettings, null),
             RE(NmLibrarySettingsCard, { open: !!openSettingsSection.library, onToggle: () => toggleSettingsSection("library") }),
             React.createElement("div", { className: "rounded-xl p-3 mb-3", style: { background: "var(--bg-card)", border: "1px solid var(--border-1)" } },
                 React.createElement("button", { onClick: () => toggleSettingsSection("language"), className: "w-full flex items-center justify-between mb-2" },
@@ -11848,19 +13192,19 @@ function App() {
                 React.createElement("div", { className: "rounded-xl p-3 mb-3", style: { background: "color-mix(in srgb, #0EA5E9 7%, var(--bg-card))", border: "1px solid color-mix(in srgb, #0EA5E9 28%, var(--border-1))" } },
                     React.createElement("div", { className: "text-[10px] leading-5", style: { color: "var(--text-muted)" } }, "امنیت، پشتیبان محلی/فایلی، Google Drive و Backend Sync همه در این بخش مدیریت می‌شوند. داده قبل از Sync رمزگذاری می‌شود و سرور فقط ciphertext را نگه می‌دارد.")),
                 RE(NmBackendSyncCard, { showToast }),
+                RE(NmAppLockCard, { showToast }),
                 RE(NmBackupCard, { showToast }),
                 RE(NmStorageCard, { showToast })
             ),
-            RE(NmCustomFieldsManager, null),
-            RE(NmCollapsible, { title: "فونت برنامه", subtitle: "برای جمع/باز کردن این بخش کلیک کنید", icon: "🔤", defaultOpen: false },
+                RE(NmCollapsible, { title: "فونت برنامه", subtitle: "برای جمع/باز کردن این بخش کلیک کنید", icon: "🔤", defaultOpen: false },
             React.createElement("div", { className: "rounded-xl p-3 mb-3", style: { background: "var(--bg-card)", border: "1px solid var(--border-1)" } },
                 React.createElement("h3", { className: "text-[13px] font-semibold mb-2", style: { color: "var(--text-primary)" } }, "فونت برنامه"),RE(NmHeaderDots,{title:"فونت برنامه"}),
-                React.createElement("div", { className: "flex flex-wrap gap-1.5" }, FONT_OPTIONS.map(f => (React.createElement("button", { key: f.key, onClick: () => changeAppFont(f.key), className: "px-3 py-2 rounded-lg text-[12px]", style: { background: appFont === f.key ? "color-mix(in srgb, var(--accent-gold) 13%, transparent)" : "var(--bg-card2)", color: appFont === f.key ? "var(--accent-gold)" : "var(--text-secondary)", border: `1px solid ${appFont === f.key ? "color-mix(in srgb, var(--accent-gold) 33%, transparent)" : "var(--border-2)"}`, fontFamily: f.css } }, f.label))))),
+                React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, FONT_OPTIONS.map(f => (React.createElement("button", { key: f.key, onClick: () => changeAppFont(f.key), className: "px-3 py-2 rounded-lg text-[12px]", style: { background: appFont === f.key ? "color-mix(in srgb, var(--accent-gold) 13%, transparent)" : "var(--bg-card2)", color: appFont === f.key ? "var(--accent-gold)" : "var(--text-secondary)", border: `1px solid ${appFont === f.key ? "color-mix(in srgb, var(--accent-gold) 33%, transparent)" : "var(--border-2)"}`, fontFamily: f.css } }, f.label))))),
             ),
             React.createElement("div", { className: "rounded-xl p-3 mb-3", style: { background: "var(--bg-card)", border: "1px solid var(--border-1)" } },
                 React.createElement("div", { className: "flex items-center justify-between mb-2" },
                     React.createElement("button", { onClick: () => toggleSettingsSection("quickLaunch"), className: "flex items-center gap-1.5" },
-                        React.createElement("h3", { className: "text-[13px] font-semibold", style: { color: "var(--text-primary)" } }, "\u062F\u06A9\u0645\u0647\u200C\u06CC \u0634\u0646\u0627\u0648\u0631 \u0627\u062C\u0631\u0627\u06CC \u0633\u0631\u06CC\u0639 MT5/\u062A\u0631\u06CC\u062F\u06CC\u0646\u06AF\u200C\u0648\u06CC\u0648"),RE(NmHeaderDots,{title:"اجرای سریع MT5/TradingView"}),
+                        React.createElement("h3", { className: "text-[13px] font-semibold", style: { color: "var(--text-primary)" } }, "\u062F\u06A9\u0645\u0647\u200C\u06CC \u0634\u0646\u0627\u0648\u0631 \u0627\u062C\u0631\u0627\u06CC \u0633\u0631\u06CC\u0639 MT5/TradingView"),RE(NmHeaderDots,{title:"اجرای سریع MT5/TradingView"}),
                         React.createElement("span", { className: "nm-settings-chevron", "aria-hidden": true }, openSettingsSection.quickLaunch ? React.createElement(ChevronUp, { size: 14, color: "var(--accent-gold)" }) : React.createElement(ChevronDown, { size: 14, color: "var(--accent-gold)" }))),),
                 openSettingsSection.quickLaunch && React.createElement("p", { className: "text-[11px] leading-5 mb-3", style: { color: "var(--text-muted)" } }, "دو دکمه‌ی شناور جدا روی صفحه ظاهر می‌شن: یکی برای MT5 و یکی برای TradingView (بدون منوی واسط). با لمس و نگه‌داشتنِ هرکدوم می‌تونی جاش رو هر جای صفحه ببری؛ جایگاه هرکدوم جدا ذخیره می‌شه. با یک ضربه‌ی ساده (بدون کشیدن)، همون اپ باز می‌شه."),
                 React.createElement("div", { className: "rounded-lg p-2.5 mb-2", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
@@ -11874,25 +13218,28 @@ function App() {
                     React.createElement("button", { onClick: () => persistQuickLaunchSettings({ ...quickLaunchSettings, mt5PosXPercent: null, mt5PosYPercent: null }), className: "w-full py-1.5 rounded-lg text-[11px]", style: { background: "var(--bg-page)", color: "var(--text-secondary)" } }, "بازنشانی جایگاه دکمه‌ی MT5")),
                 React.createElement("div", { className: "rounded-lg p-2.5 mb-3", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
                     React.createElement("div", { className: "flex items-center justify-between mb-1.5" },
-                        React.createElement("span", { className: "text-[12px]", style: { color: "var(--text-primary)" } }, "\uD83D\uDCC8 \u062A\u0631\u06CC\u062F\u06CC\u0646\u06AF\u200C\u0648\u06CC\u0648 (TradingView)"),
+                        React.createElement("span", { className: "text-[12px]", style: { color: "var(--text-primary)" } }, "📈 TradingView"),
                         React.createElement("button", { onClick: () => persistQuickLaunchSettings({ ...quickLaunchSettings, tvEnabled: !quickLaunchSettings.tvEnabled }), className: "px-2.5 py-1 rounded-full text-[10px]", style: { background: quickLaunchSettings.tvEnabled ? "#34D39922" : "var(--bg-page)", color: quickLaunchSettings.tvEnabled ? "#34D399" : "var(--text-muted)" } }, quickLaunchSettings.tvEnabled ? "فعال" : "غیرفعال")),
                     React.createElement("label", { className: "text-[10px] block mb-1", style: { color: "var(--text-muted)" } }, "package name اپ نصب‌شده روی گوشی"),
                     React.createElement("input", { type: "text", value: quickLaunchSettings.tvPackage, onChange: e => persistQuickLaunchSettings({ ...quickLaunchSettings, tvPackage: e.target.value }), className: "w-full bg-transparent outline-none text-[12px] mono mb-2", style: { color: "var(--accent-gold)", fontFamily: "JetBrains Mono, monospace" }, placeholder: "com.tradingview.tradingviewapp" }),
                     React.createElement("label", { className: "text-[10px] block mb-1", style: { color: "var(--text-muted)" } }, "اسکیم اختصاصی اپ (اختیاری — فقط اگه روش بالا جواب نداد)"),
                     React.createElement("input", { type: "text", value: quickLaunchSettings.tvScheme, onChange: e => persistQuickLaunchSettings({ ...quickLaunchSettings, tvScheme: e.target.value }), className: "w-full bg-transparent outline-none text-[12px] mono mb-2", style: { color: "var(--text-secondary)", fontFamily: "JetBrains Mono, monospace" }, placeholder: "مثلاً tradingview://..." }),
                     React.createElement("button", { onClick: () => persistQuickLaunchSettings({ ...quickLaunchSettings, tvPosXPercent: null, tvPosYPercent: null }), className: "w-full py-1.5 rounded-lg text-[11px]", style: { background: "var(--bg-page)", color: "var(--text-secondary)" } }, "بازنشانی جایگاه دکمه‌ی TradingView")),
-                openSettingsSection.quickLaunch && React.createElement("p", { className: "text-[10px] leading-5", style: { color: "var(--text-muted)" } }, "چرا گاهی هنوز باز نمی‌شه: از نسخه‌های جدیدِ کروم/سامسونگ‌اینترنت به بعد، مرورگر یک اپ نصب‌شده را فقط وقتی مستقیم با intent باز می‌کند که همون اپ، اکتیویتیِ لانچرش را «قابل‌بازشدن از مرورگر» (BROWSABLE) اعلام کرده باشه؛ اکثر اپ‌های نصب‌شده (ازجمله معمولاً MT5/تریدینگ‌ویو) این را اعلام نمی‌کنن، پس این محدودیت از طرف خودِ مرورگره، نه Namello. با package name تلاش می‌کنیم و روی برخی مرورگرها (خصوصاً سامسونگ‌اینترنت) جواب می‌ده؛ اگه روی گوشی تو جواب نداد، اگه اپ مقصد یه لینک اختصاصی (اسکیم) داشته باشه، همون رو توی فیلد «اسکیم اختصاصی» بالا وارد کن تا اول آن امتحان بشه.")),
+                openSettingsSection.quickLaunch && React.createElement("p", { className: "text-[10px] leading-5", style: { color: "var(--text-muted)" } }, "در برنامه‌ی نصبی (APK) اپ مقصد مستقیماً با اندروید باز می‌شود و به مرورگر وابسته نیست؛ اگر باز نشد، نصب‌بودن اپ و package name را بررسی کن. توضیح بعدی فقط مربوط به نسخه‌ی PWA است. چرا گاهی هنوز باز نمی‌شه: از نسخه‌های جدیدِ کروم/سامسونگ‌اینترنت به بعد، مرورگر یک اپ نصب‌شده را فقط وقتی مستقیم با intent باز می‌کند که همون اپ، اکتیویتیِ لانچرش را «قابل‌بازشدن از مرورگر» (BROWSABLE) اعلام کرده باشه؛ اکثر اپ‌های نصب‌شده (ازجمله معمولاً MT5/تریدینگ‌ویو) این را اعلام نمی‌کنن، پس این محدودیت از طرف خودِ مرورگره، نه Namello. با package name تلاش می‌کنیم و روی برخی مرورگرها (خصوصاً سامسونگ‌اینترنت) جواب می‌ده؛ اگه روی گوشی تو جواب نداد، اگه اپ مقصد یه لینک اختصاصی (اسکیم) داشته باشه، همون رو توی فیلد «اسکیم اختصاصی» بالا وارد کن تا اول آن امتحان بشه.")),
             React.createElement("div", { className: "rounded-xl p-3 mb-3", style: { background: "var(--bg-card)", border: "1px solid var(--border-1)" } },
                 React.createElement("div", { className: "flex items-center justify-between mb-2" },
                     React.createElement("button", { onClick: () => toggleSettingsSection("namelloReturn"), className: "flex items-center gap-1.5" },
-                        React.createElement("h3", { className: "text-[13px] font-semibold", style: { color: "var(--text-primary)" } }, "نوتیفیکیشن بازگشت به Namello"),RE(NmHeaderDots,{title:"نوتیفیکیشن بازگشت به Namello"}),
+                        React.createElement("h3", { className: "text-[13px] font-semibold", style: { color: "var(--text-primary)" } }, "دکمه شناور بازگشت به Namello"),RE(NmHeaderDots,{title:"دکمه شناور بازگشت به Namello"}),
                         React.createElement("span", { className: "nm-settings-chevron", "aria-hidden": true }, openSettingsSection.namelloReturn ? React.createElement(ChevronUp, { size: 14, color: "var(--accent-gold)" }) : React.createElement(ChevronDown, { size: 14, color: "var(--accent-gold)" }))),
                     React.createElement("button", { onClick: () => { if (namelloReturnSettings.enabled) { if (window.NamelloNative && typeof window.NamelloNative.disableFloatingReturn === "function") window.NamelloNative.disableFloatingReturn(); persistNamelloReturnSettings({ ...namelloReturnSettings, enabled: false }); } else enableNamelloReturn(); }, className: "px-3 py-1 rounded-full text-[11px] font-medium", style: { background: namelloReturnSettings.enabled ? "#34D39922" : "var(--bg-card2)", color: namelloReturnSettings.enabled ? "#34D399" : "var(--text-muted)" } }, namelloReturnSettings.enabled ? "فعال" : "غیرفعال")),
                 openSettingsSection.namelloReturn && React.createElement("p", { className: "text-[11px] leading-6", style: { color: "var(--text-muted)" } },
-                    "در نسخه PWA، مرورگر فقط نوتیفیکیشن بازگشت را می‌تواند نمایش دهد. اگر Namello را به‌صورت APK Native اجرا می‌کنی، همین گزینه با مجوز سیستمی «نمایش روی سایر برنامه‌ها» یک دکمه شناور واقعی روی MT5، TradingView و سایر برنامه‌ها ایجاد می‌کند؛ دکمه قابل جابه‌جایی است و با لمس آن Namello باز می‌شود.",
+                    "در برنامه‌ی نصبی (APK) این گزینه یک دکمه‌ی شناور با لوگوی Namello روی MT5، TradingView و سایر برنامه‌ها نشان می‌دهد. برای فعال‌سازی، مجوز سیستمی «نمایش روی سایر برنامه‌ها» را به Namello بده؛ بعد از دادن مجوز برگرد و گزینه را یک بار دیگر روشن کن. دکمه قابل جابه‌جایی است و بعد از رها کردن به نزدیک‌ترین لبه‌ی صفحه می‌چسبد؛ وقتی خود Namello باز است پنهان می‌شود و با یک ضربه Namello را باز می‌کند. هیچ اعلانی در نوار بالای گوشی نشان داده نمی‌شود و آیکون دکمه همان آیکون انتخاب‌شده در «تم آیکون برنامه» (ثابت یا هفتگی) است.",
                     React.createElement("br", null),
                     React.createElement("br", null),
-                    "اگه بعد از فعال‌کردن هنوز این نوتیفیکیشن ظاهر نمی‌شه، دلیلش تقریباً همیشه مدیریت باتریِ خودِ سامسونگه: چون Namello یه تبِ مرورگرِ پس‌زمینه است (نه اپ نصب‌شده)، سامسونگ اغلب پردازشش رو همون لحظه‌ای که ازش خارج می‌شی می‌بنده، قبل از اینکه فرصت کنه نوتیفیکیشن رو نشون بده. برای رفع این مورد: تنظیمات گوشی ← نرم‌افزارها (یا مراقبت از باتری) ← مرورگری که Namello رو باهاش باز کردی (کروم/سامسونگ‌اینترنت) ← مصرف باتری ← گزینه‌ی «بدون محدودیت» رو انتخاب کن، و مطمئن شو مرورگر تو لیست «اپ‌های خواب» یا «به‌خواب‌رفته» نیست. بدون این تنظیم، این قابلیت (و کلاً نوتیفیکیشن‌های Namello) روی گوشی‌های سامسونگ به‌طور نامنظم کار می‌کنن.")),
+                    "اگر دکمه خودبه‌خود ناپدید شد، یعنی اندروید یا مدیریت باتری گوشی پردازش Namello را بسته است؛ Namello را یک بار باز کن تا دکمه برگردد و برای پایداری بیشتر، مصرف باتری Namello را روی «بدون محدودیت» بگذار. با خاموش کردن این گزینه دکمه بلافاصله حذف می‌شود.",
+                    React.createElement("br", null),
+                    React.createElement("br", null),
+                    "در نسخه‌ی PWA مرورگر نمی‌تواند روی برنامه‌های دیگر دکمه نشان بدهد؛ به‌جای آن، وقتی Namello به پس‌زمینه می‌رود یک نوتیفیکیشن «بازگشت به Namello» نمایش داده می‌شود. اگر این نوتیفیکیشن ظاهر نشد، تقریباً همیشه مدیریت باتری گوشی (به‌خصوص سامسونگ) پردازش مرورگر را می‌بندد: تنظیمات گوشی ← برنامه‌ها ← مرورگرِ مورد استفاده (کروم/سامسونگ‌اینترنت) ← باتری ← «بدون محدودیت»، و مطمئن شو مرورگر در لیست «برنامه‌های خواب» نیست.")),
             RE(NmCollapsible, { title: "MT5 · دریافت خودکار OHLC و MFE/MAE", subtitle: "برای جمع/باز کردن این بخش کلیک کنید", icon: "📊", defaultOpen: false },
             React.createElement("div", { className: "rounded-xl p-3 mb-3", style: { background: "var(--bg-card)", border: "1px solid var(--border-1)" } },
                 React.createElement("div", { className: "flex items-center justify-between mb-2" },
@@ -12037,6 +13384,7 @@ function App() {
                         activeAccount),
                     React.createElement("button", { onClick: () => setShowAccSettings(false) },
                         React.createElement(X, { size: 18, color: "var(--text-muted)" }))),
+                RE(NmCustomFieldsManager, null),
                 React.createElement(Field, { label: "\u0628\u0631\u0648\u06A9\u0631" },
                     React.createElement("select", { value: accSettingsForm.broker, onChange: e => e.target.value === "__add__" ? addToList("broker").then(v => v && setAccSettingsForm(f => ({ ...f, broker: v }))) : setAccSettingsForm({ ...accSettingsForm, broker: e.target.value }), className: "w-full bg-transparent outline-none text-sm", style: { color: "var(--text-primary)" } },
                         React.createElement("option", { value: "", style: { background: "var(--bg-card2)" } }, "\u0627\u0646\u062A\u062E\u0627\u0628 \u06A9\u0646..."),
@@ -12098,11 +13446,12 @@ function App() {
                     React.createElement("button", { onClick: () => doExport(r), className: "px-3 py-2 rounded-lg text-[11px] nm-unified-export-btn", style: { background: "var(--bg-card2)", color: "var(--text-primary)", border: "1px solid var(--border-2)" } }, "Excel"),
                     React.createElement("button", { onClick: () => doExportPdf(r), className: "px-3 py-2 rounded-lg text-[11px] nm-unified-export-btn", style: { background: "var(--bg-card2)", color: "var(--accent-gold)", border: "1px solid var(--border-2)" } }, "PDF")))))))),
         showOpenForm && openForm && (React.createElement("div", { className: "fixed inset-0 z-50 flex items-end", style: { background: "#000000AA" }, onClick: () => setShowOpenForm(false) },
-            React.createElement("div", { className: "w-full rounded-t-2xl p-4 max-h-[85vh] overflow-y-auto", style: { background: "var(--bg-card)" }, onClick: e => e.stopPropagation() },
+            React.createElement("div", { className: `w-full rounded-t-2xl p-4 max-h-[85vh] overflow-y-auto ${entryJournalForm.mode === "custom" ? "nm-journal-custom-mode" : ""}`, style: { background: "var(--bg-card)" }, onClick: e => e.stopPropagation() },
                 React.createElement("div", { className: "flex items-center justify-between mb-4" },
                     React.createElement("h3", { className: "text-sm font-semibold", style: { color: "var(--text-primary)" } }, appLanguage === "en" ? "Log Trade Entry" : "\u062B\u0628\u062A \u0648\u0631\u0648\u062F \u0645\u0639\u0627\u0645\u0644\u0647"),
                     React.createElement("button", { onClick: () => setShowOpenForm(false) },
                         React.createElement(X, { size: 18, color: "var(--text-muted)" }))),
+                entryJournalForm.mode === "custom" && RE("div", { className: "rounded-xl p-2.5 mb-3 nm-custom-form-banner", style: { background: "color-mix(in srgb, var(--accent-gold) 8%, var(--bg-card2))", border: "1px solid color-mix(in srgb, var(--accent-gold) 30%, var(--border-2))" } }, RE("div", { className: "text-[11px] font-bold", style: { color: "var(--accent-gold)" } }, "فرم سفارشی ثبت ورود", entryJournalForm.profileName ? " · " + entryJournalForm.profileName : ""), RE("div", { className: "text-[9px] leading-5 mt-1", style: { color: "var(--text-muted)" } }, "همه آیتم‌ها نمایش داده می‌شوند؛ گزینه‌های فعلی پنهان شده‌اند تا بتوانی گزینه‌های جدید را تعریف کنی.")), 
                 React.createElement("div", { className: "grid grid-cols-2 gap-2 mb-2" },
                     React.createElement(Field, { label: numLabel(1, hlLabel(appLanguage === "en" ? "Date (Gregorian)" : "تاریخ (میلادی)")) },
                         React.createElement("input", { type: "date", value: openForm.date, onChange: e => setOpenForm({ ...openForm, date: e.target.value }), className: "w-full bg-transparent outline-none text-sm", style: { color: "var(--text-primary)" } })),
@@ -12133,7 +13482,7 @@ function App() {
                 React.createElement(Field, { label: RE("span", { className: "flex items-center gap-1.5" }, numLabel(8, appLanguage === "en" ? "Fractal" : "فراکتال"), JournalEditToggle({ editMode: fractalEditMode, onToggle: () => setFractalEditMode(m => !m) })) },
                     React.createElement("div", { style: { position: "relative", paddingTop: 6 } },
                         
-                        React.createElement("div", { className: "flex flex-wrap gap-1.5" }, fractalOptions.map(opt => (React.createElement("span", { key: opt, className: "flex items-center gap-1 px-3 py-2 rounded-lg text-[12px] mono", style: { background: openForm.fractal === opt ? "#A855F722" : "var(--bg-card2)", color: openForm.fractal === opt ? "#A855F7" : "var(--text-muted)", fontFamily: "JetBrains Mono, monospace" } },
+                        React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, fractalOptions.map(opt => (React.createElement("span", { key: opt, className: "flex items-center gap-1 px-3 py-2 rounded-lg text-[12px] mono", style: { background: openForm.fractal === opt ? "#A855F722" : "var(--bg-card2)", color: openForm.fractal === opt ? "#A855F7" : "var(--text-muted)", fontFamily: "JetBrains Mono, monospace" } },
                             React.createElement("button", { type: "button", onClick: () => setOpenForm({ ...openForm, fractal: opt }) }, opt),
                             fractalEditMode && (React.createElement("button", { type: "button", onClick: e => { e.stopPropagation(); removeFractalOption(opt); if (openForm.fractal === opt)
                                     setOpenForm(f => ({ ...f, fractal: "" })); } },
@@ -12153,7 +13502,7 @@ function App() {
                 React.createElement(Field, { label: RE("span", { className: "flex items-center gap-1.5" }, numLabel(12, hlLabel(appLanguage === "en" ? "Main Timeframe Trading Systems (multi-select)" : "سیستم‌های معاملاتی تایم اصلی (چند تا هم می‌تونی انتخاب کنی)")), JournalEditToggle({ editMode: systemsEditMode, onToggle: () => setSystemsEditMode(m => !m) })) },
                     React.createElement("div", { style: { position: "relative", paddingTop: 6 } },
                         
-                        React.createElement("div", { className: "flex flex-wrap gap-1.5" }, systems.map((s, i) => {
+                        React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, systems.map((s, i) => {
                             const active = (openForm.systems || []).includes(s);
                             return systemsEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px]", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
                                 React.createElement("button", { type: "button", onClick: () => moveSystem(i, -1), disabled: i === 0, style: { opacity: i === 0 ? 0.3 : 1 } },
@@ -12178,7 +13527,7 @@ function App() {
                 React.createElement(Field, { label: RE("span", { className: "flex items-center gap-1.5" }, numLabel(14, hlLabel(appLanguage === "en" ? "Main Timeframe Divergence (multi-select)" : "واگرایی تایم اصلی (چند تا هم می‌تونی انتخاب کنی)")), JournalEditToggle({ editMode: divergenceMainEditMode, onToggle: () => setDivergenceMainEditMode(m => !m) })) },
                     React.createElement("div", { style: { position: "relative", paddingTop: 6 } },
                         
-                        React.createElement("div", { className: "flex flex-wrap gap-1.5" }, divergenceMainOptions.map((opt, i) => divergenceMainEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px] mono", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)", fontFamily: "JetBrains Mono, monospace" } },
+                        React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, divergenceMainOptions.map((opt, i) => divergenceMainEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px] mono", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)", fontFamily: "JetBrains Mono, monospace" } },
                             React.createElement("button", { type: "button", onClick: () => moveDivergenceMainOption(i, -1), disabled: i === 0, style: { opacity: i === 0 ? 0.3 : 1 } },
                                 React.createElement(ChevronUp, { size: 12, color: "var(--text-muted)" })),
                             React.createElement("button", { type: "button", onClick: () => moveDivergenceMainOption(i, 1), disabled: i === divergenceMainOptions.length - 1, style: { opacity: i === divergenceMainOptions.length - 1 ? 0.3 : 1 } },
@@ -12204,7 +13553,7 @@ function App() {
                 React.createElement(Field, { label: RE("span", { className: "flex items-center gap-1.5" }, numLabel(17, hlLabel(appLanguage === "en" ? "Entry Timeframe Wave Number" : "شماره موج تایم ورود")), JournalEditToggle({ editMode: waveEditMode, onToggle: () => setWaveEditMode(m => !m) })) },
                     React.createElement("div", { style: { position: "relative", paddingTop: 6 } },
                         
-                        React.createElement("div", { className: "flex flex-wrap gap-1.5" }, waveOptions.map((opt, i) => waveEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px]", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
+                        React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, waveOptions.map((opt, i) => waveEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px]", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
                             React.createElement("button", { type: "button", onClick: () => moveWaveOption(i, -1), disabled: i === 0, style: { opacity: i === 0 ? 0.3 : 1 } },
                                 React.createElement(ChevronUp, { size: 12, color: "var(--text-muted)" })),
                             React.createElement("button", { type: "button", onClick: () => moveWaveOption(i, 1), disabled: i === waveOptions.length - 1, style: { opacity: i === waveOptions.length - 1 ? 0.3 : 1 } },
@@ -12221,7 +13570,7 @@ function App() {
                 React.createElement(Field, { label: RE("span", { className: "flex items-center gap-1.5" }, numLabel(18, hlLabel(appLanguage === "en" ? "Entry Timeframe Trading Systems (multi-select)" : "سیستم‌های معاملاتی تایم ورود (چند تا هم می‌تونی انتخاب کنی)")), JournalEditToggle({ editMode: entryTimeSystemsEditMode, onToggle: () => setEntryTimeSystemsEditMode(m => !m) })) },
                     React.createElement("div", { style: { position: "relative", paddingTop: 6 } },
                         
-                        React.createElement("div", { className: "flex flex-wrap gap-1.5" }, systems.map((s, i) => {
+                        React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, systems.map((s, i) => {
                             const active = (openForm.entryTimeSystems || []).includes(s);
                             return entryTimeSystemsEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px]", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
                                 React.createElement("button", { type: "button", onClick: () => moveSystem(i, -1), disabled: i === 0, style: { opacity: i === 0 ? 0.3 : 1 } },
@@ -12246,7 +13595,7 @@ function App() {
                 React.createElement(Field, { label: RE("span", { className: "flex items-center gap-1.5" }, numLabel(20, hlLabel(appLanguage === "en" ? "Entry Timeframe Divergence (multi-select)" : "واگرایی تایم ورود (چند تا هم می‌تونی انتخاب کنی)")), JournalEditToggle({ editMode: divergenceEntryEditMode, onToggle: () => setDivergenceEntryEditMode(m => !m) })) },
                     React.createElement("div", { style: { position: "relative", paddingTop: 6 } },
                         
-                        React.createElement("div", { className: "flex flex-wrap gap-1.5" }, divergenceEntryOptions.map((opt, i) => divergenceEntryEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px] mono", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)", fontFamily: "JetBrains Mono, monospace" } },
+                        React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, divergenceEntryOptions.map((opt, i) => divergenceEntryEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px] mono", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)", fontFamily: "JetBrains Mono, monospace" } },
                             React.createElement("button", { type: "button", onClick: () => moveDivergenceEntryOption(i, -1), disabled: i === 0, style: { opacity: i === 0 ? 0.3 : 1 } },
                                 React.createElement(ChevronUp, { size: 12, color: "var(--text-muted)" })),
                             React.createElement("button", { type: "button", onClick: () => moveDivergenceEntryOption(i, 1), disabled: i === divergenceEntryOptions.length - 1, style: { opacity: i === divergenceEntryOptions.length - 1 ? 0.3 : 1 } },
@@ -12266,7 +13615,7 @@ function App() {
                 React.createElement(Field, { label: RE("span", { className: "flex items-center gap-1.5" }, numLabel(21, hlLabel(appLanguage === "en" ? "Entry Timeframe Reversal Candle Pattern (multi-select)" : "الگوی کندل برگشتی تایم ورود (چند تا هم می‌تونی انتخاب کنی)")), JournalEditToggle({ editMode: reversalPatternEditMode, onToggle: () => setReversalPatternEditMode(m => !m) })) },
                     React.createElement("div", { style: { position: "relative", paddingTop: 6 } },
                         
-                        React.createElement("div", { className: "flex flex-wrap gap-1.5" }, reversalPatternOptions.map((opt, i) => reversalPatternEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px]", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
+                        React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, reversalPatternOptions.map((opt, i) => reversalPatternEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px]", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
                             React.createElement("button", { type: "button", onClick: () => moveReversalPatternOption(i, -1), disabled: i === 0, style: { opacity: i === 0 ? 0.3 : 1 } },
                                 React.createElement(ChevronUp, { size: 12, color: "var(--text-muted)" })),
                             React.createElement("button", { type: "button", onClick: () => moveReversalPatternOption(i, 1), disabled: i === reversalPatternOptions.length - 1, style: { opacity: i === reversalPatternOptions.length - 1 ? 0.3 : 1 } },
@@ -12286,7 +13635,7 @@ function App() {
                 React.createElement(Field, { label: RE("span", { className: "flex items-center gap-1.5" }, numLabel(22, hlLabel(appLanguage === "en" ? "Entry Point (multi-select) (mind default stochastic saturation)" : "نقطه ورود (چند تا هم می‌تونی انتخاب کنی) (به اشباع استوک دیفالت توجه شود.)")), JournalEditToggle({ editMode: trigEditMode, onToggle: () => setTrigEditMode(m => !m) })) },
                     React.createElement("div", { style: { position: "relative", paddingTop: 6 } },
                         
-                        React.createElement("div", { className: "flex flex-wrap gap-1.5" }, trigOptions.map((opt, i) => trigEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px] mono", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)", fontFamily: "JetBrains Mono, monospace" } },
+                        React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, trigOptions.map((opt, i) => trigEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px] mono", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)", fontFamily: "JetBrains Mono, monospace" } },
                             React.createElement("button", { type: "button", onClick: () => moveTrigOption(i, -1), disabled: i === 0, style: { opacity: i === 0 ? 0.3 : 1 } },
                                 React.createElement(ChevronUp, { size: 12, color: "var(--text-muted)" })),
                             React.createElement("button", { type: "button", onClick: () => moveTrigOption(i, 1), disabled: i === trigOptions.length - 1, style: { opacity: i === trigOptions.length - 1 ? 0.3 : 1 } },
@@ -12306,7 +13655,7 @@ function App() {
                 React.createElement(Field, { label: RE("span", { className: "flex items-center gap-1.5" }, numLabel(23, hlLabel(appLanguage === "en" ? "Take Profit (TP) (multi-select)" : "حد سود (TP) (چند تا هم می‌تونی انتخاب کنی)")), JournalEditToggle({ editMode: targetEditMode, onToggle: () => setTargetEditMode(m => !m) })) },
                     React.createElement("div", { style: { position: "relative", paddingTop: 6 } },
                         
-                        React.createElement("div", { className: "flex flex-wrap gap-1.5" }, targetOptions.map((opt, i) => targetEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px] mono", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)", fontFamily: "JetBrains Mono, monospace" } },
+                        React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, targetOptions.map((opt, i) => targetEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px] mono", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)", fontFamily: "JetBrains Mono, monospace" } },
                             React.createElement("button", { type: "button", onClick: () => moveTargetOption(i, -1), disabled: i === 0, style: { opacity: i === 0 ? 0.3 : 1 } },
                                 React.createElement(ChevronUp, { size: 12, color: "var(--text-muted)" })),
                             React.createElement("button", { type: "button", onClick: () => moveTargetOption(i, 1), disabled: i === targetOptions.length - 1, style: { opacity: i === targetOptions.length - 1 ? 0.3 : 1 } },
@@ -12326,7 +13675,7 @@ function App() {
                 React.createElement(Field, { label: RE("span", { className: "flex items-center gap-1.5" }, numLabel(24, hlLabel(appLanguage === "en" ? "Stop Loss (SL) (multi-select) (factor in spread or ATR*(1-1.5))" : "حد ضرر (SL) (چند تا هم می‌تونی انتخاب کنی) (میزان اسپرد یا ATR*(1-1.5) لحاظ گردد.)")), JournalEditToggle({ editMode: stopEditMode, onToggle: () => setStopEditMode(m => !m) })) },
                     React.createElement("div", { style: { position: "relative", paddingTop: 6 } },
                         
-                        React.createElement("div", { className: "flex flex-wrap gap-1.5" }, stopOptions.map((opt, i) => stopEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px] mono", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)", fontFamily: "JetBrains Mono, monospace" } },
+                        React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, stopOptions.map((opt, i) => stopEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px] mono", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)", fontFamily: "JetBrains Mono, monospace" } },
                             React.createElement("button", { type: "button", onClick: () => moveStopOption(i, -1), disabled: i === 0, style: { opacity: i === 0 ? 0.3 : 1 } },
                                 React.createElement(ChevronUp, { size: 12, color: "var(--text-muted)" })),
                             React.createElement("button", { type: "button", onClick: () => moveStopOption(i, 1), disabled: i === stopOptions.length - 1, style: { opacity: i === stopOptions.length - 1 ? 0.3 : 1 } },
@@ -12346,7 +13695,7 @@ function App() {
                 React.createElement(Field, { label: RE("span", { className: "flex items-center gap-1.5" }, numLabel(25, hlLabel("R-multiple")), JournalEditToggle({ editMode: rrEditMode, onToggle: () => setRrEditMode(m => !m) })) },
                     React.createElement("div", { style: { position: "relative", paddingTop: 6 } },
                         
-                        React.createElement("div", { className: "flex flex-wrap gap-1.5" }, rrOptions.map(opt => (React.createElement("span", { key: opt, className: "flex items-center gap-1 px-3 py-2 rounded-lg text-[12px] mono", style: { background: openForm.rrReward === opt ? "color-mix(in srgb, var(--accent-gold) 13%, transparent)" : "var(--bg-card2)", color: openForm.rrReward === opt ? "var(--accent-gold)" : "var(--text-muted)", fontFamily: "JetBrains Mono, monospace" } },
+                        React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, rrOptions.map(opt => (React.createElement("span", { key: opt, className: "flex items-center gap-1 px-3 py-2 rounded-lg text-[12px] mono", style: { background: openForm.rrReward === opt ? "color-mix(in srgb, var(--accent-gold) 13%, transparent)" : "var(--bg-card2)", color: openForm.rrReward === opt ? "var(--accent-gold)" : "var(--text-muted)", fontFamily: "JetBrains Mono, monospace" } },
                             React.createElement("button", { type: "button", onClick: () => { setOpenForm({ ...openForm, rrReward: opt }); setNewRrText(String(opt)); } }, opt),
                             rrEditMode && (React.createElement("button", { type: "button", onClick: e => { e.stopPropagation(); removeRrOption(opt); if (openForm.rrReward === opt)
                                     setOpenForm(f => ({ ...f, rrReward: "" })); } },
@@ -12386,7 +13735,7 @@ function App() {
                 React.createElement(Field, { label: RE("span", { className: "flex items-center gap-1.5" }, numLabel(29, hlLabel(appLanguage === "en" ? "Psychology (multi-select)" : "روانشناسی (چند تا هم می‌تونی انتخاب کنی)")), JournalEditToggle({ editMode: psychEditMode, onToggle: () => setPsychEditMode(m => !m) })) },
                     React.createElement("div", { style: { position: "relative", paddingTop: 6 } },
                         
-                        React.createElement("div", { className: "flex flex-wrap gap-1.5" }, psychOptions.map((opt, i) => {
+                        React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, psychOptions.map((opt, i) => {
                             const active = (openForm.psychology || []).includes(opt);
                             return psychEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-full text-[12px]", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
                                 React.createElement("button", { type: "button", onClick: () => movePsychOption(i, -1), disabled: i === 0, style: { opacity: i === 0 ? 0.3 : 1 } },
@@ -12411,7 +13760,7 @@ function App() {
                 React.createElement(Field, { label: RE("span", { className: "flex items-center gap-1.5" }, numLabel(30, hlLabel(appLanguage === "en" ? "Subjective Success Probability (%)" : "احتمال موفقیت ذهنی (%)")), JournalEditToggle({ editMode: successProbEditMode, onToggle: () => setSuccessProbEditMode(m => !m) })) },
                     React.createElement("div", { style: { position: "relative", paddingTop: 6 } },
                         
-                        React.createElement("div", { className: "flex flex-wrap gap-1.5" }, successProbOptions.map(opt => (React.createElement("span", { key: opt, className: "flex items-center gap-1 px-3 py-2 rounded-lg text-[12px] mono", style: { background: openForm.successProb === opt ? "color-mix(in srgb, var(--accent-gold) 13%, transparent)" : "var(--bg-card2)", color: openForm.successProb === opt ? "var(--accent-gold)" : "var(--text-muted)", fontFamily: "JetBrains Mono, monospace" } },
+                        React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, successProbOptions.map(opt => (React.createElement("span", { key: opt, className: "flex items-center gap-1 px-3 py-2 rounded-lg text-[12px] mono", style: { background: openForm.successProb === opt ? "color-mix(in srgb, var(--accent-gold) 13%, transparent)" : "var(--bg-card2)", color: openForm.successProb === opt ? "var(--accent-gold)" : "var(--text-muted)", fontFamily: "JetBrains Mono, monospace" } },
                             React.createElement("button", { type: "button", onClick: () => setOpenForm({ ...openForm, successProb: opt }) }, opt),
                             successProbEditMode && (React.createElement("button", { type: "button", onClick: e => { e.stopPropagation(); removeSuccessProbOption(opt); if (openForm.successProb === opt)
                                     setOpenForm(f => ({ ...f, successProb: "" })); } },
@@ -12481,13 +13830,14 @@ function App() {
                     React.createElement(Check, { size: 16 }),
                     " ", appLanguage === "en" ? "Log Entry" : "\u062B\u0628\u062A \u0648\u0631\u0648\u062F")))),
         closingTrade && (React.createElement("div", { className: "fixed inset-0 z-50 flex items-end", style: { background: "#000000AA" }, onClick: () => setClosingTrade(null) },
-            React.createElement("div", { className: "w-full rounded-t-2xl p-4 max-h-[85vh] overflow-y-auto", style: { background: "var(--bg-card)" }, onClick: e => e.stopPropagation() },
+            React.createElement("div", { className: `w-full rounded-t-2xl p-4 max-h-[85vh] overflow-y-auto ${resultJournalForm.mode === "custom" ? "nm-journal-custom-mode" : ""}`, style: { background: "var(--bg-card)" }, onClick: e => e.stopPropagation() },
                 React.createElement("div", { className: "flex items-center justify-between mb-4" },
                     React.createElement("h3", { className: "text-sm font-semibold", style: { color: "var(--text-primary)" } },
                         (appLanguage === "en" ? "Log Result — " : "\u062B\u0628\u062A \u0646\u062A\u06CC\u062C\u0647 \u2014 "),
                         closingTrade.pair),
                     React.createElement("button", { onClick: () => setClosingTrade(null) },
                         React.createElement(X, { size: 18, color: "var(--text-muted)" }))),
+                resultJournalForm.mode === "custom" && RE("div", { className: "rounded-xl p-2.5 mb-3 nm-custom-form-banner", style: { background: "color-mix(in srgb, var(--accent-gold) 8%, var(--bg-card2))", border: "1px solid color-mix(in srgb, var(--accent-gold) 30%, var(--border-2))" } }, RE("div", { className: "text-[11px] font-bold", style: { color: "var(--accent-gold)" } }, "فرم سفارشی ثبت نتیجه معامله", resultJournalForm.profileName ? " · " + resultJournalForm.profileName : ""), RE("div", { className: "text-[9px] leading-5 mt-1", style: { color: "var(--text-muted)" } }, "همه آیتم‌ها نمایش داده می‌شوند؛ گزینه‌های فعلی پنهان شده‌اند تا بتوانی گزینه‌های جدید را تعریف کنی.")), 
                 React.createElement(Field, { label: numLabel(1, hlLabel(appLanguage === "en" ? "Exit Price (optional)" : "قیمت خروج (اختیاری)")) },
                     React.createElement("input", { type: "number", inputMode: "decimal", value: closeForm.exit, onChange: e => onCloseFieldChange("exit", e.target.value), className: "w-full bg-transparent outline-none text-sm mono", style: { color: "var(--text-primary)", fontFamily: "JetBrains Mono, monospace" } })),
                 React.createElement("div", { className: "mb-2" },
@@ -12503,7 +13853,7 @@ function App() {
                 React.createElement(Field, { label: RE("span", { className: "flex items-center gap-1.5" }, numLabel(4, hlLabel(appLanguage === "en" ? "Trade Close Type" : "نوع بستن معامله")), JournalEditToggle({ editMode: closeTypeEditMode, onToggle: () => setCloseTypeEditMode(m => !m) })) },
                     React.createElement("div", { style: { position: "relative", paddingTop: 6 } },
                         
-                        React.createElement("div", { className: "flex flex-wrap gap-1.5" }, closeTypeOptions.map((opt, i) => (React.createElement("span", { key: opt, className: "flex items-center gap-1 px-3 py-2 rounded-lg text-[12px]", style: { background: closeForm.closeType === opt ? "color-mix(in srgb, var(--accent-gold) 13%, transparent)" : "var(--bg-card2)", color: closeForm.closeType === opt ? "var(--accent-gold)" : "var(--text-muted)" } },
+                        React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, closeTypeOptions.map((opt, i) => (React.createElement("span", { key: opt, className: "flex items-center gap-1 px-3 py-2 rounded-lg text-[12px]", style: { background: closeForm.closeType === opt ? "color-mix(in srgb, var(--accent-gold) 13%, transparent)" : "var(--bg-card2)", color: closeForm.closeType === opt ? "var(--accent-gold)" : "var(--text-muted)" } },
                             closeTypeEditMode && (React.createElement(React.Fragment, null,
                                 React.createElement("button", { type: "button", onClick: e => { e.stopPropagation(); moveCloseTypeOption(i, -1); }, disabled: i === 0, style: { opacity: i === 0 ? 0.3 : 1 } },
                                     React.createElement(ChevronUp, { size: 12, color: "var(--text-muted)" })),
@@ -12520,7 +13870,7 @@ function App() {
                 React.createElement(Field, { label: RE("span", { className: "flex items-center gap-1.5" }, numLabel(5, hlLabel(appLanguage === "en" ? "Manual Exit Reason" : "علت خروج دستی")), JournalEditToggle({ editMode: manualExitReasonEditMode, onToggle: () => setManualExitReasonEditMode(m => !m) })) },
                     React.createElement("div", { style: { position: "relative", paddingTop: 6 } },
                         
-                        React.createElement("div", { className: "flex flex-wrap gap-1.5" }, manualExitReasonOptions.map((opt, i) => manualExitReasonEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px]", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
+                        React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, manualExitReasonOptions.map((opt, i) => manualExitReasonEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px]", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
                             React.createElement("button", { type: "button", onClick: () => moveManualExitReasonOption(i, -1), disabled: i === 0, style: { opacity: i === 0 ? 0.3 : 1 } },
                                 React.createElement(ChevronUp, { size: 12, color: "var(--text-muted)" })),
                             React.createElement("button", { type: "button", onClick: () => moveManualExitReasonOption(i, 1), disabled: i === manualExitReasonOptions.length - 1, style: { opacity: i === manualExitReasonOptions.length - 1 ? 0.3 : 1 } },
@@ -12537,7 +13887,7 @@ function App() {
                 React.createElement(Field, { label: RE("span", { className: "flex items-center gap-1.5" }, numLabel(6, hlLabel(appLanguage === "en" ? "Trade Management (multi-select)" : "مدیریت معامله (چند تا هم می‌تونی انتخاب کنی)")), JournalEditToggle({ editMode: tradeManagementEditMode, onToggle: () => setTradeManagementEditMode(m => !m) })) },
                     React.createElement("div", { style: { position: "relative", paddingTop: 6 } },
                         
-                        React.createElement("div", { className: "flex flex-wrap gap-1.5" }, tradeManagementOptions.map((opt, i) => tradeManagementEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px]", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
+                        React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, tradeManagementOptions.map((opt, i) => tradeManagementEditMode ? (React.createElement("span", { key: i, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[12px]", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
                             React.createElement("button", { type: "button", onClick: () => moveTradeManagementOption(i, -1), disabled: i === 0, style: { opacity: i === 0 ? 0.3 : 1 } },
                                 React.createElement(ChevronUp, { size: 12, color: "var(--text-muted)" })),
                             React.createElement("button", { type: "button", onClick: () => moveTradeManagementOption(i, 1), disabled: i === tradeManagementOptions.length - 1, style: { opacity: i === tradeManagementOptions.length - 1 ? 0.3 : 1 } },
@@ -12556,7 +13906,7 @@ function App() {
                                 React.createElement(Plus, { size: 12 }))))),
                 React.createElement(Field, { label: RE("span", { className: "flex items-center gap-1.5 font-semibold" }, numLabel(7, hlLabel(appLanguage === "en" ? "Discipline / Mistakes" : "انضباط/اشتباهات")), RE("button", { type: "button", onClick: () => setDisciplineEditMode(m => !m), className: "px-1.5 py-0.5 rounded", style: { background: "var(--bg-card2)", color: "var(--accent-gold)", border: "1px solid var(--border-2)", marginInlineStart: "auto" } }, disciplineEditMode ? "انصراف" : "ویرایش")) },
                     React.createElement(React.Fragment, null,
-                        React.createElement("div", { className: "flex flex-wrap gap-1.5" }, disciplineOptions.map(([key,label], i) => disciplineEditMode ? React.createElement("span", { key, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px]", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
+                        React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, disciplineOptions.map(([key,label], i) => disciplineEditMode ? React.createElement("span", { key, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px]", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
                             React.createElement("button", { type: "button", onClick: () => moveDisciplineOption(i, -1), disabled: i === 0, style: { opacity: i === 0 ? .3 : 1, color: "var(--text-muted)" } }, "▲"),
                             React.createElement("button", { type: "button", onClick: () => moveDisciplineOption(i, 1), disabled: i === disciplineOptions.length - 1, style: { opacity: i === disciplineOptions.length - 1 ? .3 : 1, color: "var(--text-muted)" } }, "▼"),
                             React.createElement("input", { value: label, onChange: e => renameDisciplineOption(i, e.target.value), className: "bg-transparent outline-none text-[11px]", style: { color: "var(--text-primary)", width: Math.max(5, label.length) + "ch" } }),
@@ -12594,7 +13944,7 @@ function App() {
                 dayPlans[0] && React.createElement(NmJournalPlanChecklistField,{plan:dayPlans[0],answers:editForm.dayPlanAnswers||{},onChange:v=>onEditFieldChange("dayPlanAnswers",v),onPlanChange:p=>persistDayPlans([p]),label:numLabel(6,"آمادگی برنامه روزانه"),tickOnly:true}),
                 chartPlans[0] && React.createElement(NmJournalPlanChecklistField,{plan:chartPlans[0],answers:editForm.chartAnswers||{},onChange:v=>onEditFieldChange("chartAnswers",v),onPlanChange:p=>persistChartPlans([p]),label:numLabel(7,"ارزیابی چارت"),tickOnly:true}),
                 React.createElement(Field, { label: "\u0633\u06CC\u0633\u062A\u0645\u200C\u0647\u0627\u06CC \u0645\u0639\u0627\u0645\u0644\u0627\u062A\u06CC \u062A\u0627\u06CC\u0645 \u0627\u0635\u0644\u06CC (\u0686\u0646\u062F \u062A\u0627 \u0647\u0645 \u0645\u06CC\u200C\u062A\u0648\u0646\u06CC \u0627\u0646\u062A\u062E\u0627\u0628 \u06A9\u0646\u06CC)" },
-                    React.createElement("div", { className: "flex flex-wrap gap-1.5" }, systems.map(s => {
+                    React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, systems.map(s => {
                         const active = (editForm.systems || []).includes(s);
                         return (React.createElement("button", { key: s, type: "button", onClick: () => {
                                 const cur = editForm.systems || [];
@@ -12605,7 +13955,7 @@ function App() {
                 React.createElement(Field, { label: "سطوح راهنمای تایم اصلی (چند تا هم می‌تونی انتخاب کنی)" },
                     React.createElement(NmGuideLevelsField, { kind: "main", value: editForm.mainGuideLevels, onChange: v => onEditFieldChange("mainGuideLevels", v) })),
                 React.createElement(Field, { label: "\u0633\u06CC\u0633\u062A\u0645\u200C\u0647\u0627\u06CC \u0645\u0639\u0627\u0645\u0644\u0627\u062A\u06CC \u062A\u0627\u06CC\u0645 \u0648\u0631\u0648\u062F (\u0686\u0646\u062F \u062A\u0627 \u0647\u0645 \u0645\u06CC\u200C\u062A\u0648\u0646\u06CC \u0627\u0646\u062A\u062E\u0627\u0628 \u06A9\u0646\u06CC)" },
-                    React.createElement("div", { className: "flex flex-wrap gap-1.5" }, systems.map(s => {
+                    React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, systems.map(s => {
                         const active = (editForm.entryTimeSystems || []).includes(s);
                         return (React.createElement("button", { key: s, type: "button", onClick: () => {
                                 const cur = editForm.entryTimeSystems || [];
@@ -12632,7 +13982,7 @@ function App() {
                 React.createElement(Field, { label: "\u062E\u0631\u06CC\u062F/\u0641\u0631\u0648\u0634" },
                     React.createElement(ToggleGroup, { value: editForm.direction, options: [{ key: "buy", label: "خرید" }, { key: "sell", label: "فروش" }], onChange: v => onEditFieldChange("direction", v), activeColor: "#34D399" })),
                 React.createElement(Field, { label: "\u0627\u0644\u06AF\u0648\u06CC \u06A9\u0646\u062F\u0644 \u0628\u0631\u06AF\u0634\u062A\u06CC \u062A\u0627\u06CC\u0645 \u0648\u0631\u0648\u062F (\u0686\u0646\u062F \u062A\u0627 \u0647\u0645 \u0645\u06CC\u200C\u062A\u0648\u0646\u06CC \u0627\u0646\u062A\u062E\u0627\u0628 \u06A9\u0646\u06CC)" },
-                    React.createElement("div", { className: "flex flex-wrap gap-1.5" }, reversalPatternOptions.map(opt => {
+                    React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, reversalPatternOptions.map(opt => {
                         const active = (editForm.reversalPatterns || []).includes(opt);
                         return (React.createElement("button", { key: opt, type: "button", onClick: () => {
                                 const cur = editForm.reversalPatterns || [];
@@ -12641,7 +13991,7 @@ function App() {
                             }, className: "px-3 py-2 rounded-lg text-[12px]", style: { background: active ? "#A855F722" : "var(--bg-card2)", color: active ? "#A855F7" : "var(--text-muted)" } }, opt));
                     }))),
                 React.createElement(Field, { label: "\u0646\u0642\u0637\u0647 \u0648\u0631\u0648\u062F (\u0686\u0646\u062F \u062A\u0627 \u0647\u0645 \u0645\u06CC\u200C\u062A\u0648\u0646\u06CC \u0627\u0646\u062A\u062E\u0627\u0628 \u06A9\u0646\u06CC)" },
-                    React.createElement("div", { className: "flex flex-wrap gap-1.5" }, trigOptions.map(opt => {
+                    React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, trigOptions.map(opt => {
                         const active = (editForm.trigs || []).includes(opt);
                         return (React.createElement("button", { key: opt, type: "button", onClick: () => {
                                 const cur = editForm.trigs || [];
@@ -12650,7 +14000,7 @@ function App() {
                             }, className: "px-3 py-2 rounded-lg text-[12px] mono", style: { background: active ? "#60A5FA22" : "var(--bg-card2)", color: active ? "#60A5FA" : "var(--text-muted)", fontFamily: "JetBrains Mono, monospace" } }, opt));
                     }))),
                 React.createElement(Field, { label: "\u062D\u062F \u0633\u0648\u062F (TP) (\u0686\u0646\u062F \u062A\u0627 \u0647\u0645 \u0645\u06CC\u200C\u062A\u0648\u0646\u06CC \u0627\u0646\u062A\u062E\u0627\u0628 \u06A9\u0646\u06CC)" },
-                    React.createElement("div", { className: "flex flex-wrap gap-1.5" }, targetOptions.map(opt => {
+                    React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, targetOptions.map(opt => {
                         const active = (editForm.targets || []).includes(opt);
                         return (React.createElement("button", { key: opt, type: "button", onClick: () => {
                                 const cur = editForm.targets || [];
@@ -12659,7 +14009,7 @@ function App() {
                             }, className: "px-3 py-2 rounded-lg text-[12px] mono", style: { background: active ? "#34D39922" : "var(--bg-card2)", color: active ? "#34D399" : "var(--text-muted)", fontFamily: "JetBrains Mono, monospace" } }, opt));
                     }))),
                 React.createElement(Field, { label: "\u062D\u062F \u0636\u0631\u0631 (SL) (\u0686\u0646\u062F \u062A\u0627 \u0647\u0645 \u0645\u06CC\u200C\u062A\u0648\u0646\u06CC \u0627\u0646\u062A\u062E\u0627\u0628 \u06A9\u0646\u06CC)" },
-                    React.createElement("div", { className: "flex flex-wrap gap-1.5" }, stopOptions.map(opt => {
+                    React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, stopOptions.map(opt => {
                         const active = (editForm.stops || []).includes(opt);
                         return (React.createElement("button", { key: opt, type: "button", onClick: () => {
                                 const cur = editForm.stops || [];
@@ -12682,7 +14032,7 @@ function App() {
                 React.createElement(Field, { label: "\u0627\u062D\u062A\u0645\u0627\u0644 \u0645\u0648\u0641\u0642\u06CC\u062A \u0630\u0647\u0646\u06CC (%)" },
                     React.createElement(ChipGroup, { value: editForm.successProb, options: successProbOptions, onChange: v => onEditFieldChange("successProb", v), mono: true, activeColor: "var(--accent-gold)" })),
                 React.createElement(Field, { label: "\u0631\u0648\u0627\u0646\u0634\u0646\u0627\u0633\u06CC (\u0686\u0646\u062F \u062A\u0627 \u0647\u0645 \u0645\u06CC\u200C\u062A\u0648\u0646\u06CC \u0627\u0646\u062A\u062E\u0627\u0628 \u06A9\u0646\u06CC)" },
-                    React.createElement("div", { className: "flex flex-wrap gap-1.5" }, psychOptions.map(opt => {
+                    React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, psychOptions.map(opt => {
                         const active = (editForm.psychology || []).includes(opt);
                         return (React.createElement("button", { key: opt, type: "button", onClick: () => togglePsychology(opt), className: "px-3 py-1.5 rounded-full text-[12px]", style: { background: active ? "#F8717122" : "var(--bg-card2)", color: active ? "#F87171" : "var(--text-muted)", border: `1px solid ${active ? "#F8717155" : "var(--border-2)"}` } },
                             active ? "✓ " : "",
@@ -12705,7 +14055,7 @@ function App() {
                 React.createElement(Field, { label: "\u0639\u0644\u062A \u062E\u0631\u0648\u062C \u062F\u0633\u062A\u06CC" },
                     React.createElement(ChipGroup, { value: editForm.manualExitReason, options: manualExitReasonOptions, onChange: v => onEditFieldChange("manualExitReason", v), activeColor: "var(--accent-gold)" })),
                 React.createElement(Field, { label: "\u0645\u062F\u06CC\u0631\u06CC\u062A \u0645\u0639\u0627\u0645\u0644\u0647 (\u0686\u0646\u062F \u062A\u0627 \u0647\u0645 \u0645\u06CC\u200C\u062A\u0648\u0646\u06CC \u0627\u0646\u062A\u062E\u0627\u0628 \u06A9\u0646\u06CC)" },
-                    React.createElement("div", { className: "flex flex-wrap gap-1.5" }, tradeManagementOptions.map(opt => {
+                    React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, tradeManagementOptions.map(opt => {
                         const active = (editForm.tradeManagement || []).includes(opt);
                         return (React.createElement("button", { key: opt, type: "button", onClick: () => {
                                 const cur = editForm.tradeManagement || [];
@@ -12715,7 +14065,7 @@ function App() {
                     }))),
 React.createElement(Field, { label: RE("span", { className: "flex items-center gap-1.5 font-semibold" }, numLabel(7, hlLabel(appLanguage === "en" ? "Discipline / Mistakes" : "انضباط/اشتباهات")), RE("button", { type: "button", onClick: () => setEditDisciplineEditMode(m => !m), className: "px-1.5 py-0.5 rounded", style: { background: "var(--bg-card2)", color: "var(--accent-gold)", border: "1px solid var(--border-2)", marginInlineStart: "auto" } }, editDisciplineEditMode ? "انصراف" : "ویرایش")) },
                     React.createElement(React.Fragment, null,
-                        React.createElement("div", { className: "flex flex-wrap gap-1.5" }, disciplineOptions.map(([key,label], i) => editDisciplineEditMode ? React.createElement("span", { key, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px]", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
+                        React.createElement("div", { className: "flex flex-wrap gap-1.5 nm-journal-option-list" }, disciplineOptions.map(([key,label], i) => editDisciplineEditMode ? React.createElement("span", { key, className: "flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px]", style: { background: "var(--bg-card2)", border: "1px solid var(--border-2)" } },
                             React.createElement("button", { type: "button", onClick: () => moveDisciplineOption(i, -1), disabled: i === 0, style: { opacity: i === 0 ? .3 : 1, color: "var(--text-muted)" } }, "▲"),
                             React.createElement("button", { type: "button", onClick: () => moveDisciplineOption(i, 1), disabled: i === disciplineOptions.length - 1, style: { opacity: i === disciplineOptions.length - 1 ? .3 : 1, color: "var(--text-muted)" } }, "▼"),
                             React.createElement("input", { value: label, onChange: e => renameDisciplineOption(i, e.target.value), className: "bg-transparent outline-none text-[11px]", style: { color: "var(--text-primary)", width: Math.max(5, label.length) + "ch" } }),
@@ -12733,7 +14083,7 @@ React.createElement(Field, { label: RE("span", { className: "flex items-center g
                     RE(ChartImageField, { label: "چارت تایم ورود - پایان (بعد از معامله)", value: editForm.chartImageAfter || "", onChange: v => onEditFieldChange("chartImageAfter", v) }),
                     RE(Field, { label: "ارزیابی صوتی چارت قبل از معامله" }, RE(VoiceNoteField, { label: "ضبط رویت صوتی از وضعیت چارت", value: editForm.voiceNoteBefore || "", onChange: v => onEditFieldChange("voiceNoteBefore", v) })),
                     RE(Field, { label: "ارزیابی صوتی چارت بعد از معامله" }, RE(VoiceNoteField, { label: "ضبط رویت صوتی از وضعیت چارت بعد از معامله", value: editForm.voiceNoteAfter || "", onChange: v => onEditFieldChange("voiceNoteAfter", v) }))),
-                                RE(NmCustomFieldsFormSection, { values: editForm.customFields, onChange: v => onEditFieldChange("customFields", v) }),
+                                RE(NmCustomFieldsFormSection, { values: editForm.customFields, onChange: v => onEditFieldChange("customFields", v), kind: "result" }),
                 React.createElement(Field, { label: "\u06CC\u0627\u062F\u062F\u0627\u0634\u062A" },
                     React.createElement("textarea", { rows: 2, value: editForm.note, onChange: e => onEditFieldChange("note", e.target.value), className: "w-full bg-transparent outline-none text-sm resize-none", style: { color: "var(--text-primary)" } })),
                 React.createElement("button", { onClick: saveEditTrade, className: "w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium mt-2 mb-2 nm-unified-export-btn", style: { background: "var(--accent-gold)", color: "var(--bg-page)" } },
@@ -12775,9 +14125,9 @@ React.createElement(Field, { label: RE("span", { className: "flex items-center g
                 React.createElement("div", { className: "flex gap-2" },
                     React.createElement("button", { onClick: () => persistCalcProbWeights(DEFAULT_CALC_PROB_WEIGHTS), className: "flex-1 py-2.5 rounded-xl text-sm", style: { background: "var(--bg-card2)", color: "var(--text-primary)" } }, "\u0628\u0627\u0632\u06AF\u0634\u062A \u0628\u0647 \u067E\u06CC\u0634\u200C\u0641\u0631\u0636"),
                     React.createElement("button", { onClick: () => setShowCalcProbWeights(false), className: "flex-1 py-2.5 rounded-xl text-sm font-medium", style: { background: "var(--accent-gold)", color: "var(--bg-page)" } }, "\u0628\u0627\u0634\u0647"))))),
-        quickLaunchSettings.mt5Enabled && (React.createElement(DraggableFab, { posXPercent: quickLaunchSettings.mt5PosXPercent, posYPercent: quickLaunchSettings.mt5PosYPercent, defaultCorner: "bottom-left", defaultOffsetY: 0, onDrop: (x, y) => persistQuickLaunchSettings({ ...quickLaunchSettings, mt5PosXPercent: x, mt5PosYPercent: y }), onClick: () => launchInstalledApp(quickLaunchSettings.mt5Package, quickLaunchSettings.mt5Label, quickLaunchSettings.mt5Scheme) },
+        quickLaunchSettings.mt5Enabled && (React.createElement(DraggableFab, { posXPercent: quickLaunchSettings.mt5PosXPercent, posYPercent: quickLaunchSettings.mt5PosYPercent, defaultCorner: "bottom-right", defaultOffsetY: 0, onDrop: (x, y) => persistQuickLaunchSettings({ ...quickLaunchSettings, mt5PosXPercent: x, mt5PosYPercent: y }), onClick: () => launchInstalledApp(quickLaunchSettings.mt5Package, quickLaunchSettings.mt5Label, quickLaunchSettings.mt5Scheme) },
             React.createElement("button", { className: "w-12 h-12 rounded-full overflow-hidden flex items-center justify-center", style: { background: "var(--bg-card)", border: "1px solid var(--border-2)", boxShadow: "0 4px 12px #00000066", padding: 0 }, "aria-label": quickLaunchSettings.mt5Label || "اجرای سریع متاتریدر ۵" }, React.createElement("img", { src: "./icon-mt5.jpg", alt: "MT5", className: "w-full h-full object-cover" })))),
-        quickLaunchSettings.tvEnabled && (React.createElement(DraggableFab, { posXPercent: quickLaunchSettings.tvPosXPercent, posYPercent: quickLaunchSettings.tvPosYPercent, defaultCorner: "bottom-left", defaultOffsetY: 64, onDrop: (x, y) => persistQuickLaunchSettings({ ...quickLaunchSettings, tvPosXPercent: x, tvPosYPercent: y }), onClick: () => launchInstalledApp(quickLaunchSettings.tvPackage, quickLaunchSettings.tvLabel, quickLaunchSettings.tvScheme) },
+        quickLaunchSettings.tvEnabled && (React.createElement(DraggableFab, { posXPercent: quickLaunchSettings.tvPosXPercent, posYPercent: quickLaunchSettings.tvPosYPercent, defaultCorner: "bottom-right", defaultOffsetY: 64, onDrop: (x, y) => persistQuickLaunchSettings({ ...quickLaunchSettings, tvPosXPercent: x, tvPosYPercent: y }), onClick: () => launchInstalledApp(quickLaunchSettings.tvPackage, quickLaunchSettings.tvLabel, quickLaunchSettings.tvScheme) },
             React.createElement("button", { className: "w-12 h-12 rounded-full overflow-hidden flex items-center justify-center", style: { background: "var(--bg-card)", border: "1px solid var(--border-2)", boxShadow: "0 4px 12px #00000066", padding: 0 }, "aria-label": quickLaunchSettings.tvLabel || "اجرای سریع تریدینگ‌ویو" }, React.createElement("img", { src: "./icon-tradingview.png", alt: "TradingView", className: "w-full h-full object-cover" })))),
         viewImageSrc && (React.createElement("div", { className: "fixed inset-0 z-50 flex items-center justify-center p-4", style: { background: "#000000EE" }, onClick: () => setViewImageSrc(null) },
             React.createElement("img", { src: viewImageSrc, alt: "\u0686\u0627\u0631\u062A", className: "max-w-full max-h-full rounded-lg", style: { objectFit: "contain" } }),
@@ -12785,7 +14135,7 @@ React.createElement(Field, { label: RE("span", { className: "flex items-center g
                 React.createElement(X, { size: 18, color: "#E8EAED" })))),
         React.createElement(NmHelpCenter, null),
         React.createElement(NmWhatsNew, null),
-        toast && (React.createElement("div", { className: "fixed left-1/2 z-[95] px-4 py-2.5 rounded-xl text-[12px]", style: { bottom: 76, transform: "translateX(-50%)", background: "var(--bg-card2)", color: "var(--text-primary)", border: "1px solid var(--border-2)", maxWidth: "90%", textAlign: "center" } }, toast))));
+        toast && (React.createElement("div", { className: "fixed left-1/2 z-[95] px-4 py-2.5 rounded-xl text-[12px]", style: { bottom: 76, transform: "translateX(-50%)", background: "var(--bg-card2)", color: "var(--text-primary)", border: "1px solid var(--border-2)", maxWidth: "90%", textAlign: "center" } }, toast)), locked && RE(NmLockScreen, { onUnlock: unlock })));
 }
 
 try {
@@ -12806,3 +14156,6 @@ try {
 } catch (e) {
   showBootError("App render failed", e && (e.stack || e.message) || String(e));
 }
+</script>
+</body>
+</html>
