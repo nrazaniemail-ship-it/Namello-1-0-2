@@ -159,7 +159,25 @@ public class MainActivity extends BridgeActivity {
                     }
                 }
                 if (!persisted) throw new SecurityException("folder-access-not-persisted");
-                getSharedPreferences(PREFS, MODE_PRIVATE).edit().putString(KEY_BACKUP_TREE_URI, tree.toString()).apply();
+                SharedPreferences backupPrefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+                String previousTreeText = backupPrefs.getString(KEY_BACKUP_TREE_URI, "");
+                backupPrefs.edit().putString(KEY_BACKUP_TREE_URI, tree.toString()).apply();
+                // Releasing an obsolete SAF grant avoids accumulating access to every folder
+                // the user has ever selected. Do not release when re-selecting the same folder.
+                if (!previousTreeText.isEmpty() && !tree.toString().equals(previousTreeText)) {
+                    try {
+                        Uri previousTree = Uri.parse(previousTreeText);
+                        for (android.content.UriPermission permission : getContentResolver().getPersistedUriPermissions()) {
+                            if (previousTree.equals(permission.getUri())) {
+                                int oldFlags = 0;
+                                if (permission.isReadPermission()) oldFlags |= Intent.FLAG_GRANT_READ_URI_PERMISSION;
+                                if (permission.isWritePermission()) oldFlags |= Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
+                                if (oldFlags != 0) getContentResolver().releasePersistableUriPermission(previousTree, oldFlags);
+                                break;
+                            }
+                        }
+                    } catch (Throwable ignored) { /* The newly selected folder remains usable. */ }
+                }
                 String name = "پوشه‌ی انتخاب‌شده";
                 try {
                     Uri rootDocument = DocumentsContract.buildDocumentUriUsingTree(tree, DocumentsContract.getTreeDocumentId(tree));
@@ -221,7 +239,12 @@ public class MainActivity extends BridgeActivity {
 
     private void completeBackDecision(String result) {
         backDecisionPending = false;
-        if (result != null && result.contains("handled")) return;
+        if (result != null && result.contains("handled")) {
+            // A Back press consumed by a dialog/sub-page must break the main-page double-Back sequence.
+            // Otherwise, opening a dialog between two main-page presses could exit the app unexpectedly.
+            lastBackPressAt = 0L;
+            return;
+        }
         long now = System.currentTimeMillis();
         if (now - lastBackPressAt < 1800L) {
             lastBackPressAt = 0L;
@@ -481,7 +504,19 @@ public class MainActivity extends BridgeActivity {
 
         @JavascriptInterface
         public boolean hasPickedBackupFolder() {
-            return !getSharedPreferences(PREFS, MODE_PRIVATE).getString(KEY_BACKUP_TREE_URI, "").isEmpty();
+            String saved = getSharedPreferences(PREFS, MODE_PRIVATE).getString(KEY_BACKUP_TREE_URI, "");
+            if (saved.isEmpty()) return false;
+            try {
+                Uri tree = Uri.parse(saved);
+                // The user may revoke folder access in Android settings or delete/move the
+                // provider entry. Do not report a stale URI as a usable backup destination.
+                for (android.content.UriPermission permission : getContentResolver().getPersistedUriPermissions()) {
+                    if (tree.equals(permission.getUri()) && permission.isReadPermission() && permission.isWritePermission()) {
+                        return true;
+                    }
+                }
+            } catch (Throwable ignored) { }
+            return false;
         }
 
         /** Lists JSON backup files in the persisted SAF folder for in-app restore. */
