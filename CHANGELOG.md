@@ -1,3 +1,23 @@
+# Namello 1.0.3 — Version Code 70
+
+- ساعت نشست‌ها بزرگ‌تر و قطورتر شد؛ ارقام ساعت به داخل حلقه منتقل شدند و اندازهٔ دقیقه‌ها و عنوان قطاع‌ها افزایش یافت تا هم‌پوشانی کاهش یابد.
+- راهنمای فعال‌سازی پیکربندی‌های ذخیره‌شدهٔ فیلدهای سفارشی ژورنال روشن‌تر شد و دکمه‌ها برای هر فرم مستقل مشخص شدند.
+- عنوان بخش توصیه‌ها در ارزیابی پیشرفته و روانشناسی ترید یکسان شد.
+- تنظیمات مستقل نوتیفیکیشن‌های متنی، آیکون‌های پنج دسته و زمان‌بندی هشدار اخبار ۳۰ ثانیه پیش از رویداد در وب/APK حفظ و آزمون شدند.
+- آزمون‌های خودکار، بررسی نسخه، ساخت وب و TypeScript typecheck اجرا شدند. ساخت و آزمایش APK روی دستگاه واقعی هنوز لازم است.
+
+## 1.0.1 (Version Code 68) — versioned source refresh
+- Synced version metadata across the source, PWA manifests, service worker, and package metadata.
+- Preserved the existing backup/restore safeguards, Android Back handling, custom-field profiles, notification scheduling/artwork, and weekly icon assets.
+- Automated verification: 98 tests pass; TypeScript typecheck and web build pass. Real-device APK validation remains outstanding.
+
+## 1.0.0 (Version Code 67) — consolidated release
+- Includes the latest Namello working source, Android backup/restore safeguards, notification category artwork, and Android Back handling changes carried forward from the 1.0.67 development line.
+- Version Name is reset to the requested 1.0.0; Android versionCode remains incremented to 67 so Android does not treat this package as an older build.
+
+## 1.0.67 (Version Code 66)
+- A Back press consumed by a dialog or sub-page now resets the main-page double-Back exit timer, preventing an unexpected exit after closing an overlay.
+
 ## 1.0.61 (Version Code 60)
 - Android Back handling now has a bounded WebView callback timeout and guards against overlapping rapid presses, so a stalled JavaScript callback does not leave the system Back button unresponsive.
 
