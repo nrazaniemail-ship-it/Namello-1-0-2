@@ -72,7 +72,8 @@ for (const dir of ["", "public/"]) {
     await edit(dir + m, (t) => t
       .replace(/("name"\s*:\s*"Namello )[^"]*(")/, `$1${next}$2`)
       .replace(/("short_name"\s*:\s*"Namello )[^"]*(")/, `$1${next}$2`)
-      .replace(/("version"\s*:\s*")[^"]*(")/, `$1${next}$2`));
+      .replace(/("version"\s*:\s*")[^"]*(")/, `$1${next}$2`)
+      .replace(/("versionCode"\s*:\s*)\d+/, `$1${nextCode}`));
   }
   await edit(dir + "sw.js", (t) => t
     .replace(/const CACHE_NAME = "namello-[^"]*";/, `const CACHE_NAME = "namello-${next}-c${nextCode}";`)
