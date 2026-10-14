@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
 import { OAuth2Client } from 'google-auth-library';
-import { applicationDefault, getApps, initializeApp } from 'firebase-admin/app';
+import { applicationDefault, cert, getApps, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -20,6 +20,7 @@ const SESSION_TTL = Math.max(900, Number(env.SESSION_TTL_SECONDS || 43200));
 const MAX_BODY = Math.max(1024 * 64, Number(env.MAX_BODY_BYTES || 2097152));
 const CORS_ORIGINS = String(env.CORS_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
 const FIREBASE_PROJECT_ID = String(env.FIREBASE_PROJECT_ID || '').trim();
+const FIREBASE_SERVICE_ACCOUNT_JSON = String(env.FIREBASE_SERVICE_ACCOUNT_JSON || '').trim();
 const DB_PATH = path.resolve(__dirname, env.DB_PATH || './data/namello.sqlite');
 
 if (!['local', 'google', 'firebase'].includes(AUTH_MODE)) throw new Error('NAMELLO_AUTH_MODE must be local, google, or firebase');
@@ -66,7 +67,23 @@ CREATE INDEX IF NOT EXISTS idx_sync_user_rev ON sync_revisions(user_id, revision
 
 const googleClient = new OAuth2Client();
 if (AUTH_MODE === 'firebase' && getApps().length === 0) {
-  initializeApp({ credential: applicationDefault(), projectId: FIREBASE_PROJECT_ID });
+  if (FIREBASE_SERVICE_ACCOUNT_JSON) {
+    let serviceAccount;
+    try {
+      serviceAccount = JSON.parse(FIREBASE_SERVICE_ACCOUNT_JSON);
+    } catch {
+      throw new Error('FIREBASE_SERVICE_ACCOUNT_JSON must contain valid JSON');
+    }
+    if (!serviceAccount?.project_id || !serviceAccount?.client_email || !serviceAccount?.private_key) {
+      throw new Error('FIREBASE_SERVICE_ACCOUNT_JSON is missing required service-account fields');
+    }
+    if (FIREBASE_PROJECT_ID && serviceAccount.project_id !== FIREBASE_PROJECT_ID) {
+      throw new Error('FIREBASE_SERVICE_ACCOUNT_JSON project_id does not match FIREBASE_PROJECT_ID');
+    }
+    initializeApp({ credential: cert(serviceAccount), projectId: FIREBASE_PROJECT_ID || serviceAccount.project_id });
+  } else {
+    initializeApp({ credential: applicationDefault(), projectId: FIREBASE_PROJECT_ID });
+  }
 }
 const firebaseAuth = AUTH_MODE === 'firebase' ? getAuth() : null;
 const app = express();
