@@ -100,6 +100,7 @@ for (const dir of ["", "public/"]) {
     if (!m) continue;
     if (m.name !== `Namello ${V}` || m.short_name !== `Namello ${V}`) fail(`${dir}${f}: name/short_name is not "Namello ${V}"`);
     if (m.version !== undefined && m.version !== V) fail(`${dir}${f}: version ${m.version} != ${V}`);
+    if (m.versionCode !== undefined && m.versionCode !== C) fail(`${dir}${f}: versionCode ${m.versionCode} != version.json ${C}`);
   }
   const sw = await text(dir + "sw.js");
   if (!sw.includes(`const CACHE_NAME = "namello-${V}-c${C}";`)) fail(`${dir}sw.js: CACHE_NAME is not namello-${V}-c${C}`);
