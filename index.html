@@ -155,8 +155,63 @@ input[type="time"]::-webkit-calendar-picker-indicator { width: 18px; height: 18p
 .nm-journal-custom-mode .nm-journal-option-list > * { display: none !important; }
 .nm-journal-custom-mode .nm-custom-form-banner { position: sticky; top: 0; z-index: 3; }
 </style>
+
+<style id="namello-auth-gate-style">
+#namello-auth-gate{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;overflow:auto;padding:20px;background:radial-gradient(ellipse at 12% 0%,#28234e 0,transparent 42%),radial-gradient(ellipse at 100% 100%,#142d4b 0,transparent 38%),#0b0e11;color:#f7f7ff;font-family:inherit;direction:rtl}
+#namello-auth-gate *{box-sizing:border-box}
+#namello-auth-gate .na-wrap{width:min(100%,440px)}
+#namello-auth-gate .na-brand{display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:18px;font-weight:800;font-size:25px}
+#namello-auth-gate .na-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#8171ff,#5c8cff);font-size:22px}
+#namello-auth-gate .na-card{background:#181a29ed;border:1px solid #2d3045;border-radius:22px;padding:clamp(20px,5vw,30px);box-shadow:0 24px 90px #0005}
+#namello-auth-gate .na-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;color:#a9a0ff;font-size:12px}
+#namello-auth-gate h1{font-size:26px;line-height:1.4;margin:0 0 8px;color:#fff}
+#namello-auth-gate .na-sub{margin:0 0 20px;color:#9a9db5;font-size:13px;line-height:1.9}
+#namello-auth-gate label{display:block;margin:14px 0 7px;font-size:13px}
+#namello-auth-gate input{display:block;width:100%;min-height:46px;border:1px solid #35384e;border-radius:11px;background:#111320;color:#fff;padding:10px 12px;font:inherit;direction:ltr;text-align:left}
+#namello-auth-gate input:focus{outline:2px solid #8171ff;outline-offset:1px}
+#namello-auth-gate button{font:inherit;cursor:pointer}
+#namello-auth-gate button:disabled{opacity:.55;cursor:wait}
+#namello-auth-gate .na-primary,#namello-auth-gate .na-google,#namello-auth-gate .na-secondary{width:100%;min-height:46px;border-radius:11px;padding:10px 12px;font-weight:750}
+#namello-auth-gate .na-primary{margin-top:18px;border:0;background:linear-gradient(100deg,#8171ff,#5c8cff);color:white}
+#namello-auth-gate .na-google,#namello-auth-gate .na-secondary{margin-top:12px;border:1px solid #3a3d52;background:#202234;color:#f7f7ff}
+#namello-auth-gate .na-link{border:0;background:transparent;color:#b9b0ff;padding:5px 0;font-size:12px}
+#namello-auth-gate .na-links{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px}
+#namello-auth-gate .na-divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:#777b94;font-size:11px}
+#namello-auth-gate .na-divider:before,#namello-auth-gate .na-divider:after{content:"";height:1px;flex:1;background:#2d3045}
+#namello-auth-gate .na-notice{display:none;margin-top:14px;padding:11px 12px;border:1px solid #6a5933;background:#352d1d;border-radius:10px;color:#f4dca2;font-size:12px;line-height:1.8;overflow-wrap:anywhere}
+#namello-auth-gate .na-notice.show{display:block}
+#namello-auth-gate .na-notice.error{border-color:#75414b;background:#351f28;color:#ffb7c2}
+#namello-auth-gate .na-account{display:none;margin-top:14px;padding:12px;border:1px solid #355a49;background:#1b3029;border-radius:12px;color:#b6f2d0;font-size:13px;line-height:1.8;overflow-wrap:anywhere}
+#namello-auth-gate .na-account.show{display:block}
+#namello-auth-gate .na-hidden{display:none!important}
+#namello-auth-gate .na-foot{text-align:center;color:#777b94;font-size:11px;line-height:1.8;margin:15px 0 0}
+</style>
 </head>
 <body>
+
+<div id="namello-auth-gate" role="dialog" aria-modal="true" aria-labelledby="na-heading">
+ <div class="na-wrap">
+  <div class="na-brand"><span class="na-mark">N</span><span>Namello</span></div>
+  <section class="na-card">
+   <div class="na-top"><span id="na-mode-note">ورود امن به حساب</span><button class="na-link" id="na-switch" type="button">ایجاد حساب</button></div>
+   <h1 id="na-heading">ورود به ناملو</h1>
+   <p class="na-sub" id="na-subtitle">برای ادامه استفاده از برنامه، وارد حساب خود شوید.</p>
+   <form id="na-form">
+    <label for="na-email">ایمیل</label><input id="na-email" type="email" autocomplete="email" placeholder="name@example.com" required>
+    <label for="na-password">رمز عبور</label><input id="na-password" type="password" autocomplete="current-password" minlength="8" placeholder="حداقل ۸ نویسه" required>
+    <button class="na-primary" id="na-submit" type="submit">ورود</button>
+   </form>
+   <div class="na-links" id="na-form-links"><button class="na-link" id="na-forgot" type="button">بازیابی رمز عبور</button><button class="na-link" id="na-resend" type="button">ارسال مجدد ایمیل تأیید</button></div>
+   <div class="na-divider" id="na-divider">یا ورود با</div>
+   <button class="na-google" id="na-google" type="button">ادامه با حساب Google</button>
+   <div class="na-account" id="na-account" role="status"></div>
+   <button class="na-secondary na-hidden" id="na-refresh-verify" type="button">بررسی تأیید ایمیل</button>
+   <button class="na-secondary na-hidden" id="na-signout" type="button">خروج از حساب</button>
+   <div class="na-notice" id="na-notice" role="status" aria-live="polite"></div>
+  </section>
+  <p class="na-foot">ورود با Firebase تأیید می‌شود و دسترسی به برنامه پس از تأیید نشست توسط سرور فعال خواهد شد.</p>
+ </div>
+</div>
 <div id="boot-status">Loading Namello 1.0.4…</div>
 <div id="boot-error"></div>
 <div id="root"></div>
@@ -14156,6 +14211,44 @@ try {
 } catch (e) {
   showBootError("App render failed", e && (e.stack || e.message) || String(e));
 }
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script id="namello-auth-gate-script">
+(function(){
+ const $=id=>document.getElementById(id);
+ const API_BASE='https://namello-backend-test.onrender.com';
+ const config={apiKey:'AIzaSyBEIuHNqQ2to7jzun93v1u8OGVUxXieHgc',authDomain:'namello-app-4.firebaseapp.com',projectId:'namello-app-4',storageBucket:'namello-app-4.firebasestorage.app',messagingSenderId:'376512435282',appId:'1:376512435282:web:93302f6faa9388fd243b8b',measurementId:'G-CXC50K2LG3'};
+ let auth=null, signup=false, busy=false, currentUser=null, backendToken=null;
+ function notice(s,error=false){$('na-notice').textContent=s;$('na-notice').classList.add('show');$('na-notice').classList.toggle('error',error)}
+ function clearNotice(){$('na-notice').classList.remove('show','error');$('na-notice').textContent=''}
+ function setBusy(v){busy=v;['na-submit','na-google','na-switch','na-forgot','na-resend','na-signout','na-refresh-verify'].forEach(id=>{const e=$(id);if(e)e.disabled=v})}
+ function friendly(e){const c=e&&e.code||'';const m={'auth/email-already-in-use':'این ایمیل قبلاً ثبت شده است؛ وارد حساب شوید.','auth/invalid-email':'آدرس ایمیل معتبر نیست.','auth/weak-password':'رمز عبور ضعیف است؛ حداقل ۸ نویسه انتخاب کنید.','auth/user-not-found':'حسابی با این ایمیل پیدا نشد.','auth/wrong-password':'ایمیل یا رمز عبور اشتباه است.','auth/invalid-credential':'ایمیل یا رمز عبور اشتباه است.','auth/too-many-requests':'تلاش‌های زیادی انجام شده؛ کمی بعد دوباره امتحان کنید.','auth/network-request-failed':'اتصال اینترنت را بررسی کنید.','auth/unauthorized-domain':'دامنه برنامه در Firebase Authorized domains ثبت نشده است.','auth/operation-not-allowed':'این روش ورود در Firebase فعال نیست.','auth/popup-blocked':'پنجره ورود مسدود شد؛ دوباره امتحان کنید.'};return m[c]||('خطا در ورود ('+(c||'unknown')+'). '+(e&&e.message?e.message:'دوباره تلاش کنید.'))}
+ function setMode(){ $('na-mode-note').textContent=signup?'ساخت حساب جدید':'ورود امن به حساب';$('na-heading').textContent=signup?'ایجاد حساب ناملو':'ورود به ناملو';$('na-subtitle').textContent=signup?'با ایمیل خود حساب بسازید؛ برای فعال شدن همگام‌سازی، ایمیل باید تأیید شود.':'برای ادامه استفاده از برنامه، وارد حساب خود شوید.';$('na-submit').textContent=signup?'ثبت‌نام':'ورود';$('na-switch').textContent=signup?'قبلاً حساب دارم':'ایجاد حساب';$('na-password').autocomplete=signup?'new-password':'current-password';$('na-forgot').classList.toggle('na-hidden',signup);clearNotice()}
+ async function exchange(user){
+  const cached=sessionStorage.getItem('namello_backend_session');
+  if(cached){try{const old=JSON.parse(cached);if(old.token){const check=await fetch(API_BASE+'/v1/me',{headers:{Authorization:'Bearer '+old.token}});if(check.ok){backendToken=old.token;window.NamelloAuth={getToken:()=>backendToken,getUser:()=>currentUser,signOut:logout};$('na-account').textContent='ورود تأیید شد: '+(user.email||user.displayName||'کاربر')+'؛ نشست سرور فعال است.';$('na-account').classList.add('show');$('namello-auth-gate').style.display='none';return true}}}catch(e){}sessionStorage.removeItem('namello_backend_session')}
+  const idToken=await user.getIdToken(true);
+  const response=await fetch(API_BASE+'/v1/auth/firebase/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken})});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok){const map={email_verification_required:'ابتدا ایمیل خود را از لینک ارسال‌شده توسط Firebase تأیید کنید، سپس «بررسی تأیید ایمیل» را بزنید.',email_not_verified:'ایمیل این حساب تأیید نشده است.',firebase_auth_disabled:'احراز هویت Firebase در بک‌اند فعال نیست.',invalid_firebase_token:'توکن Firebase تأیید نشد؛ از حساب خارج شوید و دوباره وارد شوید.'};throw new Error(map[data.error]||('سرور ورود را نپذیرفت: '+(data.error||response.status)))}
+  if(!data.token)throw new Error('سرور نشست Namello را برنگرداند.');
+  backendToken=data.token;sessionStorage.setItem('namello_backend_session',JSON.stringify({token:data.token,expiresAt:data.expiresAt}));
+  window.NamelloAuth={getToken:()=>backendToken,getUser:()=>currentUser,signOut:logout};
+  $('na-account').textContent='ورود تأیید شد: '+(data.user&&data.user.email||user.email||user.displayName||'کاربر')+'؛ نشست سرور فعال است.';
+  $('na-account').classList.add('show');$('namello-auth-gate').style.display='none';return true;
+ }
+ async function logout(){clearNotice();setBusy(true);try{if(backendToken)await fetch(API_BASE+'/v1/auth/logout',{method:'POST',headers:{Authorization:'Bearer '+backendToken}}).catch(()=>{});sessionStorage.removeItem('namello_backend_session');backendToken=null;window.NamelloAuth=null;await auth.signOut();notice('از حساب خارج شدید.')}catch(e){notice(friendly(e),true)}finally{setBusy(false)}}
+ $('na-switch').addEventListener('click',()=>{signup=!signup;setMode()});
+ $('na-form').addEventListener('submit',async e=>{e.preventDefault();if(busy)return;clearNotice();setBusy(true);try{const email=$('na-email').value.trim(),password=$('na-password').value;if(signup){const result=await auth.createUserWithEmailAndPassword(email,password);await result.user.sendEmailVerification();notice('حساب ساخته شد. لینک تأیید به ایمیل شما ارسال شد. پس از تأیید، دوباره وارد شوید.');await auth.signOut();signup=false;setMode()}else{await auth.signInWithEmailAndPassword(email,password);notice('ورود انجام شد؛ در حال تأیید نشست...')}}catch(e){notice(friendly(e),true)}finally{setBusy(false)}});
+ $('na-forgot').addEventListener('click',async()=>{clearNotice();const email=$('na-email').value.trim();if(!email){notice('ابتدا ایمیل خود را وارد کنید.');$('na-email').focus();return}setBusy(true);try{await auth.sendPasswordResetEmail(email);notice('اگر حسابی با این ایمیل وجود داشته باشد، پیام بازیابی ارسال شده است.')}catch(e){notice(friendly(e),true)}finally{setBusy(false)}});
+ $('na-resend').addEventListener('click',async()=>{clearNotice();if(!currentUser){notice('ابتدا با ایمیل و رمز عبور وارد شوید.');return}setBusy(true);try{await currentUser.sendEmailVerification();notice('لینک تأیید دوباره ارسال شد. صندوق ورودی و پوشه هرزنامه را بررسی کنید.')}catch(e){notice(friendly(e),true)}finally{setBusy(false)}});
+ $('na-refresh-verify').addEventListener('click',async()=>{if(!currentUser)return;setBusy(true);clearNotice();try{await currentUser.reload();currentUser=auth.currentUser;if(currentUser&&currentUser.emailVerified){await exchange(currentUser)}else{notice('هنوز تأیید ایمیل ثبت نشده است؛ پس از کلیک روی لینک ایمیل دوباره امتحان کنید.')}}catch(e){notice(e.message||friendly(e),true)}finally{setBusy(false)}});
+ $('na-google').addEventListener('click',async()=>{if(busy)return;clearNotice();setBusy(true);try{const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});await auth.signInWithRedirect(provider)}catch(e){notice(friendly(e),true);setBusy(false)}});
+ $('na-signout').addEventListener('click',logout);
+ try{if(!window.firebase||!firebase.initializeApp)throw new Error('Firebase SDK yüklenemedi');firebase.initializeApp(config);auth=firebase.auth();auth.useDeviceLanguage();auth.onAuthStateChanged(async user=>{currentUser=user;backendToken=null;sessionStorage.removeItem('namello_backend_session');$('na-account').classList.remove('show');$('na-refresh-verify').classList.add('na-hidden');$('na-signout').classList.add('na-hidden');$('na-form').classList.remove('na-hidden');$('na-form-links').classList.remove('na-hidden');$('na-divider').classList.remove('na-hidden');$('na-google').classList.remove('na-hidden');if(!user){$('namello-auth-gate').style.display='grid';return} $('na-account').textContent='حساب Firebase: '+(user.email||user.displayName||'کاربر')+(user.emailVerified?' · ایمیل تأیید شده':' · ایمیل تأیید نشده');$('na-account').classList.add('show');$('na-signout').classList.remove('na-hidden');if(user.emailVerified===false){$('na-form').classList.add('na-hidden');$('na-form-links').classList.add('na-hidden');$('na-divider').classList.add('na-hidden');$('na-google').classList.add('na-hidden');$('na-refresh-verify').classList.remove('na-hidden');notice('برای ادامه، ایمیل خود را تأیید کنید.');return}try{await exchange(user)}catch(e){$('namello-auth-gate').style.display='grid';notice(e.message||'اتصال به بک‌اند ناموفق بود؛ اتصال و تنظیمات CORS را بررسی کنید.',true)}} ,e=>{ $('namello-auth-gate').style.display='grid';notice(friendly(e),true)});auth.getRedirectResult().catch(e=>notice(friendly(e),true));}catch(e){$('namello-auth-gate').style.display='grid';notice('راه‌اندازی Firebase ناموفق بود: '+e.message,true)}
+})();
 </script>
 </body>
 </html>
