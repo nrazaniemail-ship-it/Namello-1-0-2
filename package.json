@@ -28,6 +28,9 @@
     "@capacitor/core": "^7.4.3",
     "@capacitor/filesystem": "^7.0.0",
     "@capacitor/local-notifications": "^7.0.0",
-    "@capacitor/share": "^7.0.0"
+    "@capacitor/share": "^7.0.0",
+    "express": "^5.1.0",
+    "firebase-admin": "^13.5.0",
+    "google-auth-library": "^10.3.0"
   }
 }
