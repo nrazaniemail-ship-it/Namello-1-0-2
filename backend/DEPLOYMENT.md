@@ -1,20 +1,30 @@
 # Namello Backend Deployment
 
-## Default local mode
+## Production mode: Google OAuth
 
-No domain, VPS, or Google Client ID is required for development. Use `localhost:8787`.
+This source bundle uses Google ID-token verification for backend sessions. It does **not** use Firebase Web Authentication, so the Firebase Web `apiKey` error from a different `index.html` does not originate from this source.
 
-## Production defaults to secure mode
+Set these environment variables on Render:
 
-Production refuses to start in local/demo mode. For Google OAuth mode, configure `GOOGLE_CLIENT_ID`; for Firebase Authentication mode, configure `FIREBASE_PROJECT_ID` and server credentials. Set exact PWA origins in `CORS_ORIGINS`.
+- `NODE_ENV=production`
+- `NAMELLO_AUTH_MODE=google`
+- `GOOGLE_CLIENT_ID=<the same Google OAuth Web Client ID used in Namello settings>`
+- `NAMELLO_SESSION_SECRET=<at least 32 random characters>`
+- `CORS_ORIGINS=https://nrazaniemail-ship-it.github.io`
+- `DB_PATH=/var/data/namello.sqlite` (only if a persistent disk is mounted at `/var/data`; otherwise choose a persistent storage plan/path appropriate to the Render service)
 
-Required production values:
-- `NAMELLO_AUTH_MODE=firebase` (for Firebase email/password and Google sign-in)
-- `FIREBASE_PROJECT_ID=namello-app-4`
-- `FIREBASE_SERVICE_ACCOUNT_JSON=<service-account JSON stored as a Render secret>` (or use Application Default Credentials)
-- `NAMELLO_SESSION_SECRET=<long random secret>`
-- For legacy Google-only mode, use `NAMELLO_AUTH_MODE=google` and `GOOGLE_CLIENT_ID=<real Google Web Client ID>`
-- `CORS_ORIGINS=https://<your-pwa-domain>`
-- `NAMELLO_API_DOMAIN=<your-api-domain>`
+The Google OAuth Web Client ID must be configured for the app's actual origin and redirect/popup use in Google Cloud Console. The client ID is not a client secret. Never put a Google client secret or service-account private key in the browser.
 
-The server stores only account metadata and encrypted sync envelopes; it does not decrypt trade data.
+## Local development
+
+Use Node.js 22.5 or later. The local mode is intended only for development:
+
+- `NODE_ENV=development`
+- `NAMELLO_AUTH_MODE=local`
+- `NAMELLO_SESSION_SECRET=<at least 32 random characters>`
+
+Do not enable local/demo auth in production. The service uses Node's built-in SQLite support, so ensure the deployed runtime supports `node:sqlite` and attach persistent storage if sync records must survive redeploys.
+
+## Health check
+
+`GET /healthz` returns the backend status and active authentication mode. A successful health check does not itself prove Google sign-in works; test the full sign-in flow from the deployed PWA.
