@@ -61,3 +61,5 @@ jobs:
             process.exitCode = 1;
           })().catch(e => { console.error(e.message); process.exitCode = 1; });
           NODE
+
+# Re-run diagnostic after correcting the Firebase Web API key in index.html.
