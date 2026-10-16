@@ -22,6 +22,7 @@ jobs:
           SITE_URL: https://nrazaniemail-ship-it.github.io/Namello-App-4/
         run: |
           node <<'NODE'
+          const SITE_URL = process.env.SITE_URL;
           const sleep = ms => new Promise(r => setTimeout(r, ms));
           (async () => {
             let html = '';
