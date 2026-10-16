@@ -8740,7 +8740,7 @@ const NM_BACKEND_CFG_KEY = "namello_backend_config_v1";
 const NM_BACKEND_SESSION_KEY = "namello_backend_session_v1";
 function nmBackendCfg(){ return nmSecRead(NM_BACKEND_CFG_KEY,{baseUrl:"http://localhost:8787"}); }
 function nmBackendSession(){ try{return JSON.parse(sessionStorage.getItem(NM_BACKEND_SESSION_KEY)||"null");}catch(e){return null;} }
-function nmSaveBackendSession(v){ try{if(v)sessionStorage.setItem(NM_BACKEND_SESSION_KEY,JSON.stringify(v));else sessionStorage.removeItem(NM_BACKEND_SESSION_KEY);}catch(e){} }
+function nmSaveBackendSession(v){ try{if(v)sessionStorage.setItem(NM_BACKEND_SESSION_KEY,JSON.stringify(v));else sessionStorage.removeItem(NM_BACKEND_SESSION_KEY);}catch(e){} try{window.dispatchEvent(new Event('namello-backend-session-changed'));}catch(e){} }
 async function nmBackendRequest(path,options={}){
   const cfg=nmBackendCfg(); if(!cfg.baseUrl) throw new Error("آدرس Backend را وارد کن.");
   const session=nmBackendSession(); const headers={"Content-Type":"application/json",...(options.headers||{})};
@@ -8802,6 +8802,7 @@ async function nmBackendPull(pass){
 }
 function NmBackendSyncCard({showToast}){
   const [cfg,setCfg]=React.useState(()=>nmBackendCfg()); const [session,setSession]=React.useState(()=>nmBackendSession()); const [busy,setBusy]=React.useState(false); const [pass,setPass]=React.useState("");
+  React.useEffect(()=>{const refresh=()=>{setSession(nmBackendSession());setCfg(nmBackendCfg())};window.addEventListener('namello-backend-session-changed',refresh);return()=>window.removeEventListener('namello-backend-session-changed',refresh)},[]);
   const saveCfg=(p)=>{const n={...cfg,...p};setCfg(n);nmSecWrite(NM_BACKEND_CFG_KEY,n)};
   const login=async()=>{setBusy(true);try{const r=await nmBackendGoogleLogin(({session:s})=>s&&setSession(s));setSession(r);showToast("حساب Namello با Google در Backend تأیید شد.");}catch(e){showToast("ورود Backend ناموفق بود: "+(e.message||"خطا"));}finally{setBusy(false)}};
   const sync=async()=>{if(!session?.token){showToast("ابتدا ورود به Backend را انجام بده.");return;}const p=pass||window.prompt("گذرواژه رمزگذاری Sync را وارد کن:");if(!p)return;setBusy(true);try{const r=await nmBackendSync(p);setPass(p);showToast(r.status==="pushed"?"Sync روی سرور ذخیره شد (Revision "+r.revision+").":r.status==="pulled"?"Sync از حساب دریافت شد.":"داده‌ها از قبل همگام بودند.");if(r.status==="pulled"||r.status==="merged")setTimeout(()=>location.reload(),700);}catch(e){showToast("Sync ناموفق بود: "+(e.message||"خطا"));}finally{setBusy(false)}};
