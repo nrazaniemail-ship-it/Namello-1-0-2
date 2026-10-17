@@ -1,0 +1,41 @@
+name: One-time version alignment
+on:
+  push:
+    branches:
+      - feature/firebase-token-backend-auth
+permissions:
+  contents: write
+jobs:
+  align:
+    if: ${{ !startsWith(github.event.head_commit.message, 'chore: align app version to 1.0.5') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/firebase-token-backend-auth
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install
+      - name: Align all generated version markers
+        run: node scripts/bump-version.mjs 1.0.5 72
+      - name: Build and verify
+        run: |
+          npm run build
+          npm run verify
+          npm test
+          npm run typecheck
+          node --check backend/server.mjs
+      - name: Commit aligned version
+        run: |
+          if git diff --quiet; then
+            echo "Version markers were already aligned."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: align app version to 1.0.5"
+          git push origin HEAD:feature/firebase-token-backend-auth
