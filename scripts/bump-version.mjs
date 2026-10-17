@@ -49,7 +49,9 @@ console.log(`updated version.json  ${oldV}/${oldC} -> ${next}/${nextCode}`);
 await writeFile("public/version.json", JSON.stringify({ version: next, versionCode: nextCode }, null, 2) + "\n");
 console.log("updated public/version.json");
 
-for (const f of ["package.json", "public/package.json"]) {\n  await edit(f, (t) => t.replace(/("version"\\s*:\\s*")[^"]+(")/, `$1${next}$2`), { required: f === "package.json" });\n}
+for (const f of ["package.json", "public/package.json"]) {
+  await edit(f, (t) => t.replace(/("version"\s*:\s*")[^"]+(")/, `$1${next}$2`), { required: f === "package.json" });
+}
 
 for (const f of ["index.html"]) {
   await edit(f, (t) => t
