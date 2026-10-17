@@ -4,7 +4,7 @@ on:
     branches:
       - feature/firebase-token-backend-auth
     paths:
-      - .github/workflows/align-release-version-105.yml
+      - .github/workflows/align-release-version-105.yml\n      - scripts/bump-version.mjs
 permissions:
   contents: write
 jobs:
