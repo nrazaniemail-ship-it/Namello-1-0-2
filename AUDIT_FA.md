@@ -39,4 +39,4 @@
 
 ## روش آپلود
 
-محتویات پوشهٔ `Namello-1.0.5-Redesigned` را در **ریشهٔ** مخزن `Namello-App-4` آپلود کنید؛ خود پوشهٔ بالادستی را به‌عنوان یک زیرپوشه در مخزن قرار ندهید. فایل‌های ریشه‌ای مثل `index.html`, `manifest.json`, `sw.js`, `package.json`, `version.json`, `backend/`, `public/`, `native/`, `.github/` و `dist/` باید در مسیرهای مورد انتظار باقی بمانند. پس از آپلود، ابتدا GitHub Pages و سپس متغیرهای Render را با راهنمای بالا هماهنگ کنید.
+محتویات پوشهٔ `Namello-1.0.5-Redesigned` را در **ریشهٔ** مخزن `Namello-1.0.5` آپلود کنید؛ خود پوشهٔ بالادستی را به‌عنوان یک زیرپوشه در مخزن قرار ندهید. فایل‌های ریشه‌ای مثل `index.html`, `manifest.json`, `sw.js`, `package.json`, `version.json`, `backend/`, `public/`, `native/`, `.github/` و `dist/` باید در مسیرهای مورد انتظار باقی بمانند. پس از آپلود، ابتدا GitHub Pages و سپس متغیرهای Render را با راهنمای بالا هماهنگ کنید.
