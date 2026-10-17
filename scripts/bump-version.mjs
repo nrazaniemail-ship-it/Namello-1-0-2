@@ -82,7 +82,11 @@ for (const dir of ["", "public/"]) {
     .replace(/\(Namello [0-9.]+ \/ Version Code \d+\)/, `(Namello ${next} / Version Code ${nextCode})`));
 }
 
-await edit("README.md", (t) => t.replace(/^# Namello [0-9.]+/m, `# Namello ${next}`), { required: false });
+for (const f of ["README.md", "public/README.md"]) {
+  await edit(f, (t) => t.replace(/^# Namello [0-9.]+/m, `# Namello ${next}`), { required: f === "README.md" });
+}
+await edit("backend/package.json", (t) => t.replace(/("version"\s*:\s*")[^"]+(")/, `$1${next}$2`), { required: false });
+await edit("backend/server.mjs", (t) => t.replace(/(service: 'namello-sync', version: ')[^']+(')/, `$1${next}$2`), { required: false });
 
 console.log(`\nDone (${touched} files changed). Remember to add the release notes to NM_CHANGELOG in index.html,`);
 console.log("then run: node scripts/verify-namello-version.mjs && npm test");
