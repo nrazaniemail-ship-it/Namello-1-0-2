@@ -65,6 +65,6 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
+          git add version.json public/version.json package.json public/package.json index.html index_scripts/16.js public/index_scripts/16.js manifest*.json public/manifest*.json sw.js public/sw.js dist backend/package.json backend/server.mjs README.md public/README.md CHANGELOG.md
           git commit -m "chore: align all Namello version markers to 1.0.5"
           git push origin HEAD:feature/firebase-token-backend-auth
