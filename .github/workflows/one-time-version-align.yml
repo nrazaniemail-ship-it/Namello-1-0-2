@@ -7,7 +7,6 @@ permissions:
   contents: write
 jobs:
   align:
-    if: ${{ !startsWith(github.event.head_commit.message, 'chore: align app version to 1.0.5') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
