@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Wait for GitHub Pages and test Firebase key
         env:
-          SITE_URL: https://nrazaniemail-ship-it.github.io/Namello-App-4/
+          SITE_URL: https://nrazaniemail-ship-it.github.io/Namello-1.0.5/
         run: |
           node <<'NODE'
           const SITE_URL = process.env.SITE_URL;
