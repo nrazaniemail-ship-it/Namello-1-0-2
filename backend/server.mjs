@@ -255,8 +255,8 @@ app.post('/v1/auth/firebase/verify', async (req, res) => {
       code,
       name: String(e?.name || 'Error')
     });
-    if (code === 'auth/id-token-revoked') return res.status(401).json({ error: 'firebase_token_revoked' });
-    return res.status(401).json({ error: 'invalid_firebase_token' });
+    if (code === 'auth/id-token-revoked') return res.status(401).json({ error: 'firebase_token_revoked', diagnostic: code });
+    return res.status(401).json({ error: 'invalid_firebase_token', diagnostic: code });
   }
 });
 app.post('/v1/auth/logout', auth, (req, res) => { db.prepare('DELETE FROM sessions WHERE token_hash=?').run(req.auth.tokenHash); res.status(204).end(); });
