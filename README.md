@@ -1,33 +1,17 @@
-# Namello 1.0.5
+# Namello 1.0.2
 
-Namello is a Persian-first trading journal PWA with local storage, backup/restore, custom journal fields, trade statistics, psychology and market-behavior evaluation, notification settings, MT5/TradingView helpers, and an optional Google OAuth-backed encrypted sync service.
+PWA trading journal with broker CSV templates/import guide, virtualized statement lists, psychology metrics, multi-account portfolio view, Prop Firm rules, MT5/TradingView OHLC replay, stronger Sync conflict resolution, and a gradual TypeScript/Vite migration scaffold.
 
-## This release
+The runtime remains compatible with the existing single-file PWA architecture while pure logic is being extracted under `src/modules/`.
 
-- Version: `1.0.5`
-- Android `versionCode`: `72`
-- Fixed backend startup order so `NODE_ENV` is defined before it is used to select the authentication mode.
-- Kept the existing app architecture and its feature/test coverage instead of rewriting the 2 MB single-file UI without a migration plan.
-- Synchronized the web build output and service-worker cache with the release version.
+## Firebase Authentication (Namello 1.0.2)
 
-## Build and verify
+The Security / Backup settings include Firebase email/password registration and login plus Google sign-in through Firebase Authentication. Configure these values in the app's security settings:
 
-Use Node.js 22.5 or later.
+- Firebase Project ID (for example `namello-app-4`)
+- Firebase Web API Key from Project settings → General → Your apps → SDK setup and configuration
+- Google OAuth Web Client ID
 
-```sh
-npm test
-npm run typecheck
-npm run verify
-npm run build
-node --check backend/server.mjs
-```
+In Firebase Console → Authentication → Sign-in method, enable **Email/Password** and **Google**. In the backend deployment, set `FIREBASE_PROJECT_ID` and `FIREBASE_WEB_API_KEY` to the same Firebase project values, and configure `NAMELLO_AUTH_MODE=google`, `GOOGLE_CLIENT_ID`, and a strong `NAMELLO_SESSION_SECRET` (at least 32 characters). Do not put service-account private keys in the web app or repository. The web API key is a public client identifier; restrict it appropriately in Google Cloud while allowing Identity Toolkit API.
 
-## Deployment notes
-
-- GitHub Pages serves the root `index.html`; upload the **contents** of this folder to the repository root, not the enclosing folder.
-- The source in this bundle uses Google OAuth for the optional backend sync. It does not include the Firebase Web login gate that was present in a different deployed `index.html`.
-- Before deploying the backend to Render, follow [`backend/DEPLOYMENT.md`](backend/DEPLOYMENT.md) and configure `NAMELLO_AUTH_MODE=google`, the matching `GOOGLE_CLIENT_ID`, `NAMELLO_SESSION_SECRET`, exact `CORS_ORIGINS`, and persistent storage if sync data must survive redeploys.
-- Automated tests do not replace hands-on testing on an Android device. Validate SAF folder selection, backup/restore, notifications, Android Back, and Google OAuth on the target device before calling the release production-ready.
-
-
-گزارش کامل ارزیابی، آزمون‌ها و موارد باقی‌مانده: [`AUDIT_FA.md`](AUDIT_FA.md).
+The backend `/v1/auth/firebase/verify` endpoint validates the Firebase ID token through Firebase Identity Toolkit before issuing a Namello session. Real provider sign-in still requires the project settings above and should be tested against the deployed Firebase/Render environment.
