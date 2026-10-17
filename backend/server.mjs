@@ -21,6 +21,7 @@ const MAX_BODY = Math.max(1024 * 64, Number(env.MAX_BODY_BYTES || 2097152));
 const CORS_ORIGINS = String(env.CORS_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
 const FIREBASE_PROJECT_ID = String(env.FIREBASE_PROJECT_ID || '').trim();
 const FIREBASE_SERVICE_ACCOUNT_JSON = String(env.FIREBASE_SERVICE_ACCOUNT_JSON || env.FIREBASE_SERVICE_ACCOUNT || '').trim();
+const FIREBASE_SERVICE_ACCOUNT_FILE = String(env.FIREBASE_SERVICE_ACCOUNT_FILE || '/etc/secrets/firebase-service-account.json').trim();
 const DB_PATH = path.resolve(__dirname, env.DB_PATH || './data/namello.sqlite');
 
 if (!['local', 'google', 'firebase'].includes(AUTH_MODE)) throw new Error('NAMELLO_AUTH_MODE must be local, google, or firebase');
@@ -67,30 +68,44 @@ CREATE INDEX IF NOT EXISTS idx_sync_user_rev ON sync_revisions(user_id, revision
 
 const googleClient = new OAuth2Client();
 if (AUTH_MODE === 'firebase' && getApps().length === 0) {
+  let serviceAccount = null;
+  let credentialSource = '';
   if (FIREBASE_SERVICE_ACCOUNT_JSON) {
-    let serviceAccount;
     try {
       serviceAccount = JSON.parse(FIREBASE_SERVICE_ACCOUNT_JSON);
     } catch {
       throw new Error('FIREBASE_SERVICE_ACCOUNT_JSON must contain valid JSON');
     }
+    credentialSource = 'service-account-env';
+  } else if (FIREBASE_SERVICE_ACCOUNT_FILE && fs.existsSync(FIREBASE_SERVICE_ACCOUNT_FILE)) {
+    try {
+      serviceAccount = JSON.parse(fs.readFileSync(FIREBASE_SERVICE_ACCOUNT_FILE, 'utf8'));
+    } catch {
+      throw new Error('FIREBASE_SERVICE_ACCOUNT_FILE must point to a valid service-account JSON file');
+    }
+    credentialSource = 'service-account-file';
+  }
+  if (serviceAccount) {
     if (!serviceAccount?.project_id || !serviceAccount?.client_email || !serviceAccount?.private_key) {
-      throw new Error('FIREBASE_SERVICE_ACCOUNT_JSON is missing required service-account fields');
+      throw new Error('Firebase service-account credentials are missing required fields');
     }
     if (FIREBASE_PROJECT_ID && serviceAccount.project_id !== FIREBASE_PROJECT_ID) {
-      throw new Error('FIREBASE_SERVICE_ACCOUNT_JSON project_id does not match FIREBASE_PROJECT_ID');
+      throw new Error('Firebase service-account project_id does not match FIREBASE_PROJECT_ID');
     }
     initializeApp({ credential: cert(serviceAccount), projectId: FIREBASE_PROJECT_ID || serviceAccount.project_id });
   } else {
     initializeApp({ credential: applicationDefault(), projectId: FIREBASE_PROJECT_ID });
+    credentialSource = 'application-default-credentials';
   }
+  // Keep the source for safe startup diagnostics without logging any secret values.
+  env.__NAMELLO_FIREBASE_CREDENTIAL_SOURCE = credentialSource;
 }
 const firebaseAuth = AUTH_MODE === 'firebase' ? getAuth() : null;
 if (AUTH_MODE === 'firebase') {
   // Safe operational diagnostics only: never log credentials or ID tokens.
   console.info('[firebase-auth] configuration', {
     projectId: FIREBASE_PROJECT_ID || null,
-    credentialSource: FIREBASE_SERVICE_ACCOUNT_JSON ? 'service-account-env' : 'application-default-credentials'
+    credentialSource: env.__NAMELLO_FIREBASE_CREDENTIAL_SOURCE || (FIREBASE_SERVICE_ACCOUNT_JSON ? 'service-account-env' : 'application-default-credentials')
   });
 }
 const app = express();
