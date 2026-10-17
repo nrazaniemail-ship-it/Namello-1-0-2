@@ -86,6 +86,13 @@ if (AUTH_MODE === 'firebase' && getApps().length === 0) {
   }
 }
 const firebaseAuth = AUTH_MODE === 'firebase' ? getAuth() : null;
+if (AUTH_MODE === 'firebase') {
+  // Safe operational diagnostics only: never log credentials or ID tokens.
+  console.info('[firebase-auth] configuration', {
+    projectId: FIREBASE_PROJECT_ID || null,
+    credentialSource: FIREBASE_SERVICE_ACCOUNT_JSON ? 'service-account-env' : 'application-default-credentials'
+  });
+}
 const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
