@@ -1,0 +1,70 @@
+name: Align Namello release version 1.0.5
+# One-time run to align all version markers across the Firebase-auth branch.
+on:
+  push:
+    branches:
+      - feature/firebase-token-backend-auth
+    paths:
+      - .github/workflows/align-release-version-105.yml
+      - scripts/bump-version.mjs
+permissions:
+  contents: write
+jobs:
+  align-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Firebase-auth branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/firebase-token-backend-auth
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install
+      - name: Align app version markers
+        run: node scripts/bump-version.mjs 1.0.5 72
+      - name: Align backend package and health version
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const p = JSON.parse(fs.readFileSync('backend/package.json', 'utf8'));
+          p.version = '1.0.5';
+          fs.writeFileSync('backend/package.json', JSON.stringify(p, null, 2) + '\n');
+          const f = 'backend/server.mjs';
+          let s = fs.readFileSync(f, 'utf8');
+          s = s.replace(/(service: 'namello-sync', version: ')[^']+(')/, (_m, a, b) => a + '1.0.5' + b);
+          fs.writeFileSync(f, s);
+          const publicReadme = 'public/README.md';
+          if (fs.existsSync(publicReadme)) {
+            let r = fs.readFileSync(publicReadme, 'utf8');
+            r = r.replace(/^# Namello [0-9.]+/m, '# Namello 1.0.5');
+            fs.writeFileSync(publicReadme, r);
+          }
+          const changelog = 'CHANGELOG.md';
+          if (fs.existsSync(changelog)) {
+            let c = fs.readFileSync(changelog, 'utf8');
+            c = c.replace(/^# Namello [0-9.]+ — Version Code \d+/m, '# Namello 1.0.5 — Version Code 72');
+            fs.writeFileSync(changelog, c);
+          }
+          NODE
+      - name: Build and verify all versioned assets
+        run: |
+          npm run build
+          npm run verify
+          npm test
+          npm run typecheck
+          node --check backend/server.mjs
+      - name: Commit aligned version files
+        run: |
+          if git diff --quiet; then
+            echo "Version markers already aligned."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: align all Namello version markers to 1.0.5"
+          git push origin HEAD:feature/firebase-token-backend-auth

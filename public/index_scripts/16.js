@@ -3531,8 +3531,8 @@ const JournalEditToggle = ({ editMode, onToggle }) => RE("button", { type: "butt
    Version Code = عدد صحیحِ افزایشی؛ با «هر» آپدیت یکی زیاد می‌شود (حتی PATCH).
    هنگام انتشار نسخه‌ی جدید فقط همین سه ثابت + فایل version.json را به‌روز کن. */
 const NM_APP_NAME = "Namello";
-const NM_VERSION_NAME = "1.0.4";
-const NM_VERSION_CODE = 71;
+const NM_VERSION_NAME = "1.0.5";
+const NM_VERSION_CODE = 72;
 const NM_VERSION_LABEL = NM_APP_NAME + " " + NM_VERSION_NAME;
 const NM_VERSION_029_NOTE = "نسخه 1.0.29: یکدست‌سازی شماره نسخه، کد نسخه و کش آفلاین در بسته PWA؛ قابلیت‌های هوش مصنوعی نسخه قبل حفظ شده‌اند.";
 const NM_VERSION_DATE = "انتشار نسخه 1.0.4 — 2026-10-13";

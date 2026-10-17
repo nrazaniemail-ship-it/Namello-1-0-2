@@ -1,3 +1,7 @@
+# Namello 1.0.5 — Version Code 72
+- همگام‌سازی نسخهٔ جاری برنامه، متادیتای بسته و بک‌اند روی `1.0.5`؛ کد اندروید `72`.
+- ساخت وب و آزمون‌های خودکار نسخه اجرا شدند.
+
 ## 1.0.61 (Version Code 60)
 - Android Back handling now has a bounded WebView callback timeout and guards against overlapping rapid presses, so a stalled JavaScript callback does not leave the system Back button unresponsive.
 

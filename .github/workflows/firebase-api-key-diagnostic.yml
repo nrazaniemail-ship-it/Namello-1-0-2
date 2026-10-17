@@ -1,0 +1,65 @@
+name: Firebase Web API Key Diagnostic
+
+on:
+  push:
+    branches:
+      - feature/firebase-token-backend-auth
+    paths:
+      - '.github/workflows/firebase-api-key-diagnostic.yml'
+      - 'firebase-diagnostic.html'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-firebase-web-key:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Wait for GitHub Pages and test Firebase key
+        env:
+          SITE_URL: https://nrazaniemail-ship-it.github.io/Namello-1.0.5/
+        run: |
+          node <<'NODE'
+          const SITE_URL = process.env.SITE_URL;
+          const sleep = ms => new Promise(r => setTimeout(r, ms));
+          (async () => {
+            let html = '';
+            let lastError = '';
+            for (let i = 0; i < 12; i++) {
+              try {
+                const r = await fetch(SITE_URL + '?diagnostic=' + Date.now(), { cache: 'no-store' });
+                if (!r.ok) throw new Error('Site HTTP ' + r.status);
+                html = await r.text();
+                if (html.includes('identitytoolkit') || html.includes('apiKey')) break;
+                throw new Error('Published page did not contain expected Firebase config');
+              } catch (e) {
+                lastError = e.message;
+                console.log('Attempt ' + (i + 1) + '/12: ' + lastError);
+                await sleep(10000);
+              }
+            }
+            if (!html) throw new Error('Could not fetch published site: ' + lastError);
+            const m = html.match(/const\s+config\s*=\s*\{[^}]*apiKey\s*:\s*['"]([^'"]+)['"][^}]*projectId\s*:\s*['"]([^'"]+)['"]/s)
+              || html.match(/apiKey\s*:\s*['"]([^'"]+)['"][^}]*projectId\s*:\s*['"]([^'"]+)['"]/s);
+            if (!m) throw new Error('Firebase apiKey/projectId not found in published index.html');
+            const key = m[1], projectId = m[2];
+            console.log('Published projectId: ' + projectId);
+            console.log('API key length: ' + key.length + ' characters (key intentionally not printed)');
+            const r = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:createAuthUri?key=' + encodeURIComponent(key), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ identifier: 'namello-diagnostic@example.invalid', continueUri: 'https://nrazaniemail-ship-it.github.io' })
+            });
+            const data = await r.json().catch(() => ({}));
+            if (r.ok) {
+              console.log('Firebase endpoint accepted the key (HTTP ' + r.status + '). This does not prove full sign-in works.');
+              return;
+            }
+            console.error('Firebase rejected the key (HTTP ' + r.status + '): ' + ((data.error && data.error.message) || 'unknown error'));
+            process.exitCode = 1;
+          })().catch(e => { console.error(e.message); process.exitCode = 1; });
+          NODE
+
+# Re-run diagnostic after correcting the Firebase Web API key in index.html.
