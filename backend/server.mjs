@@ -20,7 +20,7 @@ const SESSION_TTL = Math.max(900, Number(env.SESSION_TTL_SECONDS || 43200));
 const MAX_BODY = Math.max(1024 * 64, Number(env.MAX_BODY_BYTES || 2097152));
 const CORS_ORIGINS = String(env.CORS_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
 const FIREBASE_PROJECT_ID = String(env.FIREBASE_PROJECT_ID || '').trim();
-const FIREBASE_SERVICE_ACCOUNT_JSON = String(env.FIREBASE_SERVICE_ACCOUNT_JSON || '').trim();
+const FIREBASE_SERVICE_ACCOUNT_JSON = String(env.FIREBASE_SERVICE_ACCOUNT_JSON || env.FIREBASE_SERVICE_ACCOUNT || '').trim();
 const DB_PATH = path.resolve(__dirname, env.DB_PATH || './data/namello.sqlite');
 
 if (!['local', 'google', 'firebase'].includes(AUTH_MODE)) throw new Error('NAMELLO_AUTH_MODE must be local, google, or firebase');
@@ -249,7 +249,12 @@ app.post('/v1/auth/firebase/verify', async (req, res) => {
     const session = issueSession(user.id);
     return res.json({ token: session.token, expiresAt: session.expiresAt, user: publicUser(user), mode: 'firebase', provider });
   } catch (e) {
-    const code = e?.code || '';
+    const code = String(e?.code || 'unknown');
+    // Log only the SDK error code/name; never log the Firebase ID token or request body.
+    console.error('[firebase-auth] token verification failed', {
+      code,
+      name: String(e?.name || 'Error')
+    });
     if (code === 'auth/id-token-revoked') return res.status(401).json({ error: 'firebase_token_revoked' });
     return res.status(401).json({ error: 'invalid_firebase_token' });
   }
