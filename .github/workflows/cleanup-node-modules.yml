@@ -1,0 +1,35 @@
+name: Keep generated dependencies out of Git
+on:
+  push:
+    branches:
+      - feature/firebase-token-backend-auth
+    paths:
+      - .github/workflows/cleanup-node-modules.yml
+permissions:
+  contents: write
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/firebase-token-backend-auth
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Remove generated dependency files
+        run: |
+          if [ -d node_modules ]; then rm -rf node_modules; fi
+          if [ -f package-lock.json ]; then rm -f package-lock.json; fi
+          touch .gitignore
+          grep -qxF 'node_modules/' .gitignore || echo 'node_modules/' >> .gitignore
+          if git diff --quiet && git ls-files --others --exclude-standard | grep -q .; then
+            :
+          fi
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No generated dependency files to remove."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: remove generated dependencies from repository"
+          git push origin HEAD:feature/firebase-token-backend-auth
