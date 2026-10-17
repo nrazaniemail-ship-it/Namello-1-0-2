@@ -152,7 +152,7 @@ function validatePack(pack) {
 }
 function latest(userId) { return db.prepare('SELECT revision,device_id,updated_at,app_version,pack_json,created_at FROM sync_revisions WHERE user_id=? ORDER BY revision DESC LIMIT 1').get(userId); }
 
-app.get('/healthz', (_req, res) => res.json({ ok: true, service: 'namello-sync', version: '1.0.5', authMode: AUTH_MODE, time: nowIso() }));
+app.get('/healthz', (_req, res) => res.json({ ok: true, service: 'namello-sync', version: '1.0.2', authMode: AUTH_MODE, time: nowIso() }));
 app.post('/v1/auth/dev', (req, res) => {
   if (AUTH_MODE !== 'local' || NODE_ENV === 'production') return res.status(404).json({ error: 'not_available' });
   const ts = nowIso();
@@ -188,6 +188,28 @@ app.post('/v1/auth/google/verify', async (req, res) => {
   } catch (e) {
     return res.status(401).json({ error: 'invalid_google_token', detail: e?.message || 'verification_failed' });
   }
+});
+app.post('/v1/auth/firebase/verify', async (req, res) => {
+  if (!rateLimit(`firebase-auth:${req.ip}`, 12, 60_000)) return res.status(429).json({ error: 'rate_limited' });
+  const idToken = typeof req.body?.idToken === 'string' ? req.body.idToken : '';
+  const projectId = String(req.body?.projectId || '').trim();
+  const webApiKey = String(env.FIREBASE_WEB_API_KEY || '').trim();
+  const configuredProject = String(env.FIREBASE_PROJECT_ID || '').trim();
+  if (!webApiKey || !configuredProject) return res.status(503).json({ error: 'firebase_backend_not_configured' });
+  if (!idToken || projectId !== configuredProject) return res.status(400).json({ error: 'firebase_project_mismatch_or_token_missing' });
+  try {
+    const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(webApiKey)}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken }) });
+    const payload = await response.json();
+    const p = payload?.users?.[0];
+    if (!response.ok || !p?.localId) throw new Error('firebase_token_invalid');
+    const ts = nowIso(); const sub = `firebase:${configuredProject}:${p.localId}`;
+    const existing = db.prepare('SELECT * FROM users WHERE google_sub=?').get(sub);
+    const email = p.email || ''; const name = p.displayName || email || 'Namello User'; const picture = p.photoUrl || ''; const verified = p.emailVerified ? 1 : 0;
+    if (existing) db.prepare('UPDATE users SET email=?,name=?,picture=?,email_verified=?,updated_at=? WHERE id=?').run(email,name,picture,verified,ts,existing.id);
+    else db.prepare('INSERT INTO users(google_sub,email,name,picture,email_verified,created_at,updated_at) VALUES(?,?,?,?,?,?,?)').run(sub,email,name,picture,verified,ts,ts);
+    const user = db.prepare('SELECT * FROM users WHERE google_sub=?').get(sub); const session = issueSession(user.id);
+    return res.json({ token: session.token, expiresAt: session.expiresAt, user: publicUser(user) });
+  } catch (e) { return res.status(401).json({ error: 'invalid_firebase_token' }); }
 });
 app.post('/v1/auth/logout', auth, (req, res) => { db.prepare('DELETE FROM sessions WHERE token_hash=?').run(req.auth.tokenHash); res.status(204).end(); });
 const LLM_API_URL = String(env.NAMELLO_LLM_API_URL || '').trim();
