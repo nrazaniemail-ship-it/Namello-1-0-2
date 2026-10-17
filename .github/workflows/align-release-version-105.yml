@@ -7,6 +7,7 @@ on:
     paths:
       - .github/workflows/align-release-version-105.yml
       - scripts/bump-version.mjs
+      - scripts/verify-namello-version.mjs
 permissions:
   contents: write
 jobs:
