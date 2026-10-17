@@ -1,10 +1,12 @@
 name: Align Namello release version 1.0.5
+# One-time run to align all version markers across the Firebase-auth branch.
 on:
   push:
     branches:
       - feature/firebase-token-backend-auth
     paths:
-      - .github/workflows/align-release-version-105.yml\n      - scripts/bump-version.mjs
+      - .github/workflows/align-release-version-105.yml
+      - scripts/bump-version.mjs
 permissions:
   contents: write
 jobs:
