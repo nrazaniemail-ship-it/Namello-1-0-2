@@ -20,9 +20,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
       - name: Install dependencies
-        run: npm ci
+        run: npm install
       - name: Align app version markers
         run: node scripts/bump-version.mjs 1.0.5 72
       - name: Align backend package and health version
@@ -34,7 +33,7 @@ jobs:
           fs.writeFileSync('backend/package.json', JSON.stringify(p, null, 2) + '\n');
           const f = 'backend/server.mjs';
           let s = fs.readFileSync(f, 'utf8');
-          s = s.replace(/(service: 'namello-sync', version: ')[^']+(')/, '$11.0.5$2');
+          s = s.replace(/(service: 'namello-sync', version: ')[^']+(')/, (_m, a, b) => a + '1.0.5' + b);
           fs.writeFileSync(f, s);
           const publicReadme = 'public/README.md';
           if (fs.existsSync(publicReadme)) {
