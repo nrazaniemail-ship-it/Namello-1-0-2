@@ -70,6 +70,13 @@ if (pkg) {
   if (majors.size > 1) fail(`package.json: @capacitor/* packages must share one major version (found ${[...majors].join(", ")})`);
 }
 
+const publicPkg = await json("public/package.json");
+if (publicPkg && publicPkg.version !== V) fail(`public/package.json version ${publicPkg.version} != version.json ${V}`);
+const backendPkg = await json("backend/package.json");
+if (backendPkg && backendPkg.version !== V) fail(`backend/package.json version ${backendPkg.version} != version.json ${V}`);
+const backendServer = await text("backend/server.mjs");
+if (backendServer && !backendServer.includes(`service: 'namello-sync', version: '${V}'`)) fail(`backend/server.mjs health version does not match ${V}`);
+
 /* ---------------------------------------------------------------- index.html */
 const index = await text("index.html");
 if (index) {
@@ -100,6 +107,7 @@ for (const dir of ["", "public/"]) {
     if (!m) continue;
     if (m.name !== `Namello ${V}` || m.short_name !== `Namello ${V}`) fail(`${dir}${f}: name/short_name is not "Namello ${V}"`);
     if (m.version !== undefined && m.version !== V) fail(`${dir}${f}: version ${m.version} != ${V}`);
+    if (m.versionCode !== undefined && m.versionCode !== C) fail(`${dir}${f}: versionCode ${m.versionCode} != ${C}`);
     if (m.versionCode !== undefined && m.versionCode !== C) fail(`${dir}${f}: versionCode ${m.versionCode} != version.json ${C}`);
   }
   const sw = await text(dir + "sw.js");
