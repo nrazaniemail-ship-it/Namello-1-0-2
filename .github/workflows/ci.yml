@@ -25,6 +25,36 @@ jobs:
         run: npm install
       - name: Verify release consistency
         run: npm run verify
+      - name: Verify Firebase web config and authorized origin
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFile } from 'node:fs/promises';
+          const html = await readFile('index.html', 'utf8');
+          const block = html.match(/const\s+firebaseConfig\s*=\s*\{([\s\S]*?)\}/);
+          if (!block) throw new Error('firebaseConfig block not found in index.html');
+          const apiKey = block[1].match(/apiKey\s*:\s*["']([^"']+)["']/)?.[1];
+          const projectId = block[1].match(/projectId\s*:\s*["']([^"']+)["']/)?.[1];
+          if (!apiKey || !projectId) throw new Error('Firebase apiKey/projectId missing');
+          if (projectId !== 'namello-1-0-2') throw new Error('Unexpected Firebase projectId: ' + projectId);
+          console.log('Firebase projectId:', projectId);
+          console.log('API key length:', apiKey.length, '(key not printed)');
+          const response = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:createAuthUri?key=' + encodeURIComponent(apiKey), {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Referer': 'https://nrazaniemail-ship-it.github.io/'
+            },
+            body: JSON.stringify({
+              identifier: 'namello-diagnostic@example.invalid',
+              continueUri: 'https://nrazaniemail-ship-it.github.io'
+            })
+          });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            throw new Error('Firebase rejected key/origin (HTTP ' + response.status + '): ' + (data.error?.message || 'unknown error'));
+          }
+          console.log('Firebase accepted the web key and GitHub Pages origin (HTTP ' + response.status + '). Full Google sign-in is not proven by this check.');
+          NODE
       - name: Run tests
         run: npm test
       - name: Build web assets
