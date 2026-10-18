@@ -29,9 +29,9 @@ jobs:
         run: |
           node --input-type=module <<'NODE'
           import { readFile } from 'node:fs/promises';
-          const html = await readFile('index.html', 'utf8');
+          const html = await readFile('auth-preview.html', 'utf8');
           const block = html.match(/const\s+firebaseConfig\s*=\s*\{([\s\S]*?)\}/);
-          if (!block) throw new Error('firebaseConfig block not found in index.html');
+          if (!block) throw new Error('firebaseConfig block not found in auth-preview.html');
           const apiKey = block[1].match(/apiKey\s*:\s*["']([^"']+)["']/)?.[1];
           const projectId = block[1].match(/projectId\s*:\s*["']([^"']+)["']/)?.[1];
           if (!apiKey || !projectId) throw new Error('Firebase apiKey/projectId missing');
