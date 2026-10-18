@@ -39,15 +39,14 @@
 <script>
 (function(){
  const $=id=>document.getElementById(id);let signup=false;let auth=null;let namelloSessionToken=null;
- const API_BASE=String(window.NAMELLO_API_BASE||window.location.origin).replace(/\/+$/,'');
+ const API_BASE=String(window.NAMELLO_API_BASE||'https://namello-backend-test.onrender.com').replace(/\/+$/,'');
  const firebaseConfig={
-  apiKey:"AIzaSyBEIuHNqQ2to7jzun93v1u8OGVUxVieHgc",
+  apiKey:"AIzaSyC3nt4i1GVKzkVk-MxV8fs4QaPYBZT3R5k",
   authDomain:"namello-1-0-2.firebaseapp.com",
   projectId:"namello-1-0-2",
   storageBucket:"namello-1-0-2.firebasestorage.app",
-  messagingSenderId:"376512435282",
-  appId:"1:376512435282:web:93302f6faa9388fd243b8b",
-  measurementId:"G-CXC50K2LG3"
+  messagingSenderId:"852416839899",
+  appId:"1:852416839899:web:1adbd3d9b0d652bb3a8cfe"
  };
  function message(s,isError=false){$('notice').textContent=s;$('notice').classList.add('show');$('notice').classList.toggle('error',isError)}
  function clearMessage(){$('notice').classList.remove('show','error');$('notice').textContent=''}
