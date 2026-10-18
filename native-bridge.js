@@ -38,11 +38,21 @@
   var CH_QUIET = 'namello-quiet';
   var SMALL_ICON = 'ic_stat_namello';
   /* آیکون اختصاصی هر دستهٔ اعلان (drawable‌هایی که configure-android.mjs کپی می‌کند) */
-  var ART_KINDS = { session: 'sessions', sessions: 'sessions', news: 'news', evaluation: 'evaluation', psychology: 'psychology', motivation: 'motivation' };
+  var ART_KINDS = { session: 'sessions', sessions: 'sessions', event: 'sessions', events: 'sessions', news: 'news', evaluation: 'evaluation', psychology: 'psychology', motivation: 'motivation' };
   function largeIconFor(kind, tag) {
     var k = ART_KINDS[String(kind || '')];
     if (!k && tag) { var m = /^namello-(motivation|reco-evaluation|reco-psychology|evt)/.exec(String(tag)); if (m) k = m[1] === 'motivation' ? 'motivation' : (m[1].indexOf('reco-') === 0 ? m[1].slice(5) : null); }
     return k ? 'nm_notif_' + k : null;
+  }
+  // Maps the artwork URL used by the web layer (./logos/01-evaluation.png ...) to its native drawable.
+  function largeIconFromArt(url) {
+    var u = String(url || '');
+    if (u.indexOf('01-evaluation') >= 0) return 'nm_notif_evaluation';
+    if (u.indexOf('02-psychology') >= 0) return 'nm_notif_psychology';
+    if (u.indexOf('03-sessions') >= 0) return 'nm_notif_sessions';
+    if (u.indexOf('04-news') >= 0) return 'nm_notif_news';
+    if (u.indexOf('05-motivation') >= 0) return 'nm_notif_motivation';
+    return null;
   }
   // Large notification artwork; configure-android copies these assets into drawable-nodpi.
   function categoryIcon(title, body, extra) {
@@ -190,7 +200,12 @@
       channelId: options.silent ? CH_QUIET : CH_ALERT,
       smallIcon: SMALL_ICON, extra: { tag: options.tag || '' }
     };
-    var li = largeIconFor(options.data && (options.data.kind || options.data.category), options.tag);
+    // Always attach the category artwork as the only picture of the notification, so Android never
+    // falls back to showing the launcher (app) icon next to the text. Order: explicit kind -> tag ->
+    // artwork file passed as `icon` -> classification from the visible text.
+    var li = largeIconFor(options.data && (options.data.kind || options.data.category), options.tag)
+      || largeIconFromArt(options.icon)
+      || categoryIcon(title, body, { tag: options.tag, data: options.data });
     if (li) n.largeIcon = li;
     if (body.length > 40) n.largeBody = body;
     return call('LocalNotifications', 'schedule', { notifications: [n] }).catch(function (e) {
