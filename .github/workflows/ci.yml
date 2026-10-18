@@ -55,6 +55,42 @@ jobs:
           }
           console.log('Firebase accepted the web key and GitHub Pages origin (HTTP ' + response.status + '). Full Google sign-in is not proven by this check.');
           NODE
+      - name: Verify live backend health and CORS
+        run: |
+          node --input-type=module <<'NODE'
+          const base = 'https://namello-backend-test.onrender.com';
+          const origin = 'https://nrazaniemail-ship-it.github.io';
+          let health;
+          let lastError = '';
+          for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+              const r = await fetch(base + '/healthz', { headers: { 'Cache-Control': 'no-cache' } });
+              if (!r.ok) throw new Error('healthz HTTP ' + r.status);
+              health = await r.json();
+              break;
+            } catch (e) {
+              lastError = e.message;
+              if (attempt < 3) await new Promise(resolve => setTimeout(resolve, 8000));
+            }
+          }
+          if (!health) throw new Error('Live backend health check failed: ' + lastError);
+          console.log('Live backend health:', JSON.stringify(health));
+          if (health.authMode !== 'firebase') throw new Error('Live backend is not in Firebase auth mode');
+          if (health.version !== '1.0.2') throw new Error('Live backend version is not 1.0.2');
+          const preflight = await fetch(base + '/v1/auth/firebase/verify', {
+            method: 'OPTIONS',
+            headers: {
+              'Origin': origin,
+              'Access-Control-Request-Method': 'POST',
+              'Access-Control-Request-Headers': 'content-type'
+            }
+          });
+          const allowedOrigin = preflight.headers.get('access-control-allow-origin');
+          console.log('CORS preflight:', preflight.status, 'allow-origin:', allowedOrigin || '(missing)');
+          if (preflight.status !== 204 || allowedOrigin !== origin) {
+            throw new Error('Live backend CORS does not allow the GitHub Pages origin');
+          }
+          NODE
       - name: Run tests
         run: npm test
       - name: Build web assets
