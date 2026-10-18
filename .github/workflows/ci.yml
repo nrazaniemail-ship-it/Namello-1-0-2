@@ -1,0 +1,35 @@
+name: Validate Namello source
+
+on:
+  pull_request:
+    branches:
+      - feature/firebase-token-backend-auth
+  push:
+    branches:
+      - fix/namello-1-0-2-config-alignment
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install frontend dependencies
+        run: npm install
+      - name: Verify release consistency
+        run: npm run verify
+      - name: Run tests
+        run: npm test
+      - name: Build web assets
+        run: npm run build
+      - name: Install backend dependencies
+        run: npm --prefix backend install
+      - name: Check backend syntax
+        run: npm --prefix backend run check
