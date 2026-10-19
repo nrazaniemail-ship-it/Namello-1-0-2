@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Namello — Firebase Diagnostic</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:760px;margin:32px auto;padding:0 16px;background:#0b0e11;color:#e8eaed;line-height:1.8}
+main{background:#12161c;border:1px solid #2d3540;border-radius:16px;padding:20px}
+button{padding:10px 16px;border:0;border-radius:10px;background:#d4a64a;color:#111;font-weight:700}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#080a0c;padding:14px;border-radius:10px;direction:ltr;text-align:left}
+.note{color:#b7c0cc;font-size:14px}
+</style>
+</head>
+<body>
+<main>
+<h1>بررسی تشخیصی Firebase ناملو</h1>
+<p>این صفحه فقط پیکربندی فعلی سایت را می‌خواند و درخواست غیرتغییردهندهٔ <code>accounts:createAuthUri</code> می‌فرستد. حسابی ساخته نمی‌شود و رمز عبوری ارسال نمی‌شود.</p>
+<button id="run">شروع بررسی</button>
+<pre id="out">آماده</pre>
+<p class="note">این بررسی کلید را کامل نمایش نمی‌دهد. اگر نتیجه «کلید معتبر» باشد اما ورود هنوز خطا دهد، باید پاسخ درخواست واقعی ورود و محدودیت‌های کلید بررسی شود.</p>
+</main>
+<script>
+const out=document.getElementById('out');
+document.getElementById('run').addEventListener('click',async()=>{
+  const lines=[];
+  const log=(s)=>{lines.push(s);out.textContent=lines.join('\n')};
+  try{
+    log('در حال خواندن index.html منتشرشده…');
+    const page=await fetch('./index.html?diagnostic='+Date.now(),{cache:'no-store'});
+    if(!page.ok)throw new Error('خواندن index.html ناموفق بود: HTTP '+page.status);
+    const html=await page.text();
+    const match=html.match(/const\s+config\s*=\s*\{[^}]*apiKey\s*:\s*['"]([^'"]+)['"][^}]*projectId\s*:\s*['"]([^'"]+)['"]/s)
+      || html.match(/apiKey\s*:\s*['"]([^'"]+)['"][^}]*projectId\s*:\s*['"]([^'"]+)['"]/s);
+    if(!match)throw new Error('پیکربندی Firebase در index.html پیدا نشد.');
+    const key=match[1],projectId=match[2];
+    log('projectId: '+projectId);
+    log('طول apiKey: '+key.length+' نویسه');
+    log('در حال آزمودن اعتبار کلید بدون ایجاد حساب…');
+    const response=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:createAuthUri?key='+encodeURIComponent(key),{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({identifier:'namello-diagnostic@example.invalid',continueUri:location.origin})
+    });
+    const data=await response.json().catch(()=>({}));
+    if(response.ok){
+      log('نتیجه: درخواست Firebase پذیرفته شد (HTTP '+response.status+').');
+      log('این نتیجه ثابت نمی‌کند ورود واقعی کامل کار می‌کند؛ فقط نشان می‌دهد این endpoint کلید را رد نکرده است.');
+      if(data.kind)log('kind: '+data.kind);
+    }else{
+      log('نتیجه: Firebase درخواست را رد کرد (HTTP '+response.status+').');
+      log('خطا: '+(data.error&&data.error.message||'پاسخ خطا بدون پیام'));
+      if(data.error&&data.error.message==='API_KEY_INVALID')log('تشخیص: کلید نامعتبر/نامنطبق است؛ باید مقدار رسمی Web App Config جایگزین شود.');
+      if(data.error&&/API_KEY_SERVICE_BLOCKED|403/.test(data.error.message||''))log('تشخیص: محدودیت API کلید یا دسترسی سرویس را بررسی کنید.');
+    }
+  }catch(e){log('بررسی ناموفق: '+(e&&e.message||String(e)))}
+});
+</script>
+</body>
+</html>
