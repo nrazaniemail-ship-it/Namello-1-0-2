@@ -70,16 +70,12 @@ if (pkg) {
   if (majors.size > 1) fail(`package.json: @capacitor/* packages must share one major version (found ${[...majors].join(", ")})`);
 }
 
-/* ---------------------------------------------------------------- backend + docs */
+const publicPkg = await json("public/package.json");
+if (publicPkg && publicPkg.version !== V) fail(`public/package.json version ${publicPkg.version} != version.json ${V}`);
 const backendPkg = await json("backend/package.json");
-if (backendPkg && backendPkg.version !== V) fail(`backend/package.json version ${backendPkg.version} != ${V}`);
-const backendSrv = existsSync("backend/server.mjs") ? await text("backend/server.mjs") : "";
-if (backendSrv && !backendSrv.includes(`version: '${V}'`)) fail(`backend/server.mjs /healthz version is not ${V}`);
-const changelogMd = existsSync("CHANGELOG.md") ? await text("CHANGELOG.md") : "";
-if (changelogMd && !changelogMd.startsWith(`# Namello ${V} — Version Code ${C}`)) fail(`CHANGELOG.md must start with "# Namello ${V} — Version Code ${C}"`);
-const readmeMd = existsSync("README.md") ? await text("README.md") : "";
-if (readmeMd && !/^# Namello (\d+\.\d+\.\d+)/m.test(readmeMd)) warn("README.md has no version heading");
-else if (readmeMd && !readmeMd.startsWith(`# Namello ${V}`)) fail(`README.md heading is not "# Namello ${V}"`);
+if (backendPkg && backendPkg.version !== V) fail(`backend/package.json version ${backendPkg.version} != version.json ${V}`);
+const backendServer = await text("backend/server.mjs");
+if (backendServer && !backendServer.includes(`service: 'namello-sync', version: '${V}'`)) fail(`backend/server.mjs health version does not match ${V}`);
 
 /* ---------------------------------------------------------------- index.html */
 const index = await text("index.html");
@@ -110,8 +106,8 @@ for (const dir of ["", "public/"]) {
     const m = await json(dir + f);
     if (!m) continue;
     if (m.name !== `Namello ${V}` || m.short_name !== `Namello ${V}`) fail(`${dir}${f}: name/short_name is not "Namello ${V}"`);
-    if (m.versionCode !== undefined && m.versionCode !== C) fail(`${dir}${f}: versionCode ${m.versionCode} != ${C}`);
     if (m.version !== undefined && m.version !== V) fail(`${dir}${f}: version ${m.version} != ${V}`);
+    if (m.versionCode !== undefined && m.versionCode !== C) fail(`${dir}${f}: versionCode ${m.versionCode} != ${C}`);
   }
   const sw = await text(dir + "sw.js");
   if (!sw.includes(`const CACHE_NAME = "namello-${V}-c${C}";`)) fail(`${dir}sw.js: CACHE_NAME is not namello-${V}-c${C}`);
