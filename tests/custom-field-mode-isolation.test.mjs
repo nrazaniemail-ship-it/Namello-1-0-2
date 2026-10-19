@@ -2,19 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 const app = await readFile('index.html', 'utf8');
-test('journal forms: exactly two modes (Namello / custom) with named custom forms', () => {
+test('custom field profiles are applied independently to entry and result forms', () => {
+  assert.match(app, /kind === "result" \? NM_CF_RESULT_MODE_KEY : NM_CF_ENTRY_MODE_KEY/);
   assert.match(app, /function NmCustomFieldsFormSection\(\{ values, onChange, kind = "entry" \}\)/);
-  assert.match(app, /function nmCfApplyMode\(|async function nmCfApplyMode\(/);
-  assert.match(app, /nmJfCreate/);
-  assert.match(app, /nmJfRename/);
-  assert.match(app, /nmJfDelete/);
-  assert.match(app, /nmJfActivate/);
-  assert.match(app, /const journalListDefs = /);
-  assert.match(app, /RE\(NmCustomFieldsManager, \{ getLists: getJournalLists, applyLists: applyJournalLists \}\)/);
+  assert.match(app, /kind: "result"/);
+  assert.match(app, /const applyJournalForm = async/);
+  assert.match(app, /nmCfApplyMode\("entry", mode, chosen\)/);
+  assert.match(app, /nmCfApplyMode\("result", mode, chosen\)/);
+  assert.match(app, /هم‌زمان برای .*ثبت ورود.*ثبت نتیجه معامله/);
 });
-test('custom journal form starts with emptied option lists and the raw mode is gone', () => {
-  assert.match(app, /function nmJfBlank\(/);
-  assert.match(app, /function nmJfBlankFields\(/);
-  assert.equal(app.includes('if (mode === "raw"'), false);
-  assert.match(app, /namello_journal_forms_state_v1/);
+test('raw mode preserves trade values and custom profile mode references a named saved profile', () => {
+  assert.match(app, /حالت خام فیلدهای سفارشی را از فرم پنهان می‌کند و اطلاعات قبلی را پاک نمی‌کند/);
+  assert.match(app, /modeState\.mode === "custom" && modeState\.profileName/);
+  assert.match(app, /Array\.isArray\(profiles\[modeState\.profileName\]\)/);
 });

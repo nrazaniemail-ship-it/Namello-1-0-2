@@ -10,12 +10,12 @@ test('central text-notification settings expose five independent persisted categ
   assert.ok(app.includes('namello_text_notification_settings_v1'));
   assert.ok(app.includes('function nmTextNotifLoadSettings()'));
   assert.ok(app.includes('function nmTextNotifSaveSettings(next)'));
-  assert.ok(app.includes('function NmNotificationTextSettings({ embedded })'));
+  assert.ok(app.includes('function NmNotificationTextSettings()'));
   for (const category of ['sessions', 'news', 'evaluation', 'psychology', 'motivation']) {
     assert.match(app, new RegExp(`${category}: true`));
     assert.ok(app.includes(`"${category}"`), `missing category ${category}`);
   }
-  assert.ok(app.includes('RE(NmNotificationsSettings, {'));
+  assert.ok(app.includes('RE(NmNotificationTextSettings, null)'));
 });
 
 test('session and news notifications respect global category toggles and include category metadata/artwork', () => {
@@ -23,7 +23,7 @@ test('session and news notifications respect global category toggles and include
   assert.match(app, /if \(!nmTextNotifEnabled\(category\)\) return;/);
   assert.match(app, /data: \{ kind: category, category \}/);
   assert.match(app, /fireNotification\(`شروع \$\{ev\.name\}`, `\$\{ev\.kind\} «\$\{ev\.name\}» شروع شد\.`, "sessions"\)/);
-  assert.match(app, /fireNotification\(`خبر: \$\{ev\.title\}`,[\s\S]{0,250}"news"\)/);
+  assert.match(app, /fireNotification\(`\\u062E\\u0628\\u0631: \$\{ev\.title\}`,[\s\S]{0,250}"news"\)/);
   for (const file of ['01-evaluation.png','02-psychology.png','03-sessions-and-events.png','04-news.png','05-motivation.png']) {
     assert.ok(app.includes(file));
     assert.ok(sw.includes(file), `service worker does not cache ${file}`);
