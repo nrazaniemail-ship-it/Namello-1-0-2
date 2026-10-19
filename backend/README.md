@@ -1,17 +1,42 @@
 # Namello Sync Backend
 
-## Zero-configuration local mode
+## Local development
 
-The included defaults run without Google Cloud credentials:
+Use Node.js 22.5 or newer. Install dependencies and configure a strong local session secret:
 
 ```bash
-cp .env.example .env
 npm install
-npm start
+NAMELLO_SESSION_SECRET='replace-with-a-random-secret-at-least-32-characters' npm start
 ```
 
-Local auth is enabled only when `NODE_ENV=development` and `NAMELLO_AUTH_MODE=local`. The PWA defaults to `http://localhost:8787` and uses `/v1/auth/dev`. This is a development convenience, not a production authentication method.
+The default local mode is for development only and exposes `POST /v1/auth/dev`. Never enable local mode in production.
 
-## Production
+## Production with Firebase Authentication
 
-Set `NODE_ENV=production`, `NAMELLO_AUTH_MODE=google`, a real `GOOGLE_CLIENT_ID`, a strong `NAMELLO_SESSION_SECRET`, exact HTTPS `CORS_ORIGINS`, and a real API domain. Never expose local auth in production.
+Set these environment variables in the backend hosting service (do not commit secrets):
+
+- `NODE_ENV=production`
+- `NAMELLO_AUTH_MODE=firebase`
+- `FIREBASE_PROJECT_ID=namello-app-4`
+- `NAMELLO_SESSION_SECRET` — a cryptographically random secret of at least 32 characters
+- `CORS_ORIGINS` — exact HTTPS origin(s) of the deployed Namello app, comma-separated
+- `PORT` if required by the hosting platform
+
+The backend uses Firebase Admin SDK Application Default Credentials. Prefer a hosting platform service identity with only the permissions it needs. If hosting outside Google Cloud, configure Application Default Credentials securely using your host's secret manager; never commit a service-account JSON file or paste its private key into chat.
+
+### Authentication exchange
+
+After a user signs in through Firebase Web Auth, the client sends the Firebase ID token to `POST /v1/auth/firebase/verify` as JSON: `{ "idToken": "..." }`. The server validates the token with Firebase Admin SDK, checks the project and token validity/revocation, permits only Google or email/password providers, and requires a verified email before issuing a Namello sync session. The response contains the Namello session `token`; use that token as `Authorization: Bearer <token>` for the existing `/v1` endpoints.
+
+For the standalone `auth-preview.html`, the API base defaults to the same origin. If the backend is on another origin, set `window.NAMELLO_API_BASE` to its HTTPS base URL before the preview's Firebase script runs, and ensure that exact preview origin is included in `CORS_ORIGINS`.
+
+The client must never treat a Firebase login alone as a Namello backend session. Exchange the ID token server-side and handle `email_verification_required` by asking the user to verify their email and sign in again.
+
+## Other modes
+
+- `NAMELLO_AUTH_MODE=google` preserves the existing direct Google ID-token verification flow and requires `GOOGLE_CLIENT_ID`.
+- `NAMELLO_AUTH_MODE=local` is only for development.
+
+## Security and sync
+
+The backend stores account metadata and encrypted sync envelopes; it does not decrypt trade data. Use HTTPS, restrict CORS to exact app origins, and keep all server credentials out of the repository.

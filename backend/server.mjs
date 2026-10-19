@@ -5,6 +5,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
 import { OAuth2Client } from 'google-auth-library';
+import { applicationDefault, cert, getApps, initializeApp } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const env = process.env;
@@ -17,10 +19,15 @@ const SESSION_SECRET = String(env.NAMELLO_SESSION_SECRET || '').trim();
 const SESSION_TTL = Math.max(900, Number(env.SESSION_TTL_SECONDS || 43200));
 const MAX_BODY = Math.max(1024 * 64, Number(env.MAX_BODY_BYTES || 2097152));
 const CORS_ORIGINS = String(env.CORS_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
+const FIREBASE_PROJECT_ID = String(env.FIREBASE_PROJECT_ID || '').trim();
+const FIREBASE_SERVICE_ACCOUNT_JSON = String(env.FIREBASE_SERVICE_ACCOUNT_JSON || env.FIREBASE_SERVICE_ACCOUNT || '').trim();
+const FIREBASE_SERVICE_ACCOUNT_FILE = String(env.FIREBASE_SERVICE_ACCOUNT_FILE || '/etc/secrets/firebase-service-account.json').trim();
 const DB_PATH = path.resolve(__dirname, env.DB_PATH || './data/namello.sqlite');
 
+if (!['local', 'google', 'firebase'].includes(AUTH_MODE)) throw new Error('NAMELLO_AUTH_MODE must be local, google, or firebase');
 if (AUTH_MODE === 'google' && !GOOGLE_CLIENT_ID) throw new Error('GOOGLE_CLIENT_ID is required when NAMELLO_AUTH_MODE=google');
-if (AUTH_MODE !== 'google' && NODE_ENV === 'production') throw new Error('Production requires NAMELLO_AUTH_MODE=google');
+if (AUTH_MODE === 'firebase' && !FIREBASE_PROJECT_ID) throw new Error('FIREBASE_PROJECT_ID is required when NAMELLO_AUTH_MODE=firebase');
+if (AUTH_MODE === 'local' && NODE_ENV === 'production') throw new Error('Production cannot use NAMELLO_AUTH_MODE=local');
 if (SESSION_SECRET.length < 32) throw new Error('NAMELLO_SESSION_SECRET must be at least 32 characters');
 fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
 
@@ -60,6 +67,47 @@ CREATE INDEX IF NOT EXISTS idx_sync_user_rev ON sync_revisions(user_id, revision
 `);
 
 const googleClient = new OAuth2Client();
+if (AUTH_MODE === 'firebase' && getApps().length === 0) {
+  let serviceAccount = null;
+  let credentialSource = '';
+  if (FIREBASE_SERVICE_ACCOUNT_JSON) {
+    try {
+      serviceAccount = JSON.parse(FIREBASE_SERVICE_ACCOUNT_JSON);
+    } catch {
+      throw new Error('FIREBASE_SERVICE_ACCOUNT_JSON must contain valid JSON');
+    }
+    credentialSource = 'service-account-env';
+  } else if (FIREBASE_SERVICE_ACCOUNT_FILE && fs.existsSync(FIREBASE_SERVICE_ACCOUNT_FILE)) {
+    try {
+      serviceAccount = JSON.parse(fs.readFileSync(FIREBASE_SERVICE_ACCOUNT_FILE, 'utf8'));
+    } catch {
+      throw new Error('FIREBASE_SERVICE_ACCOUNT_FILE must point to a valid service-account JSON file');
+    }
+    credentialSource = 'service-account-file';
+  }
+  if (serviceAccount) {
+    if (!serviceAccount?.project_id || !serviceAccount?.client_email || !serviceAccount?.private_key) {
+      throw new Error('Firebase service-account credentials are missing required fields');
+    }
+    if (FIREBASE_PROJECT_ID && serviceAccount.project_id !== FIREBASE_PROJECT_ID) {
+      throw new Error('Firebase service-account project_id does not match FIREBASE_PROJECT_ID');
+    }
+    initializeApp({ credential: cert(serviceAccount), projectId: FIREBASE_PROJECT_ID || serviceAccount.project_id });
+  } else {
+    initializeApp({ credential: applicationDefault(), projectId: FIREBASE_PROJECT_ID });
+    credentialSource = 'application-default-credentials';
+  }
+  // Keep the source for safe startup diagnostics without logging any secret values.
+  env.__NAMELLO_FIREBASE_CREDENTIAL_SOURCE = credentialSource;
+}
+const firebaseAuth = AUTH_MODE === 'firebase' ? getAuth() : null;
+if (AUTH_MODE === 'firebase') {
+  // Safe operational diagnostics only: never log credentials or ID tokens.
+  console.info('[firebase-auth] configuration', {
+    projectId: FIREBASE_PROJECT_ID || null,
+    credentialSource: env.__NAMELLO_FIREBASE_CREDENTIAL_SOURCE || (FIREBASE_SERVICE_ACCOUNT_JSON ? 'service-account-env' : 'application-default-credentials')
+  });
+}
 const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
@@ -190,26 +238,48 @@ app.post('/v1/auth/google/verify', async (req, res) => {
   }
 });
 app.post('/v1/auth/firebase/verify', async (req, res) => {
-  if (!rateLimit(`firebase-auth:${req.ip}`, 12, 60_000)) return res.status(429).json({ error: 'rate_limited' });
+  if (AUTH_MODE !== 'firebase') return res.status(404).json({ error: 'firebase_auth_disabled' });
+  if (!rateLimit(`auth:firebase:${req.ip}`, 12, 60_000)) return res.status(429).json({ error: 'rate_limited' });
   const idToken = typeof req.body?.idToken === 'string' ? req.body.idToken : '';
-  const projectId = String(req.body?.projectId || '').trim();
-  const webApiKey = String(env.FIREBASE_WEB_API_KEY || '').trim();
-  const configuredProject = String(env.FIREBASE_PROJECT_ID || '').trim();
-  if (!webApiKey || !configuredProject) return res.status(503).json({ error: 'firebase_backend_not_configured' });
-  if (!idToken || projectId !== configuredProject) return res.status(400).json({ error: 'firebase_project_mismatch_or_token_missing' });
+  if (!idToken) return res.status(400).json({ error: 'id_token_required' });
   try {
-    const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(webApiKey)}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken }) });
-    const payload = await response.json();
-    const p = payload?.users?.[0];
-    if (!response.ok || !p?.localId) throw new Error('firebase_token_invalid');
-    const ts = nowIso(); const sub = `firebase:${configuredProject}:${p.localId}`;
-    const existing = db.prepare('SELECT * FROM users WHERE google_sub=?').get(sub);
-    const email = p.email || ''; const name = p.displayName || email || 'Namello User'; const picture = p.photoUrl || ''; const verified = p.emailVerified ? 1 : 0;
-    if (existing) db.prepare('UPDATE users SET email=?,name=?,picture=?,email_verified=?,updated_at=? WHERE id=?').run(email,name,picture,verified,ts,existing.id);
-    else db.prepare('INSERT INTO users(google_sub,email,name,picture,email_verified,created_at,updated_at) VALUES(?,?,?,?,?,?,?)').run(sub,email,name,picture,verified,ts,ts);
-    const user = db.prepare('SELECT * FROM users WHERE google_sub=?').get(sub); const session = issueSession(user.id);
-    return res.json({ token: session.token, expiresAt: session.expiresAt, user: publicUser(user) });
-  } catch (e) { return res.status(401).json({ error: 'invalid_firebase_token' }); }
+    // Admin SDK verifies signature, issuer, audience/project ID, expiry, and revocation.
+    const p = await firebaseAuth.verifyIdToken(idToken, true);
+    if (!p?.uid || !p?.firebase?.sign_in_provider) throw new Error('invalid_firebase_claims');
+    const provider = p.firebase.sign_in_provider;
+    if (!['password', 'google.com'].includes(provider)) return res.status(403).json({ error: 'provider_not_allowed' });
+    // Do not issue a cloud-sync session to an unverified email/password account.
+    if (provider === 'password' && p.email_verified !== true) return res.status(403).json({ error: 'email_verification_required' });
+    if (p.email && p.email_verified !== true) return res.status(403).json({ error: 'email_not_verified' });
+    const stableSub = `firebase:${p.uid}`;
+    const ts = nowIso();
+    const profile = {
+      email: typeof p.email === 'string' ? p.email : '',
+      name: typeof p.name === 'string' ? p.name : '',
+      picture: typeof p.picture === 'string' ? p.picture : '',
+      verified: p.email_verified === true
+    };
+    const existing = db.prepare('SELECT * FROM users WHERE google_sub=?').get(stableSub);
+    if (existing) {
+      db.prepare('UPDATE users SET email=?,name=?,picture=?,email_verified=?,updated_at=? WHERE id=?')
+        .run(profile.email, profile.name, profile.picture, profile.verified ? 1 : 0, ts, existing.id);
+    } else {
+      db.prepare('INSERT INTO users(google_sub,email,name,picture,email_verified,created_at,updated_at) VALUES(?,?,?,?,?,?,?)')
+        .run(stableSub, profile.email, profile.name, profile.picture, profile.verified ? 1 : 0, ts, ts);
+    }
+    const user = db.prepare('SELECT * FROM users WHERE google_sub=?').get(stableSub);
+    const session = issueSession(user.id);
+    return res.json({ token: session.token, expiresAt: session.expiresAt, user: publicUser(user), mode: 'firebase', provider });
+  } catch (e) {
+    const code = String(e?.code || 'unknown');
+    // Log only the SDK error code/name; never log the Firebase ID token or request body.
+    console.error('[firebase-auth] token verification failed', {
+      code,
+      name: String(e?.name || 'Error')
+    });
+    if (code === 'auth/id-token-revoked') return res.status(401).json({ error: 'firebase_token_revoked', diagnostic: code });
+    return res.status(401).json({ error: 'invalid_firebase_token', diagnostic: code });
+  }
 });
 app.post('/v1/auth/logout', auth, (req, res) => { db.prepare('DELETE FROM sessions WHERE token_hash=?').run(req.auth.tokenHash); res.status(204).end(); });
 const LLM_API_URL = String(env.NAMELLO_LLM_API_URL || '').trim();
